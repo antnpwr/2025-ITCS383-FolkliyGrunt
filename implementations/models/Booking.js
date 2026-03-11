@@ -24,9 +24,9 @@ class Booking {
             }
 
             const result = await client.query(
-                `INSERT INTO bookings (user_id, court_id, start_time, end_time, total_amount, payment_method)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-                [user_id, court_id, start_time, end_time, total_amount, payment_method]
+                `INSERT INTO bookings (user_id, court_id, start_time, end_time, total_amount, payment_method, transaction_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+                [user_id, court_id, start_time, end_time, total_amount, payment_method, null]
             );
 
             await client.query('COMMIT');
@@ -72,6 +72,14 @@ class Booking {
             [courtId, startTime, endTime]
         );
         return result.rows.length === 0; // true = available
+    }
+    // Update transaction ID
+    static async updateTransactionId(bookingId, transactionId) {
+        const result = await pool.query(
+            `UPDATE bookings SET transaction_id = $1 WHERE id = $2 RETURNING *`,
+            [transactionId, bookingId]
+        );
+        return result.rows[0];
     }
 }
 

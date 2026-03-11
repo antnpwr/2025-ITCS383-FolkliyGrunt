@@ -188,11 +188,11 @@
 </div>
 </div>
 <div class="flex items-center gap-4">
-<button class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500">
+<button onclick="updateEquipmentCount('RACKET', -1)" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
 <span class="material-symbols-outlined text-base">remove</span>
 </button>
-<span class="text-base font-bold w-4 text-center">2</span>
-<button class="size-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span id="count-RACKET" class="text-base font-bold w-4 text-center">0</span>
+<button onclick="updateEquipmentCount('RACKET', 1)" class="size-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-transform active:scale-95">
 <span class="material-symbols-outlined text-base">add</span>
 </button>
 </div>
@@ -208,11 +208,11 @@
 </div>
 </div>
 <div class="flex items-center gap-4">
-<button class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500">
+<button onclick="updateEquipmentCount('SHUTTLECOCK', -1)" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
 <span class="material-symbols-outlined text-base">remove</span>
 </button>
-<span class="text-base font-bold w-4 text-center">0</span>
-<button class="size-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span id="count-SHUTTLECOCK" class="text-base font-bold w-4 text-center">0</span>
+<button onclick="updateEquipmentCount('SHUTTLECOCK', 1)" class="size-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-transform active:scale-95">
 <span class="material-symbols-outlined text-base">add</span>
 </button>
 </div>
@@ -238,7 +238,7 @@
 <div class="flex flex-col">
 <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Total Amount</p>
 <div class="flex items-baseline gap-1">
-<span id="court-price" class="text-2xl font-bold">$0.00</span>
+<span id="court-price" class="text-2xl font-bold">฿0.00</span>
 <span class="text-xs text-slate-400">/ hr</span>
 </div>
 </div>
@@ -410,6 +410,43 @@
     let selectedTimeSlot = null;
     let selectedDurationHours = 1;
     let currentPaymentMethod = 'CREDIT_CARD';
+    let selectedEquipment = {
+        'RACKET': 0,
+        'SHUTTLECOCK': 0,
+        'BALL': 0,
+        'BAG': 0
+    };
+
+    const EQUIPMENT_PRICES = {
+        'RACKET': 5.0,
+        'SHUTTLECOCK': 12.0,
+        'BALL': 3.0,
+        'BAG': 2.0
+    };
+
+    function updateEquipmentCount(type, delta) {
+        if (!selectedEquipment.hasOwnProperty(type)) return;
+        const newCount = Math.max(0, selectedEquipment[type] + delta);
+        selectedEquipment[type] = newCount;
+        
+        const countEl = document.getElementById(`count-${type}`);
+        if (countEl) countEl.textContent = newCount;
+        
+        updateTotalAmountUI();
+    }
+
+    const updateTotalAmountUI = () => {
+        if (!currentCourtData) return;
+        const basePrice = Number.parseFloat(currentCourtData.price_per_hour || 0);
+        let total = basePrice * selectedDurationHours;
+        
+        for (const [type, count] of Object.entries(selectedEquipment)) {
+            total += (EQUIPMENT_PRICES[type] || 0) * count;
+        }
+        
+        const totalEl = document.getElementById('court-price');
+        if (totalEl) totalEl.textContent = `฿${total.toFixed(2)}`;
+    };
 
     const getPayHeaders = () => {
         const token = localStorage.getItem('supabase_token');
@@ -420,7 +457,7 @@
     };
 
     // --- Date Picker ---
-    const initDatePicker = () => {
+    function initDatePicker() {
         const dateContainer = document.querySelector('.flex.gap-3.overflow-x-auto');
         if (!dateContainer) return;
 
@@ -433,10 +470,10 @@
             const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const dayName = dayNames[d.getDay()];
             const dayNum = d.getDate();
-            const isSelected = i === 0;
             const dateStr = d.toISOString().split('T')[0];
 
-            if (i === 0) selectedDate = dateStr;
+            if (i === 0 && !selectedDate) selectedDate = dateStr;
+            const isSelected = selectedDate === dateStr;
 
             const el = document.createElement('div');
             el.className = `flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary/50'}`;
@@ -448,26 +485,28 @@
             el.onclick = () => selectDate(dateStr, el);
             dateContainer.appendChild(el);
         }
-    };
+    }
 
-    const selectDate = (dateStr, el) => {
+    function selectDate(dateStr, el) {
         selectedDate = dateStr;
         document.querySelectorAll('.flex.gap-3.overflow-x-auto > div').forEach(d => {
             d.className = 'flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl cursor-pointer transition-all bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary/50';
-            d.querySelector('span:first-child').className = 'text-xs text-slate-500';
+            const span = d.querySelector('span:first-child');
+            if (span) span.className = 'text-xs text-slate-500';
         });
         el.className = 'flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl cursor-pointer transition-all bg-primary text-white shadow-lg shadow-primary/30';
-        el.querySelector('span:first-child').className = 'text-xs opacity-80';
+        const activeSpan = el.querySelector('span:first-child');
+        if (activeSpan) activeSpan.className = 'text-xs opacity-80';
         loadTimeSlots();
-    };
+    }
 
     // --- Time Slots ---
-    const loadTimeSlots = () => {
+    function loadTimeSlots() {
         const grid = document.querySelector('.mt-6.grid.grid-cols-3');
         if (!grid || !currentCourtData) return;
 
-        const openH = parseInt(currentCourtData.opening_time?.split(':')[0] || '7');
-        const closeH = parseInt(currentCourtData.closing_time?.split(':')[0] || '23');
+        const openH = Number.parseInt(currentCourtData.opening_time?.split(':')[0] || '7');
+        const closeH = Number.parseInt(currentCourtData.closing_time?.split(':')[0] || '23');
 
         grid.innerHTML = '';
         for (let h = openH; h < closeH; h++) {
@@ -478,8 +517,8 @@
             const el = document.createElement('div');
             el.className = `flex flex-col items-center justify-center py-3 px-2 rounded-xl cursor-pointer transition-all ${isSelected ? 'border-2 border-primary bg-primary/5' : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary/50'}`;
             el.innerHTML = `
-                <span class="text-sm font-bold">${timeLabel}</span>
-                <span class="text-[10px] ${isSelected ? 'text-primary' : 'text-primary'} mt-1 font-medium">Available</span>
+                <span class="text-sm font-bold ${isSelected ? 'text-primary' : ''}">${timeLabel}</span>
+                <span class="text-[10px] ${isSelected ? 'text-primary font-bold' : 'text-slate-400'} mt-1 font-medium">Available</span>
             `;
             el.onclick = () => selectTimeSlot(slotTime, el);
             grid.appendChild(el);
@@ -489,16 +528,28 @@
             const firstSlot = `${String(openH).padStart(2, '0')}:00`;
             selectTimeSlot(firstSlot, grid.children[0]);
         }
-    };
+    }
 
-    const selectTimeSlot = (timeStr, el) => {
+    function selectTimeSlot(timeStr, el) {
         selectedTimeSlot = timeStr;
         const grid = document.querySelector('.mt-6.grid.grid-cols-3');
+        if (!grid) return;
+        
         grid.querySelectorAll(':scope > div').forEach(d => {
             d.className = 'flex flex-col items-center justify-center py-3 px-2 rounded-xl cursor-pointer transition-all border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary/50';
+            const span = d.querySelector('span:last-child');
+            if (span) {
+                span.className = 'text-[10px] text-slate-400 mt-1 font-medium';
+                span.textContent = 'Available';
+            }
         });
         el.className = 'flex flex-col items-center justify-center py-3 px-2 rounded-xl cursor-pointer transition-all border-2 border-primary bg-primary/5';
-    };
+        const activeSpan = el.querySelector('span:last-child');
+        if (activeSpan) {
+            activeSpan.className = 'text-[10px] text-primary font-bold mt-1 font-medium';
+            activeSpan.textContent = 'Selected';
+        }
+    }
 
     // --- Store court data when loaded by app.js ---
     const origFetch = globalThis.fetch;
@@ -537,16 +588,24 @@
 
     const openPaymentModal = () => {
         const courtName = document.getElementById('court-name')?.textContent || '-';
-        const priceText = document.getElementById('court-price')?.textContent || '$0.00';
-        const price = parseFloat(priceText.replace('$', ''));
-        const total = price * selectedDurationHours;
+        const priceText = document.getElementById('court-price')?.textContent || '฿0.00';
+        const price = Number.parseFloat(priceText.replace('฿', ''));
+        const total = price; // This already includes equipment from updateTotalAmountUI
 
         document.getElementById('pay-court-name').textContent = courtName;
         document.getElementById('pay-date').textContent = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
         document.getElementById('pay-time').textContent = selectedTimeSlot;
         document.getElementById('pay-duration').textContent = `${selectedDurationHours} hour${selectedDurationHours > 1 ? 's' : ''}`;
-        document.getElementById('pay-total').textContent = `$${total.toFixed(2)}`;
-        document.getElementById('confirm-pay-text').textContent = `Pay $${total.toFixed(2)}`;
+        
+        // Calculate total including equipment
+        const basePrice = Number.parseFloat(currentCourtData.price_per_hour || 0);
+        let totalWithEquipment = basePrice * selectedDurationHours;
+        for (const [type, count] of Object.entries(selectedEquipment)) {
+            totalWithEquipment += (EQUIPMENT_PRICES[type] || 0) * count;
+        }
+
+        document.getElementById('pay-total').textContent = `฿${totalWithEquipment.toFixed(2)}`;
+        document.getElementById('confirm-pay-text').textContent = `Pay ฿${totalWithEquipment.toFixed(2)}`;
 
         const modal = document.getElementById('payment-modal');
         modal.classList.remove('hidden');
@@ -574,9 +633,9 @@
             btTab.className = 'flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-500 font-bold text-sm transition-all hover:border-slate-300';
             ccPanel.classList.remove('hidden');
             btPanel.classList.add('hidden');
-            const priceText = document.getElementById('court-price')?.textContent || '$0.00';
-            const total = parseFloat(priceText.replace('$', '')) * selectedDurationHours;
-            btnText.textContent = `Pay $${total.toFixed(2)}`;
+            const priceText = document.getElementById('court-price')?.textContent || '฿0.00';
+            const total = Number.parseFloat(priceText.replace('฿', ''));
+            btnText.textContent = `Pay ฿${total.toFixed(2)}`;
         } else {
             currentPaymentMethod = 'BANK_TRANSFER';
             btTab.className = 'flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-primary bg-primary/5 text-primary font-bold text-sm transition-all';
@@ -601,8 +660,10 @@
             start_time: startTimeISO,
             duration_hours: selectedDurationHours,
             payment_method: currentPaymentMethod,
-            credit_card_token: currentPaymentMethod === 'CREDIT_CARD' ? 'tok_visa' : undefined, // Stripe test token
-            equipment: []
+            credit_card_token: currentPaymentMethod === 'CREDIT_CARD' ? 'tok_visa' : undefined,
+            equipment: Object.entries(selectedEquipment)
+                .filter(([_, count]) => count > 0)
+                .map(([type, count]) => ({ equipment_type: type, quantity: count }))
         };
 
         try {
@@ -634,9 +695,9 @@
             msgEl.classList.remove('hidden');
             msgEl.className = 'mt-4 rounded-lg p-3 text-sm font-medium bg-red-500/10 text-red-500 border border-red-500/20';
             msgEl.innerHTML = `<span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">error</span>${err.message}</span>`;
-            const priceText = document.getElementById('court-price')?.textContent || '$0.00';
-            const total = parseFloat(priceText.replace('$', '')) * selectedDurationHours;
-            document.getElementById('confirm-pay-text').textContent = currentPaymentMethod === 'CREDIT_CARD' ? `Pay $${total.toFixed(2)}` : 'Confirm Transfer';
+            const priceText = document.getElementById('court-price')?.textContent || '฿0.00';
+            const total = Number.parseFloat(priceText.replace('฿', ''));
+            document.getElementById('confirm-pay-text').textContent = currentPaymentMethod === 'CREDIT_CARD' ? `Pay ฿${total.toFixed(2)}` : 'Confirm Transfer';
         } finally {
             btn.disabled = false;
         }

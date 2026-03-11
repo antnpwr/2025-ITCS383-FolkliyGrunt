@@ -352,10 +352,10 @@
                                         <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
                                             <span class="material-symbols-outlined text-xs">${payInfo.icon}</span> ${payInfo.label}
                                         </span>
-                                        <span class="text-xs font-bold text-primary">$${Number(b.total_amount).toFixed(2)}</span>
+                                        <span class="text-xs font-bold text-primary">฿${Number(b.total_amount).toFixed(2)}</span>
                                     </div>
                                 </div>
-                                <button onclick="openCancelModal('${b.id}', '${(b.court_name || 'Court').replace(/'/g, "\\'")}', '${startDate} ${startTime}', '$${Number(b.total_amount).toFixed(2)}')" class="bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                                <button onclick="openCancelModal('${b.id}', '${(b.court_name || 'Court').replace(/'/g, "\\'")}', '${startDate} ${startTime}', '฿${Number(b.total_amount).toFixed(2)}')" class="bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-lg text-sm font-bold transition-all">
                                     Cancel
                                 </button>
                             </div>
@@ -380,7 +380,7 @@
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                         <td class="px-6 py-4">${date}</td>
                         <td class="px-6 py-4">${b.court_name || 'Court'}</td>
-                        <td class="px-6 py-4 font-medium">${isCancelled ? '<s class="text-slate-400">$' + Number(b.total_amount).toFixed(2) + '</s> <span class="text-green-500 text-xs font-bold">Refunded</span>' : '$' + Number(b.total_amount).toFixed(2)}</td>
+                        <td class="px-6 py-4 font-medium">${isCancelled ? '<s class="text-slate-400">฿' + Number(b.total_amount).toFixed(2) + '</s> <span class="text-green-500 text-xs font-bold">Refunded</span>' : '฿' + Number(b.total_amount).toFixed(2)}</td>
                         <td class="px-6 py-4"><span class="inline-flex items-center gap-1 text-xs"><span class="material-symbols-outlined text-xs">${payInfo.icon}</span>${payInfo.label}</span></td>
                         <td class="px-6 py-4">${statusBadge}</td>
                         <td class="px-6 py-4 text-right">
@@ -442,6 +442,49 @@
         } finally {
             btn.disabled = false;
             btn.innerHTML = '<span class="material-symbols-outlined text-sm">delete</span> Cancel & Refund';
+        }
+    };
+
+    // Review Modal
+    window.openReviewModal = (courtId) => {
+        document.getElementById('review-court-id').value = courtId;
+        const modal = document.getElementById('review-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    window.closeReviewModal = () => {
+        const modal = document.getElementById('review-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    };
+
+    window.submitReview = async (event) => {
+        event.preventDefault();
+        const courtId = document.getElementById('review-court-id').value;
+        const rating = document.getElementById('review-rating').value;
+        const comment = document.getElementById('review-comment').value;
+        const token = localStorage.getItem('supabase_token');
+
+        try {
+            const res = await fetch('/api/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ court_id: courtId, rating: parseInt(rating), comment_text: comment })
+            });
+
+            if (res.ok) {
+                alert('Review submitted successfully!');
+                closeReviewModal();
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to submit review');
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
         }
     };
 

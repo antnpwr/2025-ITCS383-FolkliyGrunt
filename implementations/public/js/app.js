@@ -225,7 +225,7 @@ const fetchAndRenderCourts = async (searchQuery = '') => {
 <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
 <div class="flex flex-col">
 <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Price</span>
-<span class="text-lg font-bold text-slate-900 dark:text-slate-100">$${ court.price_per_hour }<span class="text-xs font-normal text-slate-500">/hr</span></span>
+<span class="text-lg font-bold text-slate-900 dark:text-slate-100">฿${ court.price_per_hour }<span class="text-xs font-normal text-slate-500">/hr</span></span>
 </div>
 <button onclick="globalThis.location.href='/pages/court.html?id=${court.id}'" class="px-5 py-2.5 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg transition-colors">
     View Details
@@ -264,7 +264,7 @@ const initGlobalMap = (courts) => {
                     <h3 class="font-bold border-b pb-1 mb-1 text-slate-900">${court.name}</h3>
                     <p class="text-xs text-slate-600 mb-2">${court.address || ''}</p>
                     <div class="flex justify-between items-center pt-1 border-t border-slate-100">
-                        <span class="text-xs font-bold text-primary">$${Number(court.price_per_hour).toFixed(2)}/hr</span>
+                        <span class="text-xs font-bold text-primary">฿${Number(court.price_per_hour).toFixed(2)}/hr</span>
                         <a href="/pages/court.html?id=${court.id}" class="text-xs text-white bg-primary px-2 py-1 rounded hover:opacity-90 transition-opacity">Details</a>
                     </div>
                 </div>
@@ -295,7 +295,7 @@ const fetchAndRenderCourtDetail = async () => {
         document.getElementById('court-reviews').textContent = '120 reviews';
         document.getElementById('court-image').src = court.image_url || 'https://via.placeholder.com/800x400?text=No+Image';
         document.getElementById('court-image').alt = court.name;
-        document.getElementById('court-price').textContent = `$${Number(court.price_per_hour || 0).toFixed(2)}`;
+        document.getElementById('court-price').textContent = `฿${Number(court.price_per_hour || 0).toFixed(2)}`;
         document.getElementById('court-hours').textContent = `Open: ${court.opening_time} · Closes: ${court.closing_time}`;
 
         // Initialize Map

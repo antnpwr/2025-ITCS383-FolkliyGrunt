@@ -19,7 +19,7 @@ const bookingController = {
             const Court = require('../models/Court');
             const court = await Court.findById(court_id);
             if (!court) throw new Error('Court not found');
-            const courtPrice = parseFloat(court.price_per_hour);
+            const courtPrice = Number.parseFloat(court.price_per_hour);
 
             let total_amount = courtPrice * duration_hours;
 
@@ -45,7 +45,15 @@ const bookingController = {
             }
 
             // Process payment via Person 4's payment service
-            await paymentService.processPayment({ booking_id: booking.id, amount: total_amount, method: payment_method, credit_card_token });
+            const paymentResult = await paymentService.processPayment({ 
+                booking_id: booking.id, 
+                amount: total_amount, 
+                method: payment_method,
+                credit_card_token: credit_card_token || 'tok_visa' // Use token from client or fallback
+            });
+
+            // Update booking with transaction ID
+            await Booking.updateTransactionId(booking.id, paymentResult.transaction_id);
 
             // Send booking confirmation notification
             const startTimeFormatted = new Date(booking.start_time).toLocaleString();
@@ -58,12 +66,13 @@ const bookingController = {
                 <h2>Booking Confirmed!</h2>
                 <p>Your reservation for <strong>${court.name}</strong> is confirmed.</p>
                 <p><strong>Time:</strong> ${startTimeFormatted} - ${endTimeFormatted}</p>
-                <p><strong>Total Amount:</strong> $${total_amount.toFixed(2)}</p>
+                <p><strong>Total Amount:</strong> ฿${total_amount.toFixed(2)}</p>
+                <p><strong>Transaction ID:</strong> ${paymentResult.transaction_id}</p>
                 <p>Thank you for choosing Pro Badminton!</p>
                 `
             );
 
-            res.status(201).json(booking);
+            res.status(201).json({ ...booking, transaction_id: paymentResult.transaction_id });
         } catch (error) {
             if (error.message === 'Time slot is already booked') {
                 return res.status(409).json({ error: error.message });
@@ -79,8 +88,10 @@ const bookingController = {
                 return res.status(400).json({ error: 'Cannot cancel - booking not found or play time already started' });
             }
 
-            // Process refund via Person 4's payment service
-            await paymentService.processRefund(booking.id);
+            // Process refund via Person 4's payment service using the stored transaction ID
+            if (booking.transaction_id) {
+                await paymentService.processRefund(booking.transaction_id);
+            }
 
             // Check waitlist and notify via Person 4's notification service
             await notificationService.notifyWaitlist(booking.court_id, booking.start_time, booking.end_time);
