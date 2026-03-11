@@ -1,0 +1,65 @@
+{
+  "app_name": "羽毛球场管理系统",
+  "nav": {
+    "home": "首页",
+    "search": "搜索球场",
+    "my_bookings": "我的预订",
+    "my_waitlist": "我的等候列表",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出",
+    "profile": "个人资料"
+  },
+  "search": {
+    "title": "搜索球场",
+    "by_name": "按名称搜索",
+    "by_distance": "按距离搜索",
+    "by_price": "每小时最高价格",
+    "radius": "半径（公里）",
+    "results": "搜索结果",
+    "no_results": "未找到球场"
+  },
+  "booking": {
+    "title": "预订球场",
+    "select_time": "选择时间段",
+    "duration": "时长（小时）",
+    "equipment": "租赁设备",
+    "racket": "羽毛球拍",
+    "shuttlecock": "羽毛球",
+    "total": "总金额",
+    "pay_now": "立即支付",
+    "cancel": "取消预订",
+    "cancel_confirm": "确定取消吗？您将获得全额退款。",
+    "cancelled": "预订已取消，退款已处理"
+  },
+  "review": {
+    "title": "评价",
+    "write_review": "撰写评价",
+    "rating": "评分",
+    "comment": "您的评价",
+    "submit": "提交评价",
+    "avg_rating": "平均评分",
+    "stars": "星"
+  },
+  "auth": {
+    "login_title": "登录",
+    "register_title": "创建账户",
+    "email": "电子邮箱",
+    "password": "密码",
+    "name": "姓名",
+    "address": "地址",
+    "login_button": "登录",
+    "register_button": "创建账户"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出了点问题",
+    "success": "成功",
+    "save": "保存",
+    "back": "返回",
+    "per_hour": "每小时",
+    "available": "可用",
+    "renovating": "装修中",
+    "damaged": "设备损坏"
+  }
+}
