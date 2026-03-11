@@ -106,7 +106,7 @@ Every team member MUST log their AI usage in their respective section below.
 
 ### Entry 4 — Booking Model with Double-Booking Prevention
 - **Date:** 2026-03-11
-- **Person:** Person 3 
+- **Person:** Boonaum Siangchokyoo/Person 3 
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Creating the `models/Booking.js` data access layer with concurrency-safe court booking.
 
@@ -124,7 +124,7 @@ Every team member MUST log their AI usage in their respective section below.
 
 ### Entry 5 — Equipment Rental Model
 - **Date:** 2026-03-11
-- **Person:** Person 3
+- **Person:** Boonaum Siangchokyoo/Person 3 
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Creating the `models/EquipmentRental.js` model for managing equipment linked to bookings.
 
@@ -142,7 +142,7 @@ Every team member MUST log their AI usage in their respective section below.
 
 ### Entry 6 — Booking Routes and Controller
 - **Date:** 2026-03-11
-- **Person:** Person 3 
+- **Person:** Boonaum Siangchokyoo/Person 3 
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Creating `routes/bookings.js` and `controllers/bookingController.js` for the booking REST API endpoints.
 
@@ -160,7 +160,7 @@ Every team member MUST log their AI usage in their respective section below.
 
 ### Entry 7 — Booking Unit Tests
 - **Date:** 2026-03-11
-- **Person:** Person 3
+- **Person:** Boonaum Siangchokyoo/Person 3 
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Creating `tests/bookings.test.js` with mocked database tests for the Booking model.
 
@@ -178,7 +178,7 @@ Every team member MUST log their AI usage in their respective section below.
 
 ### Entry 8 — Booking and My Bookings HTML Pages
 - **Date:** 2026-03-11
-- **Person:** Person 3
+- **Person:** Boonaum Siangchokyoo/Person 3 
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Creating `public/pages/booking.html` and `public/pages/my-bookings.html` frontend pages.
 
@@ -199,7 +199,7 @@ Every team member MUST log their AI usage in their respective section below.
 
 ### Entry 9 — CSS Styles for Booking and My Bookings Pages
 - **Date:** 2026-03-11
-- **Person:** Person 3
+- **Person:** Boonaum Siangchokyoo/Person 3 
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Adding CSS styles to `public/css/styles.css` for booking form, booking cards, equipment section, status badges, modal, and responsive layout.
 
