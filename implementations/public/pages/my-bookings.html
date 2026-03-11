@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View and manage your badminton court bookings">
+    <title>My Bookings - Badminton Court Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>My Bookings</h1>
+
+        <div id="bookingsList">
+            <p>Loading your bookings...</p>
+        </div>
+
+        <div id="equipmentModal" style="display:none;">
+            <h2>Equipment for Booking</h2>
+            <div id="equipmentList"></div>
+            <button onclick="document.getElementById('equipmentModal').style.display='none'"
+                class="btn-secondary">Close</button>
+        </div>
+
+        <p><a href="/pages/booking.html">Book a New Court</a></p>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '/pages/login.html';
+        }
+
+        async function loadBookings() {
+            const container = document.getElementById('bookingsList');
+            try {
+                const res = await fetch(`${API_BASE}/bookings/my`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const bookings = await res.json();
+
+                if (!bookings.length) {
+                    container.innerHTML = '<p>No bookings yet. <a href="/pages/booking.html">Book a court!</a></p>';
+                    return;
+                }
+
+                container.innerHTML = bookings.map(b => `
+          <div class="booking-card" id="booking-${b.id}">
+            <h3>${b.court_name || 'Court'}</h3>
+            <p><strong>Date:</strong> ${new Date(b.start_time).toLocaleString()} — ${new Date(b.end_time).toLocaleString()}</p>
+            <p><strong>Amount:</strong> ${b.total_amount} THB</p>
+            <p><strong>Status:</strong> <span class="status-${b.booking_status.toLowerCase()}">${b.booking_status}</span></p>
+            <p><strong>Payment:</strong> ${b.payment_method || 'N/A'}</p>
+            <div class="booking-actions">
+              <button onclick="viewEquipment('${b.id}')" class="btn-secondary">View Equipment</button>
+              ${b.booking_status === 'CONFIRMED' ? `<button onclick="cancelBooking('${b.id}')" class="btn-danger">Cancel</button>` : ''}
+            </div>
+          </div>
+        `).join('');
+            } catch (err) {
+                container.innerHTML = `<p style="color:red;">Error loading bookings: ${err.message}</p>`;
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('Are you sure you want to cancel this booking?')) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/bookings/${bookingId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Booking cancelled successfully!');
+                    loadBookings(); // Reload the list
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            }
+        }
+
+        async function viewEquipment(bookingId) {
+            const modal = document.getElementById('equipmentModal');
+            const list = document.getElementById('equipmentList');
+
+            try {
+                const res = await fetch(`${API_BASE}/bookings/${bookingId}/equipment`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const equipment = await res.json();
+
+                if (!equipment.length) {
+                    list.innerHTML = '<p>No equipment rented for this booking.</p>';
+                } else {
+                    list.innerHTML = `
+            <table>
+              <thead>
+                <tr><th>Equipment</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr>
+              </thead>
+              <tbody>
+                ${equipment.map(e => `
+                  <tr>
+                    <td>${e.equipment_type}</td>
+                    <td>${e.quantity}</td>
+                    <td>${e.unit_price} THB</td>
+                    <td>${(e.quantity * e.unit_price).toFixed(2)} THB</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+                }
+                modal.style.display = 'block';
+            } catch (err) {
+                list.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+                modal.style.display = 'block';
+            }
+        }
+
+        loadBookings();
+    </script>
+</body>
+
+</html>
