@@ -92,6 +92,14 @@ if (registerForm) {
 }
 /* --- Dashboard / Global Logic --- */
 const updateAuthUI = (profile) => {
+    if (profile) {
+        setAuthStateUI(true, profile);
+    } else {
+        setAuthStateUI(false);
+    }
+};
+
+const setAuthStateUI = (isAuthenticated, profile = null) => {
     const welcomeSection = document.getElementById('welcome-section');
     const guestSection = document.getElementById('guest-section');
     const navLogin = document.getElementById('nav-login');
@@ -100,20 +108,18 @@ const updateAuthUI = (profile) => {
     const nameEl = document.getElementById('user-name');
     const emailEl = document.getElementById('user-email');
 
-    if (profile) {
-        if (welcomeSection) welcomeSection.style.display = 'block';
-        if (guestSection) guestSection.style.display = 'none';
-        if (navLogin) navLogin.style.display = 'none';
-        if (navRegister) navRegister.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'block';
+    const displayWelcome = isAuthenticated ? 'block' : 'none';
+    const displayGuest = isAuthenticated ? 'none' : 'block';
+
+    if (welcomeSection) welcomeSection.style.display = displayWelcome;
+    if (guestSection) guestSection.style.display = displayGuest;
+    if (navLogin) navLogin.style.display = displayGuest;
+    if (navRegister) navRegister.style.display = displayGuest;
+    if (logoutBtn) logoutBtn.style.display = displayWelcome;
+
+    if (isAuthenticated && profile) {
         if (nameEl) nameEl.textContent = profile.full_name;
         if (emailEl) emailEl.textContent = profile.email;
-    } else {
-        if (welcomeSection) welcomeSection.style.display = 'none';
-        if (guestSection) guestSection.style.display = 'block';
-        if (navLogin) navLogin.style.display = 'block';
-        if (navRegister) navRegister.style.display = 'block';
-        if (logoutBtn) logoutBtn.style.display = 'none';
     }
 };
 
