@@ -91,49 +91,65 @@ if (registerForm) {
     });
 }
 /* --- Dashboard / Global Logic --- */
-document.addEventListener('DOMContentLoaded', async () => {
-    const token = localStorage.getItem('supabase_token');
+const updateAuthUI = (profile) => {
     const welcomeSection = document.getElementById('welcome-section');
     const guestSection = document.getElementById('guest-section');
     const navLogin = document.getElementById('nav-login');
     const navRegister = document.getElementById('nav-register');
     const logoutBtn = document.getElementById('logoutBtn');
+    const nameEl = document.getElementById('user-name');
+    const emailEl = document.getElementById('user-email');
 
-    if (token) {
-        try {
-            const response = await fetch(`${API_URL}/auth/profile`, {
-                headers: getAuthHeaders()
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                
-                // Update UI for logged-in user
-                if (welcomeSection) welcomeSection.style.display = 'block';
-                if (guestSection) guestSection.style.display = 'none';
-                if (navLogin) navLogin.style.display = 'none';
-                if (navRegister) navRegister.style.display = 'none';
-                if (logoutBtn) logoutBtn.style.display = 'block';
-
-                const nameEl = document.getElementById('user-name');
-                const emailEl = document.getElementById('user-email');
-                if (nameEl) nameEl.textContent = data.profile.full_name;
-                if (emailEl) emailEl.textContent = data.profile.email;
-
-                // Auto-redirect if on login or register page
-                const path = window.location.pathname;
-                if (path.includes('login.html') || path.includes('register.html')) {
-                    window.location.href = '/';
-                }
-            } else {
-                // Token might be expired
-                localStorage.removeItem('supabase_token');
-            }
-        } catch (err) {
-            console.error('Failed to fetch profile:', err);
-        }
+    if (profile) {
+        if (welcomeSection) welcomeSection.style.display = 'block';
+        if (guestSection) guestSection.style.display = 'none';
+        if (navLogin) navLogin.style.display = 'none';
+        if (navRegister) navRegister.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = 'block';
+        if (nameEl) nameEl.textContent = profile.full_name;
+        if (emailEl) emailEl.textContent = profile.email;
+    } else {
+        if (welcomeSection) welcomeSection.style.display = 'none';
+        if (guestSection) guestSection.style.display = 'block';
+        if (navLogin) navLogin.style.display = 'block';
+        if (navRegister) navRegister.style.display = 'block';
+        if (logoutBtn) logoutBtn.style.display = 'none';
     }
+};
 
+const handleAutoRedirect = () => {
+    const path = window.location.pathname;
+    if (path.includes('login.html') || path.includes('register.html')) {
+        window.location.href = '/';
+    }
+};
+
+const fetchAndSyncProfile = async () => {
+    const token = localStorage.getItem('supabase_token');
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_URL}/auth/profile`, {
+            headers: getAuthHeaders()
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            updateAuthUI(data.profile);
+            handleAutoRedirect();
+        } else {
+            localStorage.removeItem('supabase_token');
+            updateAuthUI(null);
+        }
+    } catch (err) {
+        console.error('Failed to fetch profile:', err);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchAndSyncProfile();
+
+    const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem('supabase_token');

@@ -77,6 +77,23 @@ Every team member MUST log their AI usage in their respective section below.
 
 **Verification Method:**
 > Ran `npm test`—all 6 suite tests passed. Manually verified end-to-end registration and dashboard redirection in the browser.
+### Entry 5 — SonarCloud Remediation & Test Coverage Optimization
+- **Date:** 2026-03-11
+- **Person:** Person 1
+- **AI Tool:** Gemini (Antigravity Agent)
+- **Task:** Resolving Reliability and Maintainability issues, reducing Cognitive Complexity, and boosting test coverage to 80%+.
+
+**Prompt:**
+> Address the SonarCloud issues: fix the parseInt calls in db.js, use optional chaining in authController.js, and refactor the monolithic DOM content logic in app.js to reduce cognitive complexity. Also, create a unit test for the Profile model and auth endpoints to ensure we hit the 80% coverage target.
+
+**AI Output (Summary):**
+> Updated `db.js` with `Number.parseInt`. Refactored `app.js` into modular functions (`updateAuthUI`, `fetchAndSyncProfile`). Implemented `profile.test.js` and updated `auth.test.js` with comprehensive mocks.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+
+**Verification Method:**
+> Ran `npm run test -- --coverage`. Verified an overall statement coverage of **83.8%** and confirmed all 11 tests pass.
 
 ---
 

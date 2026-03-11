@@ -56,7 +56,7 @@ exports.login = async (req, res) => {
     // 2. Check if user is disabled in our profiles table
     const profile = await Profile.findByAuthId(data.user.id);
 
-    if (profile && profile.is_disabled) {
+    if (profile?.is_disabled) {
       // Optional: Sign out immediately if disabled
       await supabase.auth.signOut();
       return res.status(403).json({ error: 'Account is disabled. Please contact support.' });
