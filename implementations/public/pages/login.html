@@ -33,7 +33,9 @@
           <input type="password" id="password" name="password" required>
         </div>
         
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;" onclick="document.getElementById('loginMode').value='CUSTOMER'">Login as User</button>
+        <button type="submit" class="btn" style="width: 100%; background: #2c3e50; color: white;" onclick="document.getElementById('loginMode').value='ADMIN'">Staff / Admin Login</button>
+        <input type="hidden" id="loginMode" value="CUSTOMER">
       </form>
       
       <p class="text-center mt-4">

@@ -42,10 +42,10 @@
 <img id="court-image" class="absolute inset-0 w-full h-full object-cover object-center" alt="Badminton Court" src="https://via.placeholder.com/800x400?text=Loading..." />
 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent"></div>
 <div class="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
-<button class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+<button onclick="globalThis.history.back()" class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors">
 <span class="material-symbols-outlined">arrow_back</span>
 </button>
-<button class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+<button onclick="alert('Added to favorites!')" class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition-colors">
 <span class="material-symbols-outlined">favorite</span>
 </button>
 </div>
@@ -73,7 +73,7 @@
 <div id="court-map" class="h-48 w-full z-0"></div>
 <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-900">
 <span class="text-sm font-medium">View on Map</span>
-<button class="text-primary text-sm font-bold flex items-center gap-1">
+<button id="get-directions-btn" class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
                         Get Directions <span class="material-symbols-outlined text-sm">directions</span>
 </button>
 </div>
@@ -93,7 +93,7 @@
 <div class="mt-8">
 <div class="flex items-center justify-between mb-4">
 <h3 class="text-lg font-bold">Book a Slot</h3>
-<button class="text-primary text-xs font-bold uppercase tracking-wider">Select Month</button>
+<button onclick="alert('Calendar selection coming soon!')" class="text-primary text-xs font-bold uppercase tracking-wider hover:underline">Select Month</button>
 </div>
 <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
 <div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-primary text-white shadow-lg shadow-primary/30">
@@ -195,7 +195,18 @@
 </div>
 </div>
 </div>
+<!-- Reviews Section -->
+<div class="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold flex items-center gap-2">
+            Reviews <span id="court-reviews-count-badge" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">0</span>
+        </h3>
+    </div>
+    <div id="court-reviews-list" class="space-y-4">
+        <div class="text-center py-6 text-slate-400">Loading reviews...</div>
+    </div>
 </div>
+
 <!-- Sticky Bottom Nav Bar -->
 <div class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-6 z-50">
 <div class="flex items-center justify-between max-w-md mx-auto">
@@ -206,7 +217,7 @@
 <span class="text-xs text-slate-400">/ hr</span>
 </div>
 </div>
-<button class="bg-primary text-white px-10 py-4 rounded-full font-bold shadow-lg shadow-primary/40 active:scale-95 transition-transform">
+<button onclick="alert('Payment gateway integration coming soon!')" class="bg-primary text-white px-10 py-4 rounded-full font-bold shadow-lg shadow-primary/40 active:scale-95 transition-transform hover:bg-primary/90">
                 Confirm &amp; Pay
             </button>
 </div>

@@ -51,9 +51,9 @@
 <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">BadmintonPro</h2>
 </div>
 <nav class="hidden md:flex items-center gap-10">
-<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Courts</a>
-<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Bookings</a>
-<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Waitlist</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/">Courts</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/pages/my-bookings.html">Bookings</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/pages/waitlist.html">Waitlist</a>
 </nav>
 <div class="flex items-center gap-4" id="auth-container">
 <a href="/pages/login.html" id="nav-login" class="text-sm font-bold text-primary hover:underline">Login</a>
@@ -87,11 +87,11 @@
 <div class="relative z-10 w-full max-w-4xl bg-white dark:bg-slate-900 p-2 rounded-xl shadow-xl flex flex-col md:flex-row items-center gap-2">
 <div class="flex-1 flex items-center px-4 gap-3 w-full border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 h-14">
 <span class="material-symbols-outlined text-slate-400">search</span>
-<input class="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Court name or club..." type="text"/>
+<input id="main-search-name" class="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Court name or club..." type="text"/>
 </div>
-<div class="flex-1 flex items-center px-4 gap-3 w-full border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 h-14">
+<div onclick="globalThis.location.href='/pages/search.html'" class="flex-1 flex items-center px-4 gap-3 w-full border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 h-14 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
 <span class="material-symbols-outlined text-slate-400">location_on</span>
-<input class="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Location..." type="text"/>
+<input id="main-search-location" class="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 cursor-pointer" placeholder="Want to search by location?" type="text" readonly/>
 </div>
 <div class="flex-1 flex flex-col justify-center px-4 w-full h-14">
 <div class="flex justify-between mb-1">
@@ -104,7 +104,7 @@
 <div class="absolute right-1/4 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-pointer"></div>
 </div>
 </div>
-<button class="w-full md:w-auto px-8 h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+<button id="main-search-btn" class="w-full md:w-auto px-8 h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2">
 <span class="material-symbols-outlined text-sm">search</span>
                                 Search
                             </button>
@@ -120,7 +120,7 @@
 <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Featured Courts</h2>
 <p class="text-slate-500 dark:text-slate-400 text-sm">Top-rated badminton facilities near you</p>
 </div>
-<button class="text-primary font-semibold text-sm hover:underline flex items-center gap-1">
+<button id="view-all-btn" class="text-primary font-semibold text-sm hover:underline flex items-center gap-1">
                             View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </button>
 </div>
@@ -149,9 +149,9 @@
 <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">BadmintonPro</h2>
 </div>
 <div class="flex gap-8 text-sm text-slate-500 dark:text-slate-400">
-<a class="hover:text-primary" href="#">Privacy Policy</a>
-<a class="hover:text-primary" href="#">Terms of Service</a>
-<a class="hover:text-primary" href="#">Help Center</a>
+<a class="hover:text-primary cursor-pointer" onclick="alert('Privacy Policy coming soon!')">Privacy Policy</a>
+<a class="hover:text-primary cursor-pointer" onclick="alert('Terms of Service coming soon!')">Terms of Service</a>
+<a class="hover:text-primary cursor-pointer" onclick="alert('Help Center coming soon!')">Help Center</a>
 </div>
 <p class="text-xs text-slate-400 dark:text-slate-500">© 2024 BadmintonPro Management. All rights reserved.</p>
 </div>

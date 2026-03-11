@@ -11,6 +11,7 @@ router.post('/login', authController.login);
 router.get('/profile', authMiddleware, authController.getProfile);
 
 // Admin routes
+router.get('/users', authMiddleware, adminOnly, authController.getAllUsers);
 router.put('/users/:id/disable', authMiddleware, adminOnly, authController.disableUser);
 
 module.exports = router;

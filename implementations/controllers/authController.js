@@ -3,7 +3,8 @@ const pool = require('../config/db');
 const Profile = require('../models/Profile');
 
 exports.register = async (req, res) => {
-  const { email, password, full_name, address } = req.body;
+  const { email, password, full_name, address, role } = req.body;
+  const userRole = role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER';
 
   try {
     // 1. Create user in Supabase Auth
@@ -26,7 +27,8 @@ exports.register = async (req, res) => {
     const rows = await Profile.create({
         auth_id: user.id,
         full_name,
-        address
+        address,
+        role: userRole
     });
 
     res.status(201).json({
@@ -108,5 +110,15 @@ exports.disableUser = async (req, res) => {
   } catch(error) {
       console.error('Disable user error', error);
       res.status(500).json({ error: 'Internal server error disabling user' });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await Profile.findAll();
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({ error: 'Internal server error fetching users' });
   }
 };

@@ -22,6 +22,12 @@ class Profile {
     const { rows } = await pool.query(query, [authId, isDisabled]);
     return rows[0];
   }
+
+  static async findAll() {
+    const query = 'SELECT auth_id, full_name, role, is_disabled, created_at FROM profiles ORDER BY created_at DESC';
+    const { rows } = await pool.query(query);
+    return rows;
+  }
 }
 
 module.exports = Profile;

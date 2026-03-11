@@ -40,23 +40,23 @@
 </div>
 </div>
 <nav class="flex-1 px-4 mt-4 space-y-2">
-<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/">
 <span class="material-symbols-outlined">dashboard</span>
-<span class="text-sm font-medium">Dashboard</span>
+<span class="text-sm font-medium">Home / Courts</span>
 </a>
-<a class="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" href="#">
+<a class="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" href="/pages/my-bookings.html">
 <span class="material-symbols-outlined">calendar_today</span>
 <span class="text-sm font-medium">My Bookings</span>
 </a>
-<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/pages/waitlist.html">
 <span class="material-symbols-outlined">groups</span>
 <span class="text-sm font-medium">Waitlists</span>
 </a>
-<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/pages/reviews.html">
 <span class="material-symbols-outlined">star</span>
 <span class="text-sm font-medium">Reviews</span>
 </a>
-<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" onclick="alert('Settings page coming soon!')">
 <span class="material-symbols-outlined">settings</span>
 <span class="text-sm font-medium">Settings</span>
 </a>
@@ -104,7 +104,7 @@
 <section>
 <div class="flex items-center justify-between mb-4">
 <h3 class="text-lg font-bold">Upcoming Bookings</h3>
-<button class="text-primary text-sm font-semibold hover:underline">Book New Court</button>
+<button onclick="globalThis.location.href='/'" class="text-primary text-sm font-semibold hover:underline">Book New Court</button>
 </div>
 <div class="space-y-4">
 <!-- Booking Card 1 -->
@@ -184,7 +184,7 @@
 <td class="px-6 py-4">Elite Arena - Court #2</td>
 <td class="px-6 py-4 font-medium">$25.00</td>
 <td class="px-6 py-4 text-right">
-<button class="text-primary font-bold hover:underline">Write a Review</button>
+<button onclick="openReviewModal('123e4567-e89b-12d3-a456-426614174000')" class="text-primary font-bold hover:underline">Write a Review</button>
 </td>
 </tr>
 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
@@ -200,13 +200,13 @@
 <td class="px-6 py-4">Downtown Club - Court #1</td>
 <td class="px-6 py-4 font-medium">$22.00</td>
 <td class="px-6 py-4 text-right">
-<button class="text-primary font-bold hover:underline">Write a Review</button>
+<button onclick="openReviewModal('123e4567-e89b-12d3-a456-426614174001')" class="text-primary font-bold hover:underline">Write a Review</button>
 </td>
 </tr>
 </tbody>
 </table>
 <div class="px-6 py-4 border-t border-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-800/20 text-center">
-<button class="text-slate-500 text-sm font-medium hover:text-primary transition-colors">View All History</button>
+<button onclick="alert('Full history view coming soon!')" class="text-slate-500 text-sm font-medium hover:text-primary transition-colors">View All History</button>
 </div>
 </div>
 </section>
@@ -237,7 +237,7 @@
 <p class="text-xs text-slate-500 mt-1">Oct 28 • 09:00 AM</p>
 </div>
 </div>
-<button class="w-full mt-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<button onclick="globalThis.location.href='/pages/waitlist.html'" class="w-full mt-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                         Manage Waitlists
                     </button>
 </div>
@@ -253,7 +253,7 @@
 <div class="w-full bg-white/20 rounded-full h-2 mb-6">
 <div class="bg-white rounded-full h-2 w-[75%] shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
 </div>
-<button class="w-full bg-white text-primary py-2.5 rounded-lg text-sm font-extrabold hover:bg-slate-50 transition-colors">
+<button onclick="alert('Payment processing coming soon!')" class="w-full bg-white text-primary py-2.5 rounded-lg text-sm font-extrabold hover:bg-slate-50 transition-colors">
                         Add Credits
                     </button>
 </div>
@@ -267,6 +267,47 @@
 </div>
 </div>
 </aside>
+<!-- Review Modal (Hidden by default) -->
+<div id="review-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeReviewModal()"></div>
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md p-6 relative z-10 transform transition-all mx-4">
+        <h3 class="text-2xl font-bold mb-2">Write a Review</h3>
+        <p class="text-sm text-slate-500 mb-6">How was your experience at the court?</p>
+        
+        <form id="review-form" onsubmit="submitReview(event)">
+            <input type="hidden" id="review-court-id" />
+            
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2">Rating</label>
+                <div class="flex gap-2">
+                    <!-- Simple 1-5 select for rating to ensure mobile friendly without complex custom JS -->
+                    <select id="review-rating" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary font-bold text-slate-700" required>
+                        <option value="" disabled selected>Select Rating (1-5 Stars)</option>
+                        <option value="5">⭐⭐⭐⭐⭐ (5) Excellent</option>
+                        <option value="4">⭐⭐⭐⭐ (4) Good</option>
+                        <option value="3">⭐⭐⭐ (3) Average</option>
+                        <option value="2">⭐⭐ (2) Below Average</option>
+                        <option value="1">⭐ (1) Poor</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Comment</label>
+                <textarea id="review-comment" rows="4" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" placeholder="Tell us about the court condition, staff, and overall experience..." required></textarea>
+            </div>
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closeReviewModal()" class="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-primary text-white hover:bg-primary/90 shadow-md shadow-primary/20 transition-all">
+                    Submit Review
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
 <script src="/js/app.js"></script>
 </body></html>

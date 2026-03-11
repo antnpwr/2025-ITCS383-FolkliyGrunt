@@ -40,9 +40,35 @@ if (loginForm) {
             // Save session to localStorage
             localStorage.setItem('supabase_token', data.session.access_token);
             
-            // Redirect to dashboard (or wherever next)
+            // Fetch profile to verify role
+            const profileRes = await fetch(`${API_URL}/auth/profile`, {
+                headers: { 'Authorization': `Bearer ${data.session.access_token}` }
+            });
+            
+            let userRole = 'CUSTOMER';
+            if (profileRes.ok) {
+                const profileData = await profileRes.json();
+                userRole = profileData.profile?.role || 'CUSTOMER';
+            }
+
+            // Check intended login mode from UI
+            const loginModeInput = document.getElementById('loginMode');
+            const loginMode = loginModeInput ? loginModeInput.value : 'CUSTOMER';
+
+            if (loginMode === 'ADMIN') {
+                if (userRole !== 'ADMIN') {
+                    // Unauthorized
+                    localStorage.removeItem('supabase_token');
+                    throw new Error('Unauthorized: You are not an administrator.');
+                }
+                alert('Admin Login successful!');
+                globalThis.location.href = '/pages/admin.html';
+                return;
+            }
+
+            // Normal user login
             alert('Login successful!');
-            globalThis.location.href = '/'; // Change destination as needed
+            globalThis.location.href = '/';
             
         } catch (err) {
             errorDiv.textContent = err.message;
@@ -66,12 +92,14 @@ if (registerForm) {
         const password = document.getElementById('password').value;
         const fullName = document.getElementById('fullName').value;
         const address = document.getElementById('address').value;
+        const registerModeInput = document.getElementById('registerMode');
+        const role = registerModeInput ? registerModeInput.value : 'CUSTOMER';
 
         try {
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, full_name: fullName, address })
+                body: JSON.stringify({ email, password, full_name: fullName, address, role })
             });
 
             const data = await response.json();
@@ -153,12 +181,15 @@ const fetchAndSyncProfile = async () => {
 };
 
 
-const fetchAndRenderCourts = async () => {
+const fetchAndRenderCourts = async (searchQuery = '') => {
     const courtsGrid = document.getElementById('courts-grid');
     if (!courtsGrid) return; // Only process if we are on a page with a courts grid
 
     try {
-        const response = await fetch(`${API_URL}/courts`);
+        const url = searchQuery 
+            ? `${API_URL}/courts/search?name=${encodeURIComponent(searchQuery)}`
+            : `${API_URL}/courts`;
+        const response = await fetch(url);
         const data = await response.json();
         
         if (!response.ok) throw new Error(data.error || 'Failed to load courts');
@@ -284,6 +315,56 @@ const fetchAndRenderCourtDetail = async () => {
                 };
             }
         }
+
+        // Fetch and Render Reviews
+        const reviewsList = document.getElementById('court-reviews-list');
+        const countBadge = document.getElementById('court-reviews-count-badge');
+        const reviewsText = document.getElementById('court-reviews');
+        
+        if (reviewsList) {
+            try {
+                const reviewRes = await fetch(`${API_URL}/reviews/court/${courtId}`);
+                if (reviewRes.ok) {
+                    const data = await reviewRes.json();
+                    const reviews = data.reviews || [];
+                    
+                    if (countBadge) countBadge.textContent = reviews.length;
+                    if (reviewsText) reviewsText.textContent = `${reviews.length} reviews`;
+
+                    if (reviews.length === 0) {
+                        reviewsList.innerHTML = `<div class="text-center py-6 text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">No reviews yet. Be the first to review!</div>`;
+                    } else {
+                        reviewsList.innerHTML = reviews.map(r => {
+                            const date = new Date(r.created_at).toLocaleDateString();
+                            const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                            return `
+                                <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs uppercase">
+                                                ${(r.user_name || 'A')[0]}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold">${r.user_name || 'Anonymous User'}</p>
+                                                <p class="text-[10px] text-slate-400">${date}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-yellow-400 text-sm tracking-widest">${stars}</div>
+                                    </div>
+                                    <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">${r.comment_text || ''}</p>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                } else {
+                    reviewsList.innerHTML = `<div class="text-center py-6 text-red-400">Could not load reviews</div>`;
+                }
+            } catch (rErr) {
+                console.error('Failed to parse reviews API', rErr);
+                reviewsList.innerHTML = `<div class="text-center py-6 text-red-400">Failed to load reviews</div>`;
+            }
+        }
+
     } catch (err) {
         console.error('Error loading court detail:', err);
         const container = document.querySelector('.px-6.-mt-6');
@@ -297,6 +378,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchAndSyncProfile();
     await fetchAndRenderCourts();
     await fetchAndRenderCourtDetail();
+    await fetchAndRenderMyReviews();
+
+    const searchBtn = document.getElementById('main-search-btn');
+    const searchInput = document.getElementById('main-search-name');
+    if (searchBtn && searchInput) {
+        const triggerSearch = () => {
+            const query = searchInput.value.trim();
+            fetchAndRenderCourts(query);
+            // Auto scroll to results section
+            document.getElementById('courts-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        searchBtn.addEventListener('click', triggerSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') triggerSearch();
+        });
+    }
+
+    const viewAllBtn = document.getElementById('view-all-btn');
+    if (viewAllBtn) {
+        viewAllBtn.addEventListener('click', () => {
+             if (searchInput) searchInput.value = '';
+             fetchAndRenderCourts('');
+             document.getElementById('courts-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -307,3 +413,123 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+// ==========================================
+// 8. Reviews System (my-bookings Modal & reviews.html)
+// ==========================================
+const fetchAndRenderMyReviews = async () => {
+    const listWrapper = document.getElementById('my-reviews-list');
+    if (!listWrapper) return;
+    
+    const token = localStorage.getItem('supabase_token');
+    if (!token) {
+        listWrapper.innerHTML = `<div class="text-center py-6 text-slate-500 bg-white border border-slate-200 rounded-xl">Please login to view your reviews</div>`;
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/reviews/my`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Failed to load your feedback');
+        const reviews = await res.json();
+        
+        if (!reviews || reviews.length === 0) {
+            listWrapper.innerHTML = `
+                <div class="text-center py-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-500">
+                    <span class="material-symbols-outlined text-4xl mb-2 opacity-50">rate_review</span>
+                    <p>You haven't written any reviews yet.</p>
+                    <a href="/pages/my-bookings.html" class="inline-block mt-4 px-4 py-2 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary/20 transition-colors">Go to Past Bookings to Review</a>
+                </div>
+            `;
+            return;
+        }
+
+        listWrapper.innerHTML = reviews.map(r => {
+            const date = new Date(r.created_at).toLocaleDateString();
+            const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+            
+            // To provide a better UI, we can show the court ID or fetch court name if joined, 
+            // but for now we just show the review content cleanly
+            return `
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex flex-col gap-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-lg text-slate-900 dark:text-slate-100 flex gap-2 items-center">
+                                <span class="material-symbols-outlined text-slate-400">sports_tennis</span>
+                                Court Feedback
+                            </p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">${date}</p>
+                        </div>
+                        <div class="text-yellow-400 text-lg tracking-widest">${stars}</div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <p class="text-sm text-slate-700 dark:text-slate-300 italic">"${r.comment_text}"</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (err) {
+        console.error(err);
+        listWrapper.innerHTML = `<div class="text-center py-6 text-red-500 bg-red-50 rounded-xl border border-red-200">Could not load your reviews: ${err.message}</div>`;
+    }
+};
+
+window.openReviewModal = function(courtId) {
+    const modal = document.getElementById('review-modal');
+    const courtIdInput = document.getElementById('review-court-id');
+    if (modal && courtIdInput) {
+        courtIdInput.value = courtId;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+};
+
+window.closeReviewModal = function() {
+    const modal = document.getElementById('review-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.getElementById('review-form')?.reset();
+    }
+};
+
+window.submitReview = async function(e) {
+    e.preventDefault();
+    const courtId = document.getElementById('review-court-id').value;
+    const rating = parseInt(document.getElementById('review-rating').value);
+    const commentText = document.getElementById('review-comment').value;
+
+    const token = localStorage.getItem('supabase_token');
+    if (!token) {
+        alert('Please login to submit a review');
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/reviews`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                court_id: courtId,
+                rating: rating,
+                comment_text: commentText
+            })
+        });
+
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Failed to submit review');
+        }
+
+        alert('Review submitted successfully! Thank you for your feedback.');
+        closeReviewModal();
+    } catch (err) {
+        alert(err.message);
+    }
+};

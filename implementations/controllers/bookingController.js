@@ -108,6 +108,24 @@ const bookingController = {
             res.status(500).json({ error: error.message });
         }
     },
+
+    rentEquipment: async (req, res) => {
+        try {
+            const bookingId = req.params.id;
+            const items = req.body; // Expecting an array of items [{ equipment_type, quantity, unit_price }]
+
+            if (!Array.isArray(items) || items.length === 0) {
+                 return res.status(400).json({ error: 'Missing or invalid rental data. Expecting an array of items.' });
+            }
+
+            const data = await EquipmentRental.addToBooking(bookingId, items);
+                
+            res.status(201).json({ message: 'Equipment rented successfully', equipment: data });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to rent equipment.' });
+        }
+    }
 };
 
 module.exports = bookingController;

@@ -44,7 +44,9 @@
           <textarea id="address" name="address" rows="3"></textarea>
         </div>
         
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;" onclick="document.getElementById('registerMode').value='CUSTOMER'">Register as User</button>
+        <button type="submit" class="btn" style="width: 100%; background: #2c3e50; color: white;" onclick="document.getElementById('registerMode').value='ADMIN'">Register as Staff / Admin</button>
+        <input type="hidden" id="registerMode" value="CUSTOMER">
       </form>
       
       <p class="text-center mt-4">
