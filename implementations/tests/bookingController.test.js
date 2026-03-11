@@ -16,13 +16,14 @@ jest.mock('../services/paymentService', () => ({
 }));
 
 jest.mock('../services/notificationService', () => ({
-    notifyWaitlist: jest.fn().mockResolvedValue({ notified: true })
+    notifyWaitlist: jest.fn().mockResolvedValue({ notified: true }),
+    sendNotification: jest.fn().mockResolvedValue({ sent: true })
 }));
 
 // Helper to create mock req/res
 function mockReqRes(overrides = {}) {
     const req = {
-        user: { id: 'user-1' },
+        user: { id: 'user-1', email: 'test@example.com' },
         params: {},
         body: {},
         ...overrides

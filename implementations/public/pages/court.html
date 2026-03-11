@@ -6,7 +6,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script id="tailwind-config">
+    <style>
+        body { font-family: 'Lexend', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -42,7 +50,7 @@
 <img id="court-image" class="absolute inset-0 w-full h-full object-cover object-center" alt="Badminton Court" src="https://via.placeholder.com/800x400?text=Loading..." />
 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent"></div>
 <div class="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
-<button class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
+<button onclick="history.back()" class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
 <span class="material-symbols-outlined">arrow_back</span>
 </button>
 <button class="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
@@ -96,38 +104,38 @@
 <button class="text-primary text-xs font-bold uppercase tracking-wider">Select Month</button>
 </div>
 <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-primary text-white shadow-lg shadow-primary/30">
+<button class="date-slot flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-primary text-white shadow-lg shadow-primary/30 transition-all">
 <span class="text-xs opacity-80">MON</span>
 <span class="text-xl font-bold">12</span>
-</div>
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+</button>
+<button class="date-slot flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all">
 <span class="text-xs text-slate-500">TUE</span>
 <span class="text-xl font-bold">13</span>
-</div>
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+</button>
+<button class="date-slot flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all">
 <span class="text-xs text-slate-500">WED</span>
 <span class="text-xl font-bold">14</span>
-</div>
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+</button>
+<button class="date-slot flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all">
 <span class="text-xs text-slate-500">THU</span>
 <span class="text-xl font-bold">15</span>
-</div>
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+</button>
+<button class="date-slot flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all">
 <span class="text-xs text-slate-500">FRI</span>
 <span class="text-xl font-bold">16</span>
-</div>
+</button>
 </div>
 </div>
 <!-- Time Slots Grid -->
 <div class="mt-6 grid grid-cols-3 gap-3">
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border-2 border-primary bg-white dark:bg-slate-900">
+<button class="time-slot flex flex-col items-center justify-center py-3 px-2 rounded-xl border-2 border-primary bg-white dark:bg-slate-900 transition-all">
 <span class="text-sm font-bold">08:00 AM</span>
 <span class="text-[10px] text-primary mt-1 font-medium">Available</span>
-</div>
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+</button>
+<button class="time-slot flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all">
 <span class="text-sm font-bold">09:00 AM</span>
 <span class="text-[10px] text-primary mt-1 font-medium">Available</span>
-</div>
+</button>
 <div class="relative flex flex-col items-center justify-center py-3 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent opacity-60">
 <span class="text-sm font-bold text-slate-400">10:00 AM</span>
 <span class="text-[8px] bg-slate-400 text-white px-1.5 py-0.5 rounded-full mt-1 uppercase">Full</span>
@@ -135,14 +143,14 @@
 <span class="bg-primary text-[8px] text-white px-1.5 py-0.5 rounded-full shadow-sm">Join Waitlist</span>
 </div>
 </div>
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+<button class="time-slot flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all">
 <span class="text-sm font-bold">11:00 AM</span>
 <span class="text-[10px] text-primary mt-1 font-medium">Available</span>
-</div>
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+</button>
+<button class="time-slot flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all">
 <span class="text-sm font-bold">12:00 PM</span>
 <span class="text-[10px] text-primary mt-1 font-medium">Available</span>
-</div>
+</button>
 <div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent opacity-60">
 <span class="text-sm font-bold text-slate-400">01:00 PM</span>
 <span class="text-[8px] bg-slate-400 text-white px-1.5 py-0.5 rounded-full mt-1 uppercase">Full</span>
@@ -159,15 +167,15 @@
 </div>
 <div>
 <p class="text-sm font-bold">Professional Rackets</p>
-<p class="text-xs text-slate-500">$5.00 / session</p>
+<p id="court-price-base" class="text-xs text-slate-500">฿50 / session</p>
 </div>
 </div>
 <div class="flex items-center gap-4">
-<button class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500">
+<button id="minus-racket" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500">
 <span class="material-symbols-outlined text-base">remove</span>
 </button>
-<span class="text-base font-bold w-4 text-center">2</span>
-<button class="size-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span id="qty-racket" class="text-base font-bold w-4 text-center">2</span>
+<button id="plus-racket" class="size-8 rounded-full bg-primary flex items-center justify-center text-white">
 <span class="material-symbols-outlined text-base">add</span>
 </button>
 </div>
@@ -179,15 +187,15 @@
 </div>
 <div>
 <p class="text-sm font-bold">Shuttlecocks (Tube of 12)</p>
-<p class="text-xs text-slate-500">$12.00 / tube</p>
+<p class="text-xs text-slate-500">฿20 / each</p>
 </div>
 </div>
 <div class="flex items-center gap-4">
-<button class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500">
+<button id="minus-shuttle" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500">
 <span class="material-symbols-outlined text-base">remove</span>
 </button>
-<span class="text-base font-bold w-4 text-center">0</span>
-<button class="size-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span id="qty-shuttle" class="text-base font-bold w-4 text-center">0</span>
+<button id="plus-shuttle" class="size-8 rounded-full bg-primary flex items-center justify-center text-white">
 <span class="material-symbols-outlined text-base">add</span>
 </button>
 </div>
@@ -196,6 +204,19 @@
 </div>
 </div>
 </div>
+</div>
+</div>
+
+<!-- Admin Panel (Only visible if admin) -->
+<div id="admin-panel" class="hidden mb-6 p-6 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl max-w-md mx-auto">
+    <h3 class="text-white font-bold mb-4 text-sm uppercase tracking-wider opacity-70">Admin: Update Court Status</h3>
+    <div class="flex gap-4">
+        <button id="status-available" class="flex-1 py-3 rounded-2xl bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-colors uppercase text-[10px] font-bold">Available</button>
+        <button id="status-maintenance" class="flex-1 py-3 rounded-2xl bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors uppercase text-[10px] font-bold">Maint.</button>
+        <button id="status-busy" class="flex-1 py-3 rounded-2xl bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/30 transition-colors uppercase text-[10px] font-bold">Busy</button>
+    </div>
+</div>
+
 <!-- Sticky Bottom Nav Bar -->
 <div class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 p-6 z-50">
 <div class="flex items-center justify-between max-w-md mx-auto">
@@ -206,7 +227,7 @@
 <span class="text-xs text-slate-400">/ hr</span>
 </div>
 </div>
-<button class="bg-primary text-white px-10 py-4 rounded-full font-bold shadow-lg shadow-primary/40 active:scale-95 transition-transform">
+<button id="confirm-booking-btn" class="bg-primary text-white px-10 py-4 rounded-full font-bold shadow-lg shadow-primary/40 active:scale-95 transition-transform">
                 Confirm &amp; Pay
             </button>
 </div>
