@@ -1,0 +1,5 @@
+.env
+node_modules/
+tests/jest_out.json
+test-output.txt
+coverage/
