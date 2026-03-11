@@ -5,3 +5,12 @@ implementations/.env
 # Node modules
 node_modules/
 implementations/node_modules/
+
+# Test & Coverage artifacts
+coverage/
+implementations/coverage/
+coverage_output.txt
+implementations/coverage_output.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

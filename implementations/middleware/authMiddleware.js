@@ -1,5 +1,5 @@
 const { supabase } = require('../config/supabase');
-const pool = require('../config/db');
+const Profile = require('../models/Profile');
 
 const authMiddleware = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -11,13 +11,13 @@ const authMiddleware = async (req, res, next) => {
     if (error || !user) return res.status(401).json({ error: 'Invalid token' });
 
     // Get user profile from our profiles table
-    const profile = await pool.query('SELECT * FROM profiles WHERE auth_id = $1', [user.id]);
+    const profile = await Profile.findByAuthId(user.id);
     
     req.user = {
       id: user.id,
       email: user.email,
-      role: profile.rows[0]?.role || 'CUSTOMER',
-      profile: profile.rows[0] || null
+      role: profile?.role || 'CUSTOMER',
+      profile: profile || null
     };
     next();
   } catch (err) {
