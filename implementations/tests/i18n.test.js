@@ -24,4 +24,17 @@ describe('i18n Middleware', () => {
     i18n(req, mockRes, mockNext);
     expect(req.lang).toBe('en');
   });
+
+  test('reads language from Accept-Language header', () => {
+    const req = { query: {}, headers: { 'accept-language': 'th,en;q=0.9' } };
+    i18n(req, mockRes, mockNext);
+    expect(req.lang).toBe('th');
+    expect(req.t.app_name).toBe('ระบบจัดการสนามแบดมินตัน');
+  });
+
+  test('reads zh language from Accept-Language header', () => {
+    const req = { query: {}, headers: { 'accept-language': 'zh-CN,zh;q=0.9' } };
+    i18n(req, mockRes, mockNext);
+    expect(req.lang).toBe('zh');
+  });
 });

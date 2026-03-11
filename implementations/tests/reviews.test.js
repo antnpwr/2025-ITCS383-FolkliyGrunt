@@ -38,4 +38,48 @@ describe('Review Model', () => {
     expect(result.average_rating).toBe('4.3');
     expect(result.total_reviews).toBe(3);
   });
+
+  test('create should reject rating below 1', async () => {
+    await expect(
+      Review.create({ user_id: 'u1', court_id: 'c1', rating: 0, comment_text: 'Bad' })
+    ).rejects.toThrow('Rating must be between 1 and 5');
+  });
+
+  test('findByCourtId returns reviews for a court', async () => {
+    const reviews = [
+      { id: 'r1', rating: 5, reviewer_name: 'John' },
+      { id: 'r2', rating: 3, reviewer_name: 'Jane' }
+    ];
+    pool.query.mockResolvedValue({ rows: reviews });
+    const result = await Review.findByCourtId('c1');
+    expect(result).toEqual(reviews);
+    expect(result).toHaveLength(2);
+    expect(pool.query).toHaveBeenCalledWith(
+      expect.stringContaining('court_id'),
+      ['c1']
+    );
+  });
+
+  test('findByCourtId returns empty array when no reviews', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+    const result = await Review.findByCourtId('c1');
+    expect(result).toEqual([]);
+  });
+
+  test('findByUser returns reviews by a user', async () => {
+    const reviews = [{ id: 'r1', court_name: 'Court A', rating: 4 }];
+    pool.query.mockResolvedValue({ rows: reviews });
+    const result = await Review.findByUser('u1');
+    expect(result).toEqual(reviews);
+    expect(pool.query).toHaveBeenCalledWith(
+      expect.stringContaining('user_id'),
+      ['u1']
+    );
+  });
+
+  test('findByUser returns empty array when no reviews', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+    const result = await Review.findByUser('u1');
+    expect(result).toEqual([]);
+  });
 });
