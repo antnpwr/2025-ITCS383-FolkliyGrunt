@@ -8,7 +8,7 @@ const notificationService = require('../services/notificationService');
 const bookingController = {
     create: async (req, res) => {
         try {
-            const { court_id, start_time, duration_hours, equipment, payment_method } = req.body;
+            const { court_id, start_time, duration_hours, equipment, payment_method, credit_card_token } = req.body;
             const user_id = req.user.id;
 
             // Calculate end time
@@ -45,7 +45,7 @@ const bookingController = {
             }
 
             // Process payment via Person 4's payment service
-            await paymentService.processPayment({ booking_id: booking.id, amount: total_amount, method: payment_method });
+            await paymentService.processPayment({ booking_id: booking.id, amount: total_amount, method: payment_method, credit_card_token });
 
             // Send booking confirmation notification
             const startTimeFormatted = new Date(booking.start_time).toLocaleString();

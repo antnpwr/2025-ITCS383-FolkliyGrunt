@@ -136,14 +136,14 @@ const setAuthStateUI = (isAuthenticated, profile = null) => {
     const nameEl = document.getElementById('user-name');
     const emailEl = document.getElementById('user-email');
 
-    const displayWelcome = isAuthenticated ? 'block' : 'none';
+    const displayWelcome = isAuthenticated ? 'flex' : 'none';
     const displayGuest = isAuthenticated ? 'none' : 'block';
 
     if (welcomeSection) welcomeSection.style.display = displayWelcome;
     if (guestSection) guestSection.style.display = displayGuest;
     if (navLogin) navLogin.style.display = displayGuest;
     if (navRegister) navRegister.style.display = displayGuest;
-    if (logoutBtn) logoutBtn.style.display = displayWelcome;
+    if (logoutBtn) logoutBtn.style.display = isAuthenticated ? 'inline-block' : 'none';
 
     if (isAuthenticated && profile) {
         if (nameEl) nameEl.textContent = profile.full_name;
