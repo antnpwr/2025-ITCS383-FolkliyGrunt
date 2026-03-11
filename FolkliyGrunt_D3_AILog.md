@@ -1,10 +1,14 @@
 # 📝 D3: AI Usage Log
 
-Every team member MUST log their AI usage here.
+Every team member MUST log their AI usage in their respective section below.
+
+---
+
+## Person 1: Project Lead + Auth + Frontend
 
 ### Entry 1 — Project Scaffold & Dependency Configuration
 - **Date:** 2026-03-11
-- **Person:** Person 1 (Project Lead)
+- **Person:** Person 1
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Initializing Node.js project, formatting `package.json`, and configuring `.env.example`.
 
@@ -22,7 +26,7 @@ Every team member MUST log their AI usage here.
 
 ### Entry 2 — Database and Auth Middleware Setup
 - **Date:** 2026-03-11
-- **Person:** Person 1 (Project Lead)
+- **Person:** Person 1
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Setting up Supabase instances and API authentication middleware.
 
@@ -38,9 +42,9 @@ Every team member MUST log their AI usage here.
 **Verification Method:**
 > Reviewed the code format. Matches the required interface `req.user = { id, email, role, profile }` required by the rest of the team.
 
-### Entry 3 — Auth APIs and System Schema Schema
+### Entry 3 — Auth APIs and System Schema
 - **Date:** 2026-03-11
-- **Person:** Person 1 (Project Lead)
+- **Person:** Person 1
 - **AI Tool:** Gemini (Antigravity Agent)
 - **Task:** Implementing Auth Controllers, REST routes, and translating ER diagram into PostgreSQL schema.
 
@@ -55,3 +59,58 @@ Every team member MUST log their AI usage here.
 
 **Verification Method:**
 > Examined code visually to ensure SQL relations were sound (cascading deletes, unique fields) and Supabase methods used correctly. Design uses variables for simple theming.
+
+### Entry 4 — Connection Debugging and Dashboard Implementation
+- **Date:** 2026-03-11
+- **Person:** Person 1
+- **AI Tool:** Gemini (Antigravity Agent)
+- **Task:** Resolving `ENOTFOUND` connection errors, fixing data mapping bugs, and building the dashboard.
+
+**Prompt:**
+> Resolve the "ENOTFOUND base" error occurring during registration. Fix the profile creation crash where full_name was null. Then, implement a central dashboard that greets the user and handles session redirection.
+
+**AI Output (Summary):**
+> Identified hidden characters in `.env` causing DNS errors; refactored to individual host/user variables. Fixed frontend `fullName` to backend `full_name` mapping mismatch. Created `index.html` and updated `app.js` with session-aware routing and profile fetching.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+
+**Verification Method:**
+> Ran `npm test`—all 6 suite tests passed. Manually verified end-to-end registration and dashboard redirection in the browser.
+### Entry 5 — SonarCloud Remediation & Test Coverage Optimization
+- **Date:** 2026-03-11
+- **Person:** Person 1
+- **AI Tool:** Gemini (Antigravity Agent)
+- **Task:** Resolving Reliability and Maintainability issues, reducing Cognitive Complexity, and boosting test coverage to 80%+.
+
+**Prompt:**
+> Address the SonarCloud issues: fix the parseInt calls in db.js, use optional chaining in authController.js, and refactor the monolithic DOM content logic in app.js to reduce cognitive complexity. Also, create a unit test for the Profile model and auth endpoints to ensure we hit the 80% coverage target.
+
+**AI Output (Summary):**
+> Updated `db.js` with `Number.parseInt`. Refactored `app.js` into modular functions (`updateAuthUI`, `fetchAndSyncProfile`). Implemented `profile.test.js` and updated `auth.test.js` with comprehensive mocks.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+
+**Verification Method:**
+> Ran `npm run test -- --coverage`. Verified an overall statement coverage of **83.8%** and confirmed all 11 tests pass.
+
+---
+
+## Person 2: Court Search
+*Log your AI interactions here...*
+
+---
+
+## Person 3: Bookings & Equipment
+*Log your AI interactions here...*
+
+---
+
+## Person 4: Waitlist & Payments
+*Log your AI interactions here...*
+
+---
+
+## Person 5: Reviews & Localization
+*Log your AI interactions here...*
