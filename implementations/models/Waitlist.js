@@ -14,9 +14,10 @@ class Waitlist {
   // Get next user in queue for a specific court (FIFO — oldest first)
   static async getNextInQueue(courtId) {
     const result = await pool.query(
-      `SELECT w.*, u.email, u.full_name
+      `SELECT w.*, au.email, p.full_name
        FROM waitlist w
-       JOIN users u ON w.user_id = u.id
+       JOIN profiles p ON w.user_id = p.auth_id
+       JOIN auth.users au ON w.user_id = au.id
        WHERE w.court_id = $1 AND w.status = 'PENDING'
        ORDER BY w.created_at ASC
        LIMIT 1`,

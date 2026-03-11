@@ -49,17 +49,32 @@ const courtController = {
   // POST /api/courts  (Admin only)
   create: async (req, res) => {
     try {
-      const { name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time } = req.body;
+      const { name, address, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time } = req.body;
+
+      let finalLat = location_lat;
+      let finalLng = location_lng;
+
+      // Geocode address if coordinates are not explicitly provided
+      if (address && (!finalLat || !finalLng)) {
+          const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`, {
+              headers: { 'User-Agent': 'FolkliyGruntApp/1.0' }
+          });
+          const data = await response.json();
+          if (data && data.length > 0) {
+              finalLat = parseFloat(data[0].lat);
+              finalLng = parseFloat(data[0].lon);
+          }
+      }
 
       // Basic validation
-      if (!name || !location_lat || !location_lng || !price_per_hour || !opening_time || !closing_time) {
-        return res.status(400).json({ error: 'Missing required fields: name, location_lat, location_lng, price_per_hour, opening_time, closing_time' });
+      if (!name || finalLat === undefined || finalLng === undefined || !price_per_hour || !opening_time || !closing_time) {
+        return res.status(400).json({ error: 'Missing required fields: name, location_lat (or address), location_lng, price_per_hour, opening_time, closing_time' });
       }
 
       const court = await Court.create({
         name,
-        location_lat,
-        location_lng,
+        location_lat: finalLat,
+        location_lng: finalLng,
         price_per_hour,
         allowed_shoes,
         opening_time,

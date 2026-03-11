@@ -11,6 +11,7 @@ describe('Review Model', () => {
   test('create should insert a review with valid rating', async () => {
     pool.query
       .mockResolvedValueOnce({ rows: [] }) // no existing review
+      .mockResolvedValueOnce({ rows: [{ id: 'b1' }] }) // passed booking check
       .mockResolvedValueOnce({ rows: [{ id: '1', rating: 4, comment_text: 'Great!' }] });
 
     const review = await Review.create({
@@ -40,6 +41,8 @@ describe('Review Model', () => {
   });
 
   test('create should reject rating below 1', async () => {
+    // Adding mock for past booking check since it might reach it if rating was valid, 
+    // but rating is checked first, so it doesn't matter here.
     await expect(
       Review.create({ user_id: 'u1', court_id: 'c1', rating: 0, comment_text: 'Bad' })
     ).rejects.toThrow('Rating must be between 1 and 5');

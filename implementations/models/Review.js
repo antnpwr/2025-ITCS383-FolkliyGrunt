@@ -17,11 +17,31 @@ class Review {
       throw new Error('You have already reviewed this court');
     }
 
+    // Check if user has booked this court before
+    const pastBookings = await pool.query(
+      `SELECT id FROM bookings
+       WHERE user_id = $1 AND court_id = $2 AND booking_status = 'CONFIRMED'`,
+      [user_id, court_id]
+    );
+    if (pastBookings.rows.length === 0) {
+      throw new Error('You can only review a court you have booked');
+    }
+
     const result = await pool.query(
       `INSERT INTO reviews (user_id, court_id, rating, comment_text)
        VALUES ($1, $2, $3, $4) RETURNING *`,
       [user_id, court_id, rating, comment_text]
     );
+
+    // Recalculate and update the court's average rating 
+    await pool.query(
+      `UPDATE courts
+       SET total_reviews = (SELECT COUNT(id) FROM reviews WHERE court_id = $1),
+           average_rating = (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE court_id = $1)
+       WHERE id = $1`,
+      [court_id]
+    );
+
     return result.rows[0];
   }
 

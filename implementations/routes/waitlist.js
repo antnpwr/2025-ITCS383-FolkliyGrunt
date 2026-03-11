@@ -7,6 +7,7 @@ router.use(authMiddleware);
 
 router.post('/', waitlistController.addToWaitlist);
 router.get('/my', waitlistController.getMyWaitlist);
+router.post('/:id/confirm', waitlistController.confirmWaitlist);
 router.delete('/:id', waitlistController.removeFromWaitlist);
 
 module.exports = router;

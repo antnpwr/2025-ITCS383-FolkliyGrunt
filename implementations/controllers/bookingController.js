@@ -2,8 +2,8 @@ const Booking = require('../models/Booking');
 const EquipmentRental = require('../models/EquipmentRental');
 
 // IMPORTANT: Import services from Person 4 when they are ready
-// const paymentService = require('../services/paymentService');
-// const notificationService = require('../services/notificationService');
+const paymentService = require('../services/paymentService');
+const notificationService = require('../services/notificationService');
 
 const bookingController = {
     create: async (req, res) => {
@@ -15,8 +15,24 @@ const bookingController = {
             const start = new Date(start_time);
             const end = new Date(start.getTime() + duration_hours * 60 * 60 * 1000);
 
-            // TODO: Calculate total_amount from court price + equipment prices
-            const total_amount = req.body.total_amount || 0;
+            // Get Court pricing
+            const Court = require('../models/Court');
+            const court = await Court.findById(court_id);
+            if (!court) throw new Error('Court not found');
+            const courtPrice = parseFloat(court.price_per_hour);
+
+            let total_amount = courtPrice * duration_hours;
+
+            // Equipment fixed prices
+            const EQUIPMENT_PRICES = { RACKET: 50, SHUTTLECOCK: 20 };
+            
+            if (equipment && equipment.length > 0) {
+               for (const item of equipment) {
+                   const uPrice = EQUIPMENT_PRICES[item.equipment_type] || 0;
+                   item.unit_price = uPrice;
+                   total_amount += uPrice * item.quantity;
+               }
+            }
 
             // Create booking (with SELECT FOR UPDATE for concurrency safety)
             const booking = await Booking.create({
@@ -28,8 +44,24 @@ const bookingController = {
                 await EquipmentRental.addToBooking(booking.id, equipment);
             }
 
-            // TODO: Process payment via Person 4's payment service
-            // await paymentService.processPayment({ booking_id: booking.id, amount: total_amount, method: payment_method });
+            // Process payment via Person 4's payment service
+            await paymentService.processPayment({ booking_id: booking.id, amount: total_amount, method: payment_method });
+
+            // Send booking confirmation notification
+            const startTimeFormatted = new Date(booking.start_time).toLocaleString();
+            const endTimeFormatted = new Date(booking.end_time).toLocaleString();
+            
+            await notificationService.sendNotification(
+                req.user.email,
+                '🏸 Booking Confirmed! - Pro Badminton',
+                `
+                <h2>Booking Confirmed!</h2>
+                <p>Your reservation for <strong>${court.name}</strong> is confirmed.</p>
+                <p><strong>Time:</strong> ${startTimeFormatted} - ${endTimeFormatted}</p>
+                <p><strong>Total Amount:</strong> $${total_amount.toFixed(2)}</p>
+                <p>Thank you for choosing Pro Badminton!</p>
+                `
+            );
 
             res.status(201).json(booking);
         } catch (error) {
@@ -47,11 +79,11 @@ const bookingController = {
                 return res.status(400).json({ error: 'Cannot cancel - booking not found or play time already started' });
             }
 
-            // TODO: Process refund via Person 4's payment service
-            // await paymentService.processRefund(booking.id);
+            // Process refund via Person 4's payment service
+            await paymentService.processRefund(booking.id);
 
-            // TODO: Check waitlist and notify via Person 4's notification service
-            // await notificationService.notifyWaitlist(booking.court_id, booking.start_time, booking.end_time);
+            // Check waitlist and notify via Person 4's notification service
+            await notificationService.notifyWaitlist(booking.court_id, booking.start_time, booking.end_time);
 
             res.json({ message: 'Booking cancelled, refund processed', booking });
         } catch (error) {

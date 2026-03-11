@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#257bf4",
+                        "accent": "#ccff00",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>Mobile Badminton Court Finder</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="bg-primary p-2 rounded-full text-white">
+<span class="material-symbols-outlined block">sports_tennis</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">SmashPass</h1>
+</div>
+<button class="bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
+<span class="material-symbols-outlined block text-slate-600 dark:text-slate-400">notifications</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto px-4 py-6 pb-24">
+<!-- Search & Filter Section -->
+<div class="mb-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-800 border-none rounded-xl shadow-sm focus:ring-2 focus:ring-primary text-sm" placeholder="Search courts, locations..." type="text"/>
+</div>
+<div class="flex gap-2 mt-4 overflow-x-auto pb-2 no-scrollbar">
+<button class="px-4 py-2 bg-primary text-white rounded-full text-xs font-semibold whitespace-nowrap">All Courts</button>
+<button class="px-4 py-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full text-xs font-semibold whitespace-nowrap border border-slate-100 dark:border-slate-700">Near Me</button>
+<button class="px-4 py-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full text-xs font-semibold whitespace-nowrap border border-slate-100 dark:border-slate-700">Indoor</button>
+<button class="px-4 py-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full text-xs font-semibold whitespace-nowrap border border-slate-100 dark:border-slate-700">Top Rated</button>
+</div>
+</div>
+<!-- Section Title -->
+<div class="flex items-center justify-between mb-6 px-2">
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">Nearby Courts</h2>
+<button class="text-primary text-sm font-semibold">View Map</button>
+</div>
+<!-- Court Cards List -->
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm flex gap-4 border border-slate-100 dark:border-slate-700 items-center">
+<div class="h-24 w-24 rounded-xl overflow-hidden shrink-0 bg-slate-200">
+<img class="h-full w-full object-cover" data-alt="Modern indoor badminton court with bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbM0-4Qi4khv2O84v4UQuVu1JI-uHkY2t212pUDlGQFjVqE4T-69DH8Y3DE6qBLFJPIF8PF-Rc15qT-LOuXLoylP9wDt43LKMh3nr8CCpnOwn0R86CMUsIRWtpi7yzhLehFrvJii3-IAd9_9emLOD0x4AsrAXaiyliPTmCPCK5pQjAZXYRDuc4k8xFvOlCVOgVvYYs1eZSm8xBdoXT38LySzvx7furNplj4zZiJw1lY_En1FPVsD8NoueQFsiIB3-pnGLJQY8LP5eJ"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-lg truncate">Elite Badminton Club</h3>
+<div class="flex items-center gap-1 mt-1 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-xs">location_on</span>
+<span>1.2 km away</span>
+</div>
+<div class="flex items-center gap-3 mt-2">
+<div class="flex items-center gap-1 bg-accent/20 px-2 py-0.5 rounded text-xs font-bold text-slate-800">
+<span class="material-symbols-outlined text-[14px] fill-1">star</span>
+                            4.8
+                        </div>
+<span class="text-primary font-bold text-sm">$20/hr</span>
+</div>
+</div>
+<button class="bg-primary text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+                    Book
+                </button>
+</div>
+<!-- Card 2 -->
+<div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm flex gap-4 border border-slate-100 dark:border-slate-700 items-center">
+<div class="h-24 w-24 rounded-xl overflow-hidden shrink-0 bg-slate-200">
+<img class="h-full w-full object-cover" data-alt="Badminton racket and shuttlecock on court" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdayGxJ-HdwT2JvyNUstbO4dEypONoRC3dsPhUcusmAy7WHCO7EyqL0tqAXiaOfz2pcR-F4hEzeBKALxLnvn9d7KBLW1VjeD7Wz43R7OkfiJac0WNbrfV7aGjf32k4803uqLK4qtDSLtF-67n5KadxpFyszK6bJEHz3_MyyqFAN6WI5Chzr1XUw6vKVoIeWPzm11jySnC_r91u73Kv7O01izjCOrSngxicUKzLlHftw5b9VXuOf-CCGeIugcE-uRn2eBusF9MTBMMC"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-lg truncate">Smash Zone Arena</h3>
+<div class="flex items-center gap-1 mt-1 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-xs">location_on</span>
+<span>2.5 km away</span>
+</div>
+<div class="flex items-center gap-3 mt-2">
+<div class="flex items-center gap-1 bg-accent/20 px-2 py-0.5 rounded text-xs font-bold text-slate-800">
+<span class="material-symbols-outlined text-[14px] fill-1">star</span>
+                            4.5
+                        </div>
+<span class="text-primary font-bold text-sm">$18/hr</span>
+</div>
+</div>
+<button class="bg-primary text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+                    Book
+                </button>
+</div>
+<!-- Card 3 -->
+<div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm flex gap-4 border border-slate-100 dark:border-slate-700 items-center">
+<div class="h-24 w-24 rounded-xl overflow-hidden shrink-0 bg-slate-200">
+<img class="h-full w-full object-cover" data-alt="Professional sports arena with wooden floor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBkf4Gt9s4lqYh9Fbh4hwCsWJuFv1HWxMqpG5jfVa8xxk94vIfLG1v0VgC4vrN4UoQwU1hLFN-Gf_4gZgyIOeFQA-VLrNYVoXAtTbG_9iE7aPn2PY3IgXRhteGKjQ62Kcpq6vYgckYWa5Tq6W9hwtXENrOcBSGZvuaSjo3w9qqnVWd-Mfid_wVnSe9Ovw8pgKmwA2WUgrkXJDALAdwcbhnJf7hsEqkKgPDD0B2rkhBck2WNLrNb0OVnK3HgoOOKfD80aZdWm9yyNih"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-lg truncate">Shuttle Masters Hub</h3>
+<div class="flex items-center gap-1 mt-1 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-xs">location_on</span>
+<span>3.1 km away</span>
+</div>
+<div class="flex items-center gap-3 mt-2">
+<div class="flex items-center gap-1 bg-accent/20 px-2 py-0.5 rounded text-xs font-bold text-slate-800">
+<span class="material-symbols-outlined text-[14px] fill-1">star</span>
+                            4.9
+                        </div>
+<span class="text-primary font-bold text-sm">$25/hr</span>
+</div>
+</div>
+<button class="bg-primary text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+                    Book
+                </button>
+</div>
+<!-- Card 4 -->
+<div class="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm flex gap-4 border border-slate-100 dark:border-slate-700 items-center">
+<div class="h-24 w-24 rounded-xl overflow-hidden shrink-0 bg-slate-200">
+<img class="h-full w-full object-cover" data-alt="High angle view of indoor courts" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaBNcMI0pa05HhTT2KYLoWMFYdsqqi-ZgDvzmUdp8d7SAatGlWXITpMSf1xPC5awRMsEVbEJqG2CAb8vBRa3mULM0j89tMMW1SCfJI862OI-BlReY7e2Kqm0kE10ULgMZXHslCQ5dTRZhX3GctA4XLXEMC7BvDyPOMbYp5f-NLxJ2sBnRQhBOA87Ca-88K_gKEjTvomyWb1c7YKnlu8XG8DB4xmF8l2JDfT4-dRl9Y73usu-Ae588YVcKqwlgP-0OP8C4QNjKqhkbJ"/>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-lg truncate">ProShuttle Complex</h3>
+<div class="flex items-center gap-1 mt-1 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-xs">location_on</span>
+<span>4.4 km away</span>
+</div>
+<div class="flex items-center gap-3 mt-2">
+<div class="flex items-center gap-1 bg-accent/20 px-2 py-0.5 rounded text-xs font-bold text-slate-800">
+<span class="material-symbols-outlined text-[14px] fill-1">star</span>
+                            4.7
+                        </div>
+<span class="text-primary font-bold text-sm">$22/hr</span>
+</div>
+</div>
+<button class="bg-primary text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+                    Book
+                </button>
+</div>
+</div>
+<!-- Featured Section (Horizontal Scroll) -->
+<div class="mt-10 pb-6">
+<h2 class="text-xl font-bold mb-4 px-2">Featured Clubs</h2>
+<div class="flex gap-4 overflow-x-auto no-scrollbar">
+<div class="min-w-[280px] bg-primary rounded-3xl p-6 text-white relative overflow-hidden group">
+<div class="relative z-10">
+<h4 class="text-2xl font-black mb-2">Summer Championship</h4>
+<p class="text-primary-100 opacity-80 text-sm mb-4">Registration now open for all levels.</p>
+<button class="bg-accent text-slate-900 px-6 py-2 rounded-full font-bold text-sm">Join Now</button>
+</div>
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-10 rotate-12">emoji_events</span>
+</div>
+<div class="min-w-[280px] bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="text-2xl font-black mb-2">Weekend Pass</h4>
+<p class="text-slate-400 text-sm mb-4">Unlimited play for only $45 every weekend.</p>
+<button class="bg-white text-slate-900 px-6 py-2 rounded-full font-bold text-sm">Grab Pass</button>
+</div>
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-10 rotate-12">confirmation_number</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pb-safe-area">
+<div class="flex items-center justify-around h-20 px-6 max-w-lg mx-auto">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">home</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Search</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Bookings</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Profile</span>
+</a>
+</div>
+</nav>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .pb-safe-area {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .fill-1 {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</body></html>

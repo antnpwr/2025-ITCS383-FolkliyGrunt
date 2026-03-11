@@ -156,13 +156,36 @@ describe('courtController', () => {
             expect(res.json).toHaveBeenCalledWith({ message: 'Court created successfully', court });
         });
 
+        test('creates court from address using Nominatim geocoding', async () => {
+            const mockLocation = [{ lat: '14.0', lon: '101.0' }];
+            global.fetch = jest.fn(() =>
+                Promise.resolve({
+                    json: () => Promise.resolve(mockLocation)
+                })
+            );
+
+            const bodyWithoutCoords = { ...validBody, address: 'Bangkok' };
+            delete bodyWithoutCoords.location_lat;
+            delete bodyWithoutCoords.location_lng;
+
+            const court = { id: 'new-2', ...bodyWithoutCoords, location_lat: 14.0, location_lng: 101.0 };
+            Court.create.mockResolvedValue(court);
+
+            const { req, res } = mockReqRes({ body: bodyWithoutCoords });
+            await courtController.create(req, res);
+
+            expect(global.fetch).toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(Court.create).toHaveBeenCalledWith(expect.objectContaining({ location_lat: 14.0, location_lng: 101.0 }));
+        });
+
         test('returns 400 when required fields are missing', async () => {
             const { req, res } = mockReqRes({ body: { name: 'Test' } });
             await courtController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Missing required fields: name, location_lat, location_lng, price_per_hour, opening_time, closing_time'
+                error: 'Missing required fields: name, location_lat (or address), location_lng, price_per_hour, opening_time, closing_time'
             });
         });
 

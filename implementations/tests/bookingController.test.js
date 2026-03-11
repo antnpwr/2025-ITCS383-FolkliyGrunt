@@ -1,10 +1,23 @@
 // Mock the models BEFORE requiring the controller
 jest.mock('../models/Booking');
 jest.mock('../models/EquipmentRental');
+jest.mock('../models/Court');
 
 const Booking = require('../models/Booking');
 const EquipmentRental = require('../models/EquipmentRental');
+const Court = require('../models/Court');
+const paymentService = require('../services/paymentService');
+const notificationService = require('../services/notificationService');
 const bookingController = require('../controllers/bookingController');
+
+jest.mock('../services/paymentService', () => ({
+    processPayment: jest.fn().mockResolvedValue({ success: true }),
+    processRefund: jest.fn().mockResolvedValue({ success: true })
+}));
+
+jest.mock('../services/notificationService', () => ({
+    notifyWaitlist: jest.fn().mockResolvedValue({ notified: true })
+}));
 
 // Helper to create mock req/res
 function mockReqRes(overrides = {}) {
@@ -29,6 +42,7 @@ describe('bookingController', () => {
         test('creates booking without equipment and returns 201', async () => {
             const booking = { id: 'b1', court_id: 'c1' };
             Booking.create.mockResolvedValue(booking);
+            Court.findById.mockResolvedValue({ id: 'c1', price_per_hour: '100' });
 
             const { req, res } = mockReqRes({
                 body: {
@@ -50,6 +64,7 @@ describe('bookingController', () => {
         test('creates booking with equipment and returns 201', async () => {
             const booking = { id: 'b2', court_id: 'c1' };
             Booking.create.mockResolvedValue(booking);
+            Court.findById.mockResolvedValue({ id: 'c1', price_per_hour: '200' });
             EquipmentRental.addToBooking.mockResolvedValue([]);
 
             const equipment = [{ equipment_type: 'RACKET', quantity: 1, unit_price: 50 }];
@@ -72,6 +87,7 @@ describe('bookingController', () => {
 
         test('returns 409 when timeslot is already booked', async () => {
             Booking.create.mockRejectedValue(new Error('Time slot is already booked'));
+            Court.findById.mockResolvedValue({ id: 'c1', price_per_hour: '100' });
 
             const { req, res } = mockReqRes({
                 body: {
@@ -91,6 +107,7 @@ describe('bookingController', () => {
 
         test('returns 500 on unexpected error', async () => {
             Booking.create.mockRejectedValue(new Error('Unexpected'));
+            Court.findById.mockResolvedValue({ id: 'c1', price_per_hour: '100' });
 
             const { req, res } = mockReqRes({
                 body: {
