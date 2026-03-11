@@ -97,8 +97,97 @@ Every team member MUST log their AI usage in their respective section below.
 
 ---
 
-## Person 2: Court Search
-*Log your AI interactions here...*
+## Person 2: Court & Search Module
+
+### Entry 1 — Court Model (Data Access Layer)
+- **Date:** 2026-03-11
+- **Person:** Vasuphon / Person 2
+- **AI Tool:** Claude (Antigravity Agent)
+- **Task:** Implementing `models/Court.js` with all database query methods for court management and search.
+
+**Prompt:**
+> Read the file `.agent/PERSON2_COURTS_SEARCH.md` and follow it to build the Court & Search Module. Create `models/Court.js` with static methods: `create`, `findAll`, `findById`, `searchByName`, `searchByDistance` (Haversine SQL formula), `searchByPrice`, `update`, and `updateStatus`.
+
+**AI Output (Summary):**
+> Generated `models/Court.js` with all 8 static methods. The `searchByDistance` method uses the Haversine formula embedded directly in PostgreSQL SQL (Option A — no external API key needed). The `findAll` and `findById` methods LEFT JOIN with the `reviews` table and return `avg_rating` and `review_count` to support Person 5 (Reviews) integration.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+
+**Modifications / Rejection Reason:**
+> None. Output matched the spec in `PERSON2_COURTS_SEARCH.md` exactly, including the Haversine SQL formula and parameterized `$1`/`$2`/`$3` queries to prevent SQL injection.
+
+**Verification Method:**
+> Ran `npx jest tests/courts.test.js` — all 7 unit tests passed. Reviewed SQL strings to verify correct parameterized placeholder usage.
+
+---
+
+### Entry 2 — Court Routes & Controller
+- **Date:** 2026-03-11
+- **Person:** Vasuphon / Person 2
+- **AI Tool:** Claude (Antigravity Agent)
+- **Task:** Implementing `routes/courts.js` and `controllers/courtController.js` with all 8 API endpoints.
+
+**Prompt:**
+> Following the spec in `PERSON2_COURTS_SEARCH.md`, create `routes/courts.js` with public GET routes and admin-protected POST/PUT routes using `authMiddleware` and `adminOnly`. Then create `controllers/courtController.js` with full logic for `search`, `getAll`, `getById`, `create`, `update`, and `updateStatus`.
+
+**AI Output (Summary):**
+> Generated `routes/courts.js` with 6 route definitions (3 public, 3 admin-protected). Generated `controllers/courtController.js` with complete logic for all endpoints: input validation, proper HTTP status codes (201 for create, 400 for bad input, 404 for not found, 500 for server errors), and status enum validation (`AVAILABLE`, `RENOVATE`, `DAMAGED`).
+
+**Decision:**
+- [x] ✏️ Accepted with modifications (describe changes below)
+
+**Modifications / Rejection Reason:**
+> Added required-field validation for the `create` endpoint and status enum validation for `updateStatus` — these were not in the original spec stub but were added for robustness and to prevent bad data from reaching the database.
+
+**Verification Method:**
+> Manually traced the request flow through `routes/courts.js` → `courtController.js` → `Court` model. Verified the search controller correctly branches by query parameter: `name` → `searchByName`, `lat+lng+radius` → `searchByDistance`, `maxPrice` → `searchByPrice`, else → `findAll`.
+
+---
+
+### Entry 3 — Unit Tests for Court Model
+- **Date:** 2026-03-11
+- **Person:** Vasuphon / Person 2
+- **AI Tool:** Claude (Antigravity Agent)
+- **Task:** Writing `tests/courts.test.js` — unit tests for the Court model with a mocked database pool.
+
+**Prompt:**
+> Following the test structure in `PERSON2_COURTS_SEARCH.md`, create `tests/courts.test.js`. Include the 3 required tests from the spec (`searchByName`, `searchByPrice`, `updateStatus`) and extend with additional tests for `searchByDistance`, `findById`, `findAll`, and `create`.
+
+**AI Output (Summary):**
+> Generated `tests/courts.test.js` with 7 tests total. All tests use `jest.mock('../config/db')` so no real database connection is needed. Tests verify both that correct SQL substrings are used and that return values are shaped correctly.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+
+**Modifications / Rejection Reason:**
+> None. The 3 required tests from the spec were included verbatim, and 4 additional tests were added to improve coverage.
+
+**Verification Method:**
+> Ran `npx jest tests/courts.test.js --forceExit --no-coverage` → **7 passed, 7 total**. Ran the full suite `npx jest --forceExit --no-coverage` → **13 passed, 13 total** (courts + auth). No regressions.
+
+---
+
+### Entry 4 — Frontend Pages: search.html & court-detail.html
+- **Date:** 2026-03-11
+- **Person:** Vasuphon / Person 2
+- **AI Tool:** Claude (Antigravity Agent)
+- **Task:** Building `public/pages/search.html` and `public/pages/court-detail.html` for the customer-facing court search and detail views.
+
+**Prompt:**
+> Create `public/pages/search.html` with three search modes: by name (text input), by distance (GPS via `navigator.geolocation` + lat/lng inputs), and by max price. Also create `public/pages/court-detail.html` that loads a court by ID from the URL query param and displays all court info including avg rating and an admin status panel. Both pages must use the existing `css/styles.css` design system.
+
+**AI Output (Summary):**
+> Generated `search.html` with a tabbed UI (By Name / By Distance / By Price), a GPS auto-detect button using `navigator.geolocation`, a responsive card grid for results, and empty/error states. Generated `court-detail.html` that fetches `/api/courts/:id`, renders all court fields, shows star ratings, links to OpenStreetMap, and shows an admin status-change panel when `localStorage.user_role === 'ADMIN'`.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+
+**Modifications / Rejection Reason:**
+> None. Both pages use only the CSS variables and class names from `styles.css` as required, and call the correct backend API endpoints from `courtController.js`.
+
+**Verification Method:**
+> Reviewed HTML structure for correct API endpoint usage (`/api/courts`, `/api/courts/search`, `/api/courts/:id`). Verified the GPS branch uses `navigator.geolocation.getCurrentPosition()` correctly and passes coordinates to the `lat/lng/radius` search query. Confirmed admin panel is conditionally rendered from `localStorage.user_role`.
 
 ---
 
