@@ -15,6 +15,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes — each person registers their own route file here
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/courts', require('./routes/courts'));     // Person 2
+// app.use('/api/bookings', require('./routes/bookings')); // Person 3
 // app.use('/api/courts', require('./routes/courts'));     // Person 2
 app.use('/api/bookings', require('./routes/bookings')); // Person 3
 // app.use('/api/waitlist', require('./routes/waitlist')); // Person 4
