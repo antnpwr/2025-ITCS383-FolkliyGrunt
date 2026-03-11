@@ -1,132 +1,272 @@
 <!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="View and manage your badminton court bookings">
-    <title>My Bookings - Badminton Court Management</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-
-<body>
-    <div class="container">
-        <h1>My Bookings</h1>
-
-        <div id="bookingsList">
-            <p>Loading your bookings...</p>
-        </div>
-
-        <div id="equipmentModal" style="display:none;">
-            <h2>Equipment for Booking</h2>
-            <div id="equipmentList"></div>
-            <button onclick="document.getElementById('equipmentModal').style.display='none'"
-                class="btn-secondary">Close</button>
-        </div>
-
-        <p><a href="/pages/booking.html">Book a New Court</a></p>
-    </div>
-
-    <script>
-        const API_BASE = '/api';
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            window.location.href = '/pages/login.html';
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Bookings &amp; Profile Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#257bf4",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
         }
-
-        async function loadBookings() {
-            const container = document.getElementById('bookingsList');
-            try {
-                const res = await fetch(`${API_BASE}/bookings/my`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const bookings = await res.json();
-
-                if (!bookings.length) {
-                    container.innerHTML = '<p>No bookings yet. <a href="/pages/booking.html">Book a court!</a></p>';
-                    return;
-                }
-
-                container.innerHTML = bookings.map(b => `
-          <div class="booking-card" id="booking-${b.id}">
-            <h3>${b.court_name || 'Court'}</h3>
-            <p><strong>Date:</strong> ${new Date(b.start_time).toLocaleString()} — ${new Date(b.end_time).toLocaleString()}</p>
-            <p><strong>Amount:</strong> ${b.total_amount} THB</p>
-            <p><strong>Status:</strong> <span class="status-${b.booking_status.toLowerCase()}">${b.booking_status}</span></p>
-            <p><strong>Payment:</strong> ${b.payment_method || 'N/A'}</p>
-            <div class="booking-actions">
-              <button onclick="viewEquipment('${b.id}')" class="btn-secondary">View Equipment</button>
-              ${b.booking_status === 'CONFIRMED' ? `<button onclick="cancelBooking('${b.id}')" class="btn-danger">Cancel</button>` : ''}
-            </div>
-          </div>
-        `).join('');
-            } catch (err) {
-                container.innerHTML = `<p style="color:red;">Error loading bookings: ${err.message}</p>`;
-            }
-        }
-
-        async function cancelBooking(bookingId) {
-            if (!confirm('Are you sure you want to cancel this booking?')) return;
-
-            try {
-                const res = await fetch(`${API_BASE}/bookings/${bookingId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-
-                if (res.ok) {
-                    alert('Booking cancelled successfully!');
-                    loadBookings(); // Reload the list
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert(`Error: ${err.message}`);
-            }
-        }
-
-        async function viewEquipment(bookingId) {
-            const modal = document.getElementById('equipmentModal');
-            const list = document.getElementById('equipmentList');
-
-            try {
-                const res = await fetch(`${API_BASE}/bookings/${bookingId}/equipment`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const equipment = await res.json();
-
-                if (!equipment.length) {
-                    list.innerHTML = '<p>No equipment rented for this booking.</p>';
-                } else {
-                    list.innerHTML = `
-            <table>
-              <thead>
-                <tr><th>Equipment</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr>
-              </thead>
-              <tbody>
-                ${equipment.map(e => `
-                  <tr>
-                    <td>${e.equipment_type}</td>
-                    <td>${e.quantity}</td>
-                    <td>${e.unit_price} THB</td>
-                    <td>${(e.quantity * e.unit_price).toFixed(2)} THB</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          `;
-                }
-                modal.style.display = 'block';
-            } catch (err) {
-                list.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
-                modal.style.display = 'block';
-            }
-        }
-
-        loadBookings();
     </script>
-</body>
-
-</html>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex">
+<!-- Sidebar Navigation -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark shrink-0 h-screen sticky top-0" aria-label="Main Navigation">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-white">sports_tennis</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-lg font-bold leading-none">Pro Badminton</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Player Dashboard</p>
+</div>
+</div>
+<nav class="flex-1 px-4 mt-4 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-sm font-medium">My Bookings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-sm font-medium">Waitlists</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">star</span>
+<span class="text-sm font-medium">Reviews</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
+<img class="size-10 rounded-full border-2 border-primary" alt="User profile avatar of a badminton player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD46KdRHuUHoG28iSVr6Vxg4kU7CaSMhq60Uk-uY5Y_HJe5kmPYV35fwCWnO-OdRb26U1UR-xWZ8_Bl30HuR13vtz1AZ2q2Dt_xnblJfz0DX5k4lM31I6wYvx_76Z3xaJ8yG3Ch7Xq6hO3dFCW2ViIK9ALv2umgpZWqM7LeGXfDDy1XXMKW1TUOn-ZVjN8kZAi7t2VaZAHoRDe_gZjdVyJi-EjYKKAiGL833ovpGbhdQxjAcJjaH5JO-jaEPPOh-uJ1Ai68uzHYysPG"/>
+<div class="flex flex-col min-w-0">
+<p class="text-sm font-semibold truncate">Alex Johnson</p>
+<p class="text-xs text-slate-500 truncate">Pro Member</p>
+</div>
+<button class="ml-auto text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-lg">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto">
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-10">
+<div class="flex-1 max-w-xl">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search courts, bookings, or locations..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"></span>
+</button>
+<button class="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+</header>
+<div class="p-8 max-w-7xl mx-auto flex gap-8">
+<!-- Central Dashboard Content -->
+<div class="flex-1 space-y-8">
+<div>
+<h2 class="text-3xl font-extrabold tracking-tight">My Bookings</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Manage your court reservations and gaming history.</p>
+</div>
+<!-- Upcoming Bookings Section -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold">Upcoming Bookings</h3>
+<button class="text-primary text-sm font-semibold hover:underline">Book New Court</button>
+</div>
+<div class="space-y-4">
+<!-- Booking Card 1 -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden flex shadow-sm group hover:shadow-md transition-shadow">
+<div class="w-48 h-auto shrink-0 relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Modern indoor badminton court with blue floor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYTT42KwTELX4UluCy2UoRICGpa3JwakmWOp55Nzm0njt1aOG4g5zOSlez8ISL3jGcpAzeBBYb9tC9x438Ev1x8qoVe5oX6G2FPE6-fl3lp1qAbhsy5CKqMSoeLdHFhTB4eWAr4W3T7DYF2VSl4NC6GV5nvqT81NiHp6CWeJ2-LiF-9xfb2YXLDDRQZlCnEEhc17d0gnZPmrkFiRYaHBU6-ynfvkTdErb5tuik_CwjkzG4qatnf1qDU0kNTsR4dgxAW2g2slhHJf7Q"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<span class="absolute bottom-2 left-3 text-white text-xs font-bold px-2 py-1 bg-primary rounded">Court #4</span>
+</div>
+<div class="p-5 flex-1 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg">Elite Badminton Arena</h4>
+<div class="flex items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-base">event</span>
+                                                Oct 24, 2023
+                                            </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-base">schedule</span>
+                                                06:00 PM - 07:00 PM
+                                            </div>
+</div>
+</div>
+<button class="bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                                        Cancel
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Booking Card 2 -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden flex shadow-sm group hover:shadow-md transition-shadow">
+<div class="w-48 h-auto shrink-0 relative overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Badminton racket and shuttlecock on court" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvKF6jdpRPZ9Ch9RF3ozWsRFt-ApTlEeW7sKBHAE4ffJ4AyYzJoUn4Hz1kAOXfezYYjflg2keYqwWz1a6oL4VoBksJEai1HLRChdnI6Q0Ysf6f_dGQTKjJfmLXj-iahJRaxhSaFemyX5os9RrtnZELkYM-KPUEiTwt3vYxh3GloQ7FWWwOFePyo5ThLqSo1kOHAxNN1g3Fi_B9qLyvIAd_25y5MH_c32nqqDC4DrhI8v7Fa5DwsS4p6XD_JWdadQ0d8fMJAW66L58O"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<span class="absolute bottom-2 left-3 text-white text-xs font-bold px-2 py-1 bg-primary rounded">Court #1</span>
+</div>
+<div class="p-5 flex-1 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg">City Sports Complex</h4>
+<div class="flex items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-base">event</span>
+                                                Oct 28, 2023
+                                            </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-base">schedule</span>
+                                                08:00 AM - 10:00 AM
+                                            </div>
+</div>
+</div>
+<button class="bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                                        Cancel
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Past Bookings Section -->
+<section>
+<h3 class="text-lg font-bold mb-4">Past Bookings</h3>
+<div class="overflow-hidden border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900">
+<table class="w-full text-left text-sm">
+<thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<tr>
+<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider">Date</th>
+<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider">Court</th>
+<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider">Amount Paid</th>
+<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">Oct 15, 2023</td>
+<td class="px-6 py-4">Elite Arena - Court #2</td>
+<td class="px-6 py-4 font-medium">$25.00</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary font-bold hover:underline">Write a Review</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">Oct 10, 2023</td>
+<td class="px-6 py-4">City Sports - Court #5</td>
+<td class="px-6 py-4 font-medium">$18.50</td>
+<td class="px-6 py-4 text-right">
+<span class="text-slate-400 flex items-center justify-end gap-1"><span class="material-symbols-outlined text-sm text-yellow-500 fill-1">star</span> Reviewed</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">Oct 02, 2023</td>
+<td class="px-6 py-4">Downtown Club - Court #1</td>
+<td class="px-6 py-4 font-medium">$22.00</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary font-bold hover:underline">Write a Review</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="px-6 py-4 border-t border-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-800/20 text-center">
+<button class="text-slate-500 text-sm font-medium hover:text-primary transition-colors">View All History</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Sidebar Panel -->
+<aside class="w-80 space-y-6 shrink-0" aria-label="Secondary Actions">
+<!-- Waitlists Panel -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">hourglass_empty</span>
+<h3 class="text-lg font-bold">Active Waitlists</h3>
+</div>
+<div class="space-y-4">
+<div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+<div class="flex justify-between items-start mb-2">
+<p class="text-xs font-bold text-primary uppercase tracking-wider">Position #2</p>
+<span class="size-2 bg-yellow-500 rounded-full animate-pulse"></span>
+</div>
+<h4 class="font-bold text-sm">Elite Arena - Sunday Prime</h4>
+<p class="text-xs text-slate-500 mt-1">Oct 29 • 07:00 PM</p>
+</div>
+<div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+<div class="flex justify-between items-start mb-2">
+<p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Position #8</p>
+<span class="size-2 bg-slate-400 rounded-full"></span>
+</div>
+<h4 class="font-bold text-sm">City Sports - Weekend Special</h4>
+<p class="text-xs text-slate-500 mt-1">Oct 28 • 09:00 AM</p>
+</div>
+</div>
+<button class="w-full mt-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        Manage Waitlists
+                    </button>
+</div>
+<!-- Membership Status -->
+<div class="bg-gradient-to-br from-primary to-blue-600 rounded-xl p-6 text-white shadow-lg shadow-primary/20">
+<div class="flex items-center gap-3 mb-4">
+<div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-white">verified</span>
+</div>
+<h3 class="font-bold">Pro Membership</h3>
+</div>
+<p class="text-white/80 text-sm leading-relaxed mb-4">You have 12 credits remaining for this month. Priority booking is active.</p>
+<div class="w-full bg-white/20 rounded-full h-2 mb-6">
+<div class="bg-white rounded-full h-2 w-[75%] shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
+</div>
+<button class="w-full bg-white text-primary py-2.5 rounded-lg text-sm font-extrabold hover:bg-slate-50 transition-colors">
+                        Add Credits
+                    </button>
+</div>
+<!-- Ad/CTA -->
+<div class="relative rounded-xl overflow-hidden group cursor-pointer">
+<img class="w-full h-40 object-cover brightness-50 group-hover:scale-105 transition-transform duration-500" alt="Action shot of badminton player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsOtX2tBunSS1CbEBTe6bjUcy7XmE2Or0bblAghFd_NSdTYiFRMR51A01jFxsYxkoSMyD7nJOqWn6XZn57V9_6ICG8WTHYOM62W03mvNkQ6E-25pUnJgk6Zc8B4xOxrKoNMXFbBwlTZ8o1ooIW3Q-4GYkEz_TA4Nb0juOYCvgEIGOWbloDDfUDscaTnftZ2dEXgm4oJKX4vhyy7gAoX1Ia-EsLTJ_sZYn1g9jFTc7tmtqrsBejGpmjxgcQrxAMARTePxMu6vGFWxTB"/>
+<div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+<h4 class="text-white font-bold mb-1">Upcoming Tournament</h4>
+<p class="text-white/70 text-xs mb-3">Register for the Summer Open 2024</p>
+<span class="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-white text-xs font-bold uppercase">Learn More</span>
+</div>
+</div>
+</aside>
+</div>
+<script src="/js/app.js"></script>
+</body></html>

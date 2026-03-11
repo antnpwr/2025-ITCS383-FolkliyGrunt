@@ -1,14 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const path = require('path');
+const path = require('node:path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({ 
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false
+}));
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -20,7 +25,7 @@ app.use('/api/courts', require('./routes/courts'));     // Person 2
 // app.use('/api/courts', require('./routes/courts'));     // Person 2
 app.use('/api/bookings', require('./routes/bookings')); // Person 3
 app.use('/api/waitlist', require('./routes/waitlist')); // Person 4
-// app.use('/api/reviews', require('./routes/reviews'));   // Person 5
+app.use('/api/reviews', require('./routes/reviews'));   // Person 5
 
 // Health check
 app.get('/api/health', (req, res) => {

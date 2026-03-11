@@ -26,6 +26,8 @@ CREATE TABLE courts (
   current_status VARCHAR(20) DEFAULT 'AVAILABLE' CHECK (current_status IN ('AVAILABLE', 'RENOVATE', 'DAMAGED')),
   opening_time TIME NOT NULL,
   closing_time TIME NOT NULL,
+  average_rating DECIMAL(3, 2) DEFAULT 0.00,
+  total_reviews INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

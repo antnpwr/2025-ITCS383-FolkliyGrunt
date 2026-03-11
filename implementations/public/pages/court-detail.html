@@ -6,6 +6,8 @@
   <title>Court Details - Badminton Court Management</title>
   <meta name="description" content="View badminton court details, ratings, and availability.">
   <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     .back-link {
       display: inline-flex;
@@ -46,9 +48,9 @@
       font-weight: 600;
       margin-bottom: 1rem;
     }
-    .badge-available { background: #10B981; color: white; }
-    .badge-renovate  { background: #F59E0B; color: white; }
-    .badge-damaged   { background: #EF4444; color: white; }
+    .badge-available { background: #047857; color: white; }
+    .badge-renovate  { background: #B45309; color: white; }
+    .badge-damaged   { background: #B91C1C; color: white; }
 
     .detail-grid {
       display: grid;
@@ -100,7 +102,7 @@
     .map-placeholder {
       background: #F3F4F6;
       border-radius: 0.75rem;
-      height: 200px;
+      height: 250px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -109,6 +111,7 @@
       font-size: 0.9rem;
       border: 1px solid var(--border);
       gap: 0.5rem;
+      z-index: 1;
     }
     .map-placeholder span:first-child { font-size: 2rem; }
 
@@ -153,7 +156,7 @@
     const API_BASE = '/api/courts';
 
     function getCourtId() {
-      const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(globalThis.location.search);
       return params.get('id');
     }
 
@@ -164,14 +167,13 @@
     }
 
     function renderCourt(court) {
-      const rating       = parseFloat(court.avg_rating || 0);
-      const reviewCount  = parseInt(court.review_count || 0);
+      const rating       = Number.parseFloat(court.avg_rating || 0);
+      const reviewCount  = Number.parseInt(court.review_count || 0, 10);
       const stars        = '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
       const statusClass  = statusBadgeClass(court.current_status);
       const mapsUrl      = `https://www.google.com/maps?q=${court.location_lat},${court.location_lng}`;
       const osmUrl       = `https://www.openstreetmap.org/?mlat=${court.location_lat}&mlon=${court.location_lng}&zoom=16`;
 
-      const token = localStorage.getItem('access_token');
       const userRole = localStorage.getItem('user_role') || '';
 
       const bookingSection = court.current_status === 'AVAILABLE'
@@ -182,15 +184,19 @@
              Court Unavailable
            </div>`;
 
+      const selAvail = court.current_status === 'AVAILABLE' ? 'selected' : '';
+      const selRenov = court.current_status === 'RENOVATE' ? 'selected' : '';
+      const selDamag = court.current_status === 'DAMAGED' ? 'selected' : '';
+
       const adminPanel = userRole === 'ADMIN'
         ? `<div class="admin-panel">
              <h3>⚙️ Admin Controls</h3>
              <div class="form-group">
                <label for="status-select">Change Status</label>
                <select id="status-select">
-                 <option value="AVAILABLE" ${court.current_status==='AVAILABLE'?'selected':''}>AVAILABLE</option>
-                 <option value="RENOVATE"  ${court.current_status==='RENOVATE'?'selected':''}>RENOVATE</option>
-                 <option value="DAMAGED"   ${court.current_status==='DAMAGED'?'selected':''}>DAMAGED</option>
+                 <option value="AVAILABLE" ${selAvail}>AVAILABLE</option>
+                 <option value="RENOVATE"  ${selRenov}>RENOVATE</option>
+                 <option value="DAMAGED"   ${selDamag}>DAMAGED</option>
                </select>
              </div>
              <button class="btn btn-primary" onclick="updateStatus('${court.id}')">Update Status</button>
@@ -250,11 +256,7 @@
             </div>
 
             <!-- Map placeholder -->
-            <div class="map-placeholder">
-              <span>🗺</span>
-              <span>Location: ${court.location_lat}, ${court.location_lng}</span>
-              <a href="${osmUrl}" target="_blank" style="color:var(--primary); font-size:0.85rem;">Open in OpenStreetMap ↗</a>
-            </div>
+            <div id="map" class="map-placeholder"></div>
           </div>
 
           <!-- Right: Rating & Price & Booking -->
@@ -264,11 +266,11 @@
                 <div class="info-label" style="text-align:center;">Average Rating</div>
                 <div class="rating-big">${rating.toFixed(1)}</div>
                 <div class="rating-stars">${stars}</div>
-                <div class="rating-count">${reviewCount} review${reviewCount !== 1 ? 's' : ''}</div>
+                <div class="rating-count">${reviewCount} review${reviewCount === 1 ? '' : 's'}</div>
               </div>
               <div class="price-highlight">
                 <div class="info-label">Price per Hour</div>
-                <div class="price-big">฿${parseFloat(court.price_per_hour).toFixed(0)}</div>
+                <div class="price-big">฿${Number.parseFloat(court.price_per_hour).toFixed(0)}</div>
                 <div class="price-sub">per hour</div>
               </div>
               ${bookingSection}
@@ -327,6 +329,17 @@
         const court = await res.json();
         document.title = `${court.name} - Badminton Court Management`;
         main.innerHTML = renderCourt(court);
+
+        // Initialize Leaflet Map
+        if (court.location_lat && court.location_lng) {
+          const map = L.map('map').setView([court.location_lat, court.location_lng], 15);
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          }).addTo(map);
+          L.marker([court.location_lat, court.location_lng]).addTo(map)
+            .bindPopup(`<b>${escapeHtml(court.name)}</b>`).openPopup();
+        }
       } catch (err) {
         main.innerHTML = `<div class="not-found"><h2>Failed to load court</h2><p>${err.message}</p><p><a href="search.html">← Back to Search</a></p></div>`;
       }
