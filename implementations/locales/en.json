@@ -1,0 +1,65 @@
+{
+  "app_name": "Badminton Court Management System",
+  "nav": {
+    "home": "Home",
+    "search": "Search Courts",
+    "my_bookings": "My Bookings",
+    "my_waitlist": "My Waitlist",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "search": {
+    "title": "Find a Court",
+    "by_name": "Search by name",
+    "by_distance": "Search by distance",
+    "by_price": "Max price per hour",
+    "radius": "Radius (km)",
+    "results": "Search Results",
+    "no_results": "No courts found"
+  },
+  "booking": {
+    "title": "Book a Court",
+    "select_time": "Select time slot",
+    "duration": "Duration (hours)",
+    "equipment": "Equipment Rental",
+    "racket": "Badminton Racket",
+    "shuttlecock": "Shuttlecock",
+    "total": "Total Amount",
+    "pay_now": "Pay Now",
+    "cancel": "Cancel Booking",
+    "cancel_confirm": "Are you sure? You will receive a full refund.",
+    "cancelled": "Booking cancelled, refund processed"
+  },
+  "review": {
+    "title": "Reviews",
+    "write_review": "Write a Review",
+    "rating": "Rating",
+    "comment": "Your comment",
+    "submit": "Submit Review",
+    "avg_rating": "Average Rating",
+    "stars": "stars"
+  },
+  "auth": {
+    "login_title": "Login",
+    "register_title": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "address": "Address",
+    "login_button": "Log In",
+    "register_button": "Create Account"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success",
+    "save": "Save",
+    "back": "Back",
+    "per_hour": "per hour",
+    "available": "Available",
+    "renovating": "Under Renovation",
+    "damaged": "Damaged"
+  }
+}

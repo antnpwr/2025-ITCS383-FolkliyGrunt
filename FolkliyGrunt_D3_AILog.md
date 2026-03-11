@@ -113,4 +113,26 @@ Every team member MUST log their AI usage in their respective section below.
 ---
 
 ## Person 5: Reviews & Localization
-*Log your AI interactions here...*
+
+### Entry 1 — Implementation of Review Module & i18n
+- **Date:** 2026-03-11
+- **Person:** [Wimonwan/ Person 5]
+- **AI Tool:** Gemini (Antigravity Agent)
+- **Task:** Creating Review Models, Controllers, Routes, i18n Middleware, Locales, and Tests.
+
+**Prompt:**
+> Read the file PERSON5_REVIEWS_I18N.md and create code it exactly to build the Review Module + i18n based on the prompt instructions.
+
+**AI Output (Summary):**
+> Read the instruction file and created the exact files for the database models, Express routes, controllers, i18n localization JSONs, and test suites as provided in the instructions.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+- [ ] ✏️ Accepted with modifications (describe changes below)
+- [ ] ❌ Rejected (describe why below)
+
+**Modifications / Rejection Reason:**
+> N/A
+
+**Verification Method:**
+> Verified that the exact required implementation files matched the code provided in PERSON5_REVIEWS_I18N.md. Tests are created as instructed.
