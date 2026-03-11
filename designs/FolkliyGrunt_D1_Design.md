@@ -20,14 +20,16 @@ C4Context
 
     System_Ext(payment_sys, "Stripe", "Processes credit card payments (Stripe Charges API) and bank transfers. Handles full refund requests via Stripe Refunds API.")
     System_Ext(notification_sys, "Nodemailer (SMTP)", "Sends email notifications to users when a waitlisted court becomes available. Uses Gmail SMTP or Mailtrap for dev.")
-    System_Ext(map_sys, "Google Maps API", "Provides GPS-based distance calculations (1km, 2km, 10km radius) via Distance Matrix API and Geocoding API.")
+    System_Ext(map_sys, "OpenStreetMap (Nominatim)", "Provides free geocoding and reverse geocoding via Nominatim API. Distance calculations use the Haversine formula in PostgreSQL.")
+    System_Ext(auth_sys, "Supabase Auth", "Managed authentication service. Handles user registration, login, password hashing, and JWT session tokens via @supabase/supabase-js SDK.")
 
     Rel(customer, bms, "Searches, books, pays, cancels, rents equipment, reviews", "HTTPS / Web Browser")
     Rel(admin, bms, "Manages courts, statuses, and user accounts", "HTTPS / Web Browser")
 
     Rel(bms, payment_sys, "Processes payments and refund requests", "Stripe Node.js SDK")
     Rel(bms, notification_sys, "Sends waitlist availability alerts", "SMTP")
-    Rel(bms, map_sys, "Requests distance calculations from user GPS location", "Google Maps REST API")
+    Rel(bms, map_sys, "Geocodes addresses to GPS coordinates", "Nominatim REST API (HTTPS)")
+    Rel(bms, auth_sys, "Authenticates users (signup, login, session)", "Supabase JS SDK")
 ```
 
 **Design Rationale:**
@@ -36,7 +38,7 @@ C4Context
 |---|---|
 | **Concurrency (1,000 users)** | The system boundary description explicitly states the NFR. A single, well-optimized monolith on Node.js handles this via its non-blocking I/O event loop. |
 | **Security (Encryption)** | All relationships use HTTPS. Sensitive data (credit cards, passwords) is stored encrypted within the system, and actual payment processing is delegated to **Stripe** (PCI-DSS Level 1 certified), avoiding direct PCI liability. |
-| **Search (Name/Distance/Price)** | **Google Maps API** (Distance Matrix / Geocoding) is identified as the external dependency for GPS-based distance search (1km/2km/10km radius). Name and price filtering are handled internally by PostgreSQL indexes. |
+| **Search (Name/Distance/Price)** | **OpenStreetMap Nominatim API** (free geocoding, no API key) converts addresses to GPS coordinates. Distance search (1km/2km/10km radius) uses the **Haversine formula in PostgreSQL** for fast, server-side calculations. Name and price filtering use PostgreSQL indexes. |
 | **Waitlist & Notification** | **Nodemailer** sends email alerts via SMTP (Gmail or Mailtrap for dev) when a waitlisted court becomes available, ensuring reliable delivery decoupled from core booking logic. |
 | **Payment & Cancellation** | **Stripe Charges API** handles credit card payments; **Stripe Refunds API** processes full refunds for cancellations (if play time hasn't started). Bank transfers are simulated via Stripe's test mode. |
 | **Localization (TH/EN/ZH)** | Stated in the system description. Implemented internally via a JSON-based i18n translation layer. |
@@ -62,8 +64,9 @@ C4Container
     }
 
     System_Ext(payment_sys, "Stripe", "Processes credit card and bank transfer payments via Stripe SDK. Handles refunds.")
-    System_Ext(map_sys, "Google Maps API", "GPS-based distance calculations via Distance Matrix API.")
+    System_Ext(map_sys, "OpenStreetMap (Nominatim)", "Free geocoding API for address-to-GPS conversion. No API key required.")
     System_Ext(notification_sys, "Nodemailer (SMTP)", "Sends email alerts for waitlist availability via Gmail/Mailtrap SMTP.")
+    System_Ext(auth_sys, "Supabase Auth", "Managed auth (signup, login, JWT sessions)")
 
     Rel(customer, web_app, "Searches, books, pays, reviews", "HTTPS")
     Rel(admin, web_app, "Manages courts, statuses, users", "HTTPS")
@@ -72,8 +75,9 @@ C4Container
     
     Rel(api_server, db, "Reads/Writes data", "SQL/TCP")
     Rel(api_server, payment_sys, "Processes payments and refunds", "Stripe Node.js SDK")
-    Rel(api_server, map_sys, "Calculates distances (1km/2km/10km)", "Google Maps REST API")
+    Rel(api_server, map_sys, "Geocodes addresses", "Nominatim REST API")
     Rel(api_server, notification_sys, "Sends waitlist alerts", "SMTP")
+    Rel(api_server, auth_sys, "Authenticates users", "Supabase JS SDK")
 ```
 
 **Design Rationale:**
@@ -93,7 +97,7 @@ C4Component
 
     Container_Boundary(api_container, "API Server") {
         Component(router, "Express Router", "Middleware", "Routes incoming HTTP requests to the appropriate controller based on URL path.")
-        Component(auth_controller, "Auth Controller", "Controller", "Handles user registration, login, password encryption, and admin user management (block/disable).")
+        Component(auth_controller, "Auth Controller", "Controller", "Handles user registration and login via Supabase Auth SDK. Manages admin user blocking/disabling.")
         Component(court_controller, "Court & Search Controller", "Controller", "Manages court CRUD for admins. Handles search by name, distance, and price for customers.")
         Component(booking_controller, "Booking Controller", "Controller", "Manages reservations, cancellations, equipment rentals, and waitlist logic.")
         Component(review_controller, "Review Controller", "Controller", "Handles star ratings (1-5) and comment submissions. Computes average ratings.")
@@ -105,16 +109,18 @@ C4Component
     ContainerDb(db, "PostgreSQL Database", "Persistent storage for all entities")
     System_Ext(payment_ext, "Stripe API", "stripe.com")
     System_Ext(notification_ext, "SMTP Server", "Gmail / Mailtrap")
-    System_Ext(map_ext, "Google Maps API", "maps.googleapis.com")
+    System_Ext(map_ext, "OpenStreetMap Nominatim", "nominatim.openstreetmap.org")
+    System_Ext(auth_ext, "Supabase Auth", "supabase.co/auth")
 
     Rel(router, auth_controller, "/api/auth/*")
     Rel(router, court_controller, "/api/courts/*")
     Rel(router, booking_controller, "/api/bookings/*")
     Rel(router, review_controller, "/api/reviews/*")
 
-    Rel(auth_controller, data_access, "User CRUD + encryption")
+    Rel(auth_controller, auth_ext, "supabase.auth.signUp() / signInWithPassword()")
+    Rel(auth_controller, data_access, "User profile CRUD (address, language, credit card)")
     Rel(court_controller, data_access, "Court CRUD + indexed search")
-    Rel(court_controller, map_ext, "Distance Matrix API call")
+    Rel(court_controller, map_ext, "Nominatim geocoding API call")
     Rel(booking_controller, data_access, "Booking + waitlist + equipment")
     Rel(booking_controller, payment_service, "Payment/refund flow")
     Rel(booking_controller, notification_service, "Waitlist alerts")
@@ -126,7 +132,7 @@ C4Component
 
 **Design Rationale:**
 *   **Controller-per-Feature:** Each controller maps to a core functional requirement (Auth, Courts/Search, Bookings, Reviews), making the codebase easy to navigate and test independently.
-*   **Centralized Data Access Layer:** All database interactions go through a single layer that enforces encryption for sensitive data (passwords via bcrypt, credit card tokens). This satisfies the Security requirement while keeping the code DRY.
+*   **Centralized Data Access Layer:** All database interactions go through a single layer. **Supabase Auth** handles password hashing and JWT sessions externally, while the data access layer manages user profiles and encrypts sensitive fields (credit card tokens). This satisfies the Security requirement while keeping the code DRY.
 *   **Decoupled Payment & Notification Services:** **Stripe SDK** for payments and **Nodemailer** for email notifications are isolated into dedicated service modules. This means the booking logic can be tested without hitting external APIs, and the services can be swapped (e.g., Stripe → Omise, Gmail SMTP → SendGrid) without touching business logic.
 *   **Waitlist Flow:** When a booking is cancelled, the Booking Controller checks the waitlist. If users are waiting, it triggers the Notification Service to alert the next user in the queue — fulfilling the waitlist requirement.
 
@@ -247,13 +253,13 @@ sequenceDiagram
     participant UI as Web Browser
     participant API as API Server (Express)
     participant DB as PostgreSQL
-    participant Map as Google Maps API
+    participant Map as Nominatim (OpenStreetMap)
     participant Pay as Stripe
 
     User->>UI: Opens search page, enters location and filters
     UI->>API: GET /api/courts/search?lat=13.7&lng=100.5&radius=10km&maxPrice=200
-    API->>Map: GET /distancematrix (user GPS → court locations)
-    Map-->>API: Returns distance data (km)
+    API->>Map: GET /search?q=address (geocode user location if needed)
+    Map-->>API: Returns GPS coordinates (lat/lng)
     API->>DB: SELECT courts WHERE distance <= 10km AND price <= 200 (Indexed query)
     DB-->>API: Returns matching courts with avg ratings
     API-->>UI: JSON response (court list + ratings)
