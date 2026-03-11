@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Court Details - Badminton Court Management</title>
+  <meta name="description" content="View badminton court details, ratings, and availability.">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 1.5rem 0 1rem;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--primary); text-decoration: none; }
+
+    .detail-hero {
+      background: linear-gradient(135deg, var(--primary), #7C3AED);
+      border-radius: 1rem;
+      padding: 2.5rem;
+      color: white;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .detail-hero::after {
+      content: '🏸';
+      position: absolute;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 6rem;
+      opacity: 0.15;
+    }
+    .detail-hero h1 { color: white; font-size: 2rem; margin-bottom: 0.5rem; }
+    .detail-hero .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .badge-available { background: #10B981; color: white; }
+    .badge-renovate  { background: #F59E0B; color: white; }
+    .badge-damaged   { background: #EF4444; color: white; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-item:last-child { border-bottom: none; }
+    .info-icon { font-size: 1.25rem; flex-shrink: 0; }
+    .info-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-value { font-size: 1rem; color: var(--text-main); font-weight: 500; }
+
+    .rating-display {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .rating-big {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+    .rating-stars { font-size: 1.5rem; color: #F59E0B; margin: 0.5rem 0; }
+    .rating-count { font-size: 0.85rem; color: var(--text-muted); }
+
+    .price-highlight {
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .price-big {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+    .price-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .map-placeholder {
+      background: #F3F4F6;
+      border-radius: 0.75rem;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      gap: 0.5rem;
+    }
+    .map-placeholder span:first-child { font-size: 2rem; }
+
+    .loading { text-align: center; padding: 4rem; color: var(--text-muted); font-size: 1.1rem; }
+    .not-found {
+      text-align: center;
+      padding: 4rem;
+      color: var(--text-muted);
+    }
+    .not-found h2 { margin-bottom: 0.5rem; }
+
+    /* Admin panel */
+    .admin-panel {
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: 0.75rem;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .admin-panel h3 { color: #C2410C; margin-bottom: 1rem; }
+    .admin-panel select { margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <h2><a href="/" style="color: var(--text-main); text-decoration: none;">🏸 Badminton Center</a></h2>
+      <div class="nav-links">
+        <a href="search.html">Find Courts</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" id="main-content">
+    <div class="loading">⏳ Loading court details...</div>
+  </main>
+
+  <script>
+    const API_BASE = '/api/courts';
+
+    function getCourtId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    function statusBadgeClass(status) {
+      if (status === 'AVAILABLE') return 'badge-available';
+      if (status === 'RENOVATE') return 'badge-renovate';
+      return 'badge-damaged';
+    }
+
+    function renderCourt(court) {
+      const rating       = parseFloat(court.avg_rating || 0);
+      const reviewCount  = parseInt(court.review_count || 0);
+      const stars        = '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
+      const statusClass  = statusBadgeClass(court.current_status);
+      const mapsUrl      = `https://www.google.com/maps?q=${court.location_lat},${court.location_lng}`;
+      const osmUrl       = `https://www.openstreetmap.org/?mlat=${court.location_lat}&mlon=${court.location_lng}&zoom=16`;
+
+      const token = localStorage.getItem('access_token');
+      const userRole = localStorage.getItem('user_role') || '';
+
+      const bookingSection = court.current_status === 'AVAILABLE'
+        ? `<a href="booking.html?courtId=${court.id}" class="btn btn-primary" style="width:100%; margin-top:1rem; display:block; text-align:center;">
+             📅 Book This Court
+           </a>`
+        : `<div class="btn btn-outline" style="width:100%; text-align:center; margin-top:1rem; cursor:not-allowed; opacity:0.6;">
+             Court Unavailable
+           </div>`;
+
+      const adminPanel = userRole === 'ADMIN'
+        ? `<div class="admin-panel">
+             <h3>⚙️ Admin Controls</h3>
+             <div class="form-group">
+               <label for="status-select">Change Status</label>
+               <select id="status-select">
+                 <option value="AVAILABLE" ${court.current_status==='AVAILABLE'?'selected':''}>AVAILABLE</option>
+                 <option value="RENOVATE"  ${court.current_status==='RENOVATE'?'selected':''}>RENOVATE</option>
+                 <option value="DAMAGED"   ${court.current_status==='DAMAGED'?'selected':''}>DAMAGED</option>
+               </select>
+             </div>
+             <button class="btn btn-primary" onclick="updateStatus('${court.id}')">Update Status</button>
+             <div id="admin-msg" style="margin-top:0.75rem; font-size:0.9rem;"></div>
+           </div>`
+        : '';
+
+      return `
+        <a class="back-link" href="search.html">← Back to Search</a>
+
+        <div class="detail-hero">
+          <h1>${escapeHtml(court.name)}</h1>
+          <span class="status-badge ${statusClass}">${court.current_status || 'AVAILABLE'}</span>
+        </div>
+
+        <div class="detail-grid">
+          <!-- Left: Info -->
+          <div>
+            <div class="card" style="margin-bottom:1.5rem;">
+              <h2 style="margin-bottom:1rem;">Court Information</h2>
+
+              <div class="info-item">
+                <span class="info-icon">⏰</span>
+                <div>
+                  <div class="info-label">Opening Hours</div>
+                  <div class="info-value">${court.opening_time || '--'} – ${court.closing_time || '--'}</div>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <span class="info-icon">👟</span>
+                <div>
+                  <div class="info-label">Allowed Shoes</div>
+                  <div class="info-value">${court.allowed_shoes || 'Any shoes allowed'}</div>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <span class="info-icon">📍</span>
+                <div>
+                  <div class="info-label">GPS Coordinates</div>
+                  <div class="info-value">${court.location_lat}, ${court.location_lng}</div>
+                  <div style="margin-top:0.4rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <a href="${osmUrl}" target="_blank" class="btn btn-outline" style="padding:0.35rem 0.8rem; font-size:0.8rem;">🗺 OpenStreetMap</a>
+                    <a href="${mapsUrl}" target="_blank" class="btn btn-outline" style="padding:0.35rem 0.8rem; font-size:0.8rem;">Google Maps</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <span class="info-icon">🆔</span>
+                <div>
+                  <div class="info-label">Court ID</div>
+                  <div class="info-value" style="font-family:monospace; font-size:0.85rem;">${court.id}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Map placeholder -->
+            <div class="map-placeholder">
+              <span>🗺</span>
+              <span>Location: ${court.location_lat}, ${court.location_lng}</span>
+              <a href="${osmUrl}" target="_blank" style="color:var(--primary); font-size:0.85rem;">Open in OpenStreetMap ↗</a>
+            </div>
+          </div>
+
+          <!-- Right: Rating & Price & Booking -->
+          <div>
+            <div class="card" style="margin-bottom:1.5rem;">
+              <div class="rating-display">
+                <div class="info-label" style="text-align:center;">Average Rating</div>
+                <div class="rating-big">${rating.toFixed(1)}</div>
+                <div class="rating-stars">${stars}</div>
+                <div class="rating-count">${reviewCount} review${reviewCount !== 1 ? 's' : ''}</div>
+              </div>
+              <div class="price-highlight">
+                <div class="info-label">Price per Hour</div>
+                <div class="price-big">฿${parseFloat(court.price_per_hour).toFixed(0)}</div>
+                <div class="price-sub">per hour</div>
+              </div>
+              ${bookingSection}
+            </div>
+
+            ${adminPanel}
+          </div>
+        </div>`;
+    }
+
+    async function updateStatus(courtId) {
+      const status = document.getElementById('status-select').value;
+      const msgEl = document.getElementById('admin-msg');
+      const token = localStorage.getItem('access_token');
+      if (!token) { msgEl.textContent = '⚠️ Not authenticated.'; msgEl.style.color = 'var(--error)'; return; }
+
+      try {
+        const res = await fetch(`${API_BASE}/${courtId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Update failed');
+        msgEl.textContent = `✅ Status updated to ${status}`;
+        msgEl.style.color = 'var(--secondary)';
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) {
+        msgEl.textContent = '❌ ' + err.message;
+        msgEl.style.color = 'var(--error)';
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(text));
+      return div.innerHTML;
+    }
+
+    async function init() {
+      const id = getCourtId();
+      const main = document.getElementById('main-content');
+
+      if (!id) {
+        main.innerHTML = `<div class="not-found"><h2>No court specified</h2><p><a href="search.html">← Back to Search</a></p></div>`;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/${id}`);
+        if (res.status === 404) {
+          main.innerHTML = `<div class="not-found"><h2>Court Not Found</h2><p>This court does not exist or has been removed.</p><p><a href="search.html">← Back to Search</a></p></div>`;
+          return;
+        }
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const court = await res.json();
+        document.title = `${court.name} - Badminton Court Management`;
+        main.innerHTML = renderCourt(court);
+      } catch (err) {
+        main.innerHTML = `<div class="not-found"><h2>Failed to load court</h2><p>${err.message}</p><p><a href="search.html">← Back to Search</a></p></div>`;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
