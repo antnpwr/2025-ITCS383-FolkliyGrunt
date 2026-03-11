@@ -1,125 +1,583 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Waitlist — Badminton Court System</title>
-  <link rel="stylesheet" href="/css/style.css" />
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Waitlist — Badminton Court Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#257bf4",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+</style>
 </head>
-<body>
-  <div class="container">
-    <h1>Court Waitlist</h1>
-    <p>Join the waitlist to be notified when a court becomes available.</p>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex">
+<!-- Sidebar Navigation -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark shrink-0 h-screen sticky top-0" aria-label="Main Navigation">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-white">sports_tennis</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-lg font-bold leading-none">Pro Badminton</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Player Dashboard</p>
+</div>
+</div>
+<nav class="flex-1 px-4 mt-4 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Home / Courts</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/pages/my-bookings.html">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-sm font-medium">My Bookings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" href="/pages/waitlist.html">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-sm font-medium">Waitlists</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/pages/reviews.html">
+<span class="material-symbols-outlined">star</span>
+<span class="text-sm font-medium">Reviews</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" onclick="alert('Settings page coming soon!')">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
+<img class="size-10 rounded-full border-2 border-primary" alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD46KdRHuUHoG28iSVr6Vxg4kU7CaSMhq60Uk-uY5Y_HJe5kmPYV35fwCWnO-OdRb26U1UR-xWZ8_Bl30HuR13vtz1AZ2q2Dt_xnblJfz0DX5k4lM31I6wYvx_76Z3xaJ8yG3Ch7Xq6hO3dFCW2ViIK9ALv2umgpZWqM7LeGXfDDy1XXMKW1TUOn-ZVjN8kZAi7t2VaZAHoRDe_gZjdVyJi-EjYKKAiGL833ovpGbhdQxjAcJjaH5JO-jaEPPOh-uJ1Ai68uzHYysPG"/>
+<div class="flex flex-col min-w-0">
+<p class="text-sm font-semibold truncate" id="user-name">Guest</p>
+<p class="text-xs text-slate-500 truncate" id="user-email">Not logged in</p>
+</div>
+<button id="logoutBtn" style="display:none" class="ml-auto text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-lg">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto">
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-10">
+<div class="flex-1 max-w-xl">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search courts or waitlist entries..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"></span>
+</button>
+<button class="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+</header>
+<div class="p-8 max-w-7xl mx-auto flex gap-8">
+<!-- Central Dashboard Content -->
+<div class="flex-1 space-y-8">
+<div>
+<h2 class="text-3xl font-extrabold tracking-tight">Court Waitlists</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Join a waitlist to be notified when your preferred court becomes available.</p>
+</div>
 
-    <!-- Join Waitlist Form -->
-    <section id="join-waitlist-section">
-      <h2>Join Waitlist</h2>
-      <form id="joinWaitlistForm">
-        <div class="form-group">
-          <label for="court_id">Court ID:</label>
-          <input type="text" id="court_id" name="court_id" required />
+<!-- Active Waitlist Entries Section -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">hourglass_top</span>
+My Active Waitlists
+</h3>
+<button id="refreshWaitlistBtn" class="text-primary text-sm font-semibold hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">refresh</span>
+Refresh
+</button>
+</div>
+<div class="space-y-4" id="waitlist-entries-container">
+<!-- Loading state -->
+<div id="waitlist-loading" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center">
+<span class="material-symbols-outlined text-4xl text-primary animate-spin mb-2">progress_activity</span>
+<p class="text-slate-500 text-sm">Loading your waitlist entries...</p>
+</div>
+<!-- Empty state (hidden by default) -->
+<div id="waitlist-empty" class="hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-10 text-center">
+<span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3">hourglass_disabled</span>
+<h4 class="font-bold text-lg mb-1">No Active Waitlists</h4>
+<p class="text-slate-500 text-sm mb-6">You haven't joined any waitlists yet. Use the form on the right to join one!</p>
+<button onclick="document.getElementById('court_id').focus()" class="px-6 py-2.5 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary/20 transition-colors text-sm">
+Join a Waitlist →
+</button>
+</div>
+<!-- Dynamic entries rendered here -->
+<div id="waitlist-entries" class="space-y-4"></div>
+</div>
+</section>
+
+<!-- Waitlist History / Confirmed Section -->
+<section>
+<h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">history</span>
+Waitlist Status Guide
+</h3>
+<div class="overflow-hidden border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
+<!-- Waiting -->
+<div class="p-6 flex flex-col items-center text-center gap-3 group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<div class="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-yellow-500 text-2xl">pending</span>
+</div>
+<h4 class="font-bold text-sm">WAITING</h4>
+<p class="text-xs text-slate-500 leading-relaxed">You're in the queue. We'll notify you when a slot opens up for your preferred time.</p>
+</div>
+<!-- Notified -->
+<div class="p-6 flex flex-col items-center text-center gap-3 group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl">notifications_active</span>
+</div>
+<h4 class="font-bold text-sm">NOTIFIED</h4>
+<p class="text-xs text-slate-500 leading-relaxed">A slot is available! Confirm your booking before the offer expires.</p>
+</div>
+<!-- Confirmed -->
+<div class="p-6 flex flex-col items-center text-center gap-3 group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-500 text-2xl">check_circle</span>
+</div>
+<h4 class="font-bold text-sm">CONFIRMED</h4>
+<p class="text-xs text-slate-500 leading-relaxed">Your waitlist entry has been converted to a booking. Time to play!</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+
+<!-- Right Sidebar Panel -->
+<aside class="w-80 space-y-6 shrink-0" aria-label="Join Waitlist">
+<!-- Join Waitlist Form -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">Add_Circle</span>
+<h3 class="text-lg font-bold">Join Waitlist</h3>
+</div>
+<form id="joinWaitlistForm" class="space-y-4">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2" for="court_id">Court</label>
+<select id="court_id" name="court_id" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+<option value="" disabled selected>Select a court...</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2" for="requested_date">Preferred Date</label>
+<input type="date" id="requested_date" name="requested_date" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2" for="preferred_time_slot">Time Slot</label>
+<select id="preferred_time_slot" name="preferred_time_slot" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+<option value="09:00-11:00">09:00 AM — 11:00 AM</option>
+<option value="11:00-13:00">11:00 AM — 01:00 PM</option>
+<option value="13:00-15:00">01:00 PM — 03:00 PM</option>
+<option value="15:00-17:00">03:00 PM — 05:00 PM</option>
+<option value="17:00-19:00">05:00 PM — 07:00 PM</option>
+<option value="19:00-21:00">07:00 PM — 09:00 PM</option>
+</select>
+</div>
+<button type="submit" id="joinWaitlistBtn" class="w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-sm">add</span>
+Join Waitlist
+</button>
+</form>
+<div id="joinMessage" class="mt-4 hidden rounded-lg p-3 text-sm font-medium"></div>
+</div>
+
+<!-- Quick Stats -->
+<div class="bg-gradient-to-br from-primary to-blue-600 rounded-xl p-6 text-white shadow-lg shadow-primary/20">
+<div class="flex items-center gap-3 mb-4">
+<div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-white">analytics</span>
+</div>
+<h3 class="font-bold">Waitlist Stats</h3>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-white/80 text-sm">Active Entries</span>
+<span id="stat-active" class="font-bold text-lg">0</span>
+</div>
+<div class="w-full bg-white/20 rounded-full h-1.5">
+<div id="stat-bar" class="bg-white rounded-full h-1.5 transition-all duration-500" style="width: 0%"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-white/80 text-sm">Notified</span>
+<span id="stat-notified" class="font-bold">0</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-white/80 text-sm">Waiting</span>
+<span id="stat-waiting" class="font-bold">0</span>
+</div>
+</div>
+</div>
+
+<!-- Tips Panel -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-yellow-500">lightbulb</span>
+<h3 class="font-bold text-sm">Pro Tips</h3>
+</div>
+<ul class="space-y-3 text-xs text-slate-500 leading-relaxed">
+<li class="flex gap-2">
+<span class="material-symbols-outlined text-sm text-primary shrink-0 mt-0.5">check</span>
+Join waitlists for multiple time slots to increase your chances.
+</li>
+<li class="flex gap-2">
+<span class="material-symbols-outlined text-sm text-primary shrink-0 mt-0.5">check</span>
+When notified, confirm quickly — offers expire after 30 minutes.
+</li>
+<li class="flex gap-2">
+<span class="material-symbols-outlined text-sm text-primary shrink-0 mt-0.5">check</span>
+Off-peak hours (weekday mornings) have shorter wait times.
+</li>
+</ul>
+</div>
+</aside>
+</div>
+</main>
+
+<!-- Confirm Booking Modal (Hidden by default) -->
+<div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeConfirmModal()"></div>
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md p-6 relative z-10 transform transition-all mx-4">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                <span class="material-symbols-outlined text-green-500">verified</span>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold">Confirm Your Booking</h3>
+                <p class="text-sm text-slate-500">A court slot is available for you!</p>
+            </div>
         </div>
-        <div class="form-group">
-          <label for="requested_date">Requested Date:</label>
-          <input type="date" id="requested_date" name="requested_date" required />
+        
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-6 space-y-2">
+            <p class="text-sm"><span class="font-semibold">Court:</span> <span id="confirm-court-name">-</span></p>
+            <p class="text-sm"><span class="font-semibold">Date:</span> <span id="confirm-date">-</span></p>
+            <p class="text-sm"><span class="font-semibold">Time:</span> <span id="confirm-time">-</span></p>
         </div>
-        <div class="form-group">
-          <label for="preferred_time_slot">Preferred Time Slot:</label>
-          <select id="preferred_time_slot" name="preferred_time_slot">
-            <option value="09:00-11:00">09:00 - 11:00</option>
-            <option value="11:00-13:00">11:00 - 13:00</option>
-            <option value="13:00-15:00">13:00 - 15:00</option>
-            <option value="15:00-17:00">15:00 - 17:00</option>
-            <option value="17:00-19:00">17:00 - 19:00</option>
-            <option value="19:00-21:00">19:00 - 21:00</option>
-          </select>
+
+        <div class="mb-6">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Payment Method</label>
+            <select id="confirm-payment-method" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-primary/50">
+                <option value="CREDIT_CARD">Credit Card</option>
+                <option value="BANK_TRANSFER">Bank Transfer</option>
+                <option value="CASH">Cash</option>
+            </select>
         </div>
-        <button type="submit">Join Waitlist</button>
-      </form>
-      <div id="joinMessage"></div>
-    </section>
+        
+        <input type="hidden" id="confirm-waitlist-id" />
+        
+        <div class="flex justify-end gap-3">
+            <button type="button" onclick="closeConfirmModal()" class="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                Cancel
+            </button>
+            <button onclick="confirmWaitlistBooking()" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-green-500 text-white hover:bg-green-600 shadow-md shadow-green-500/20 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">check</span>
+                Confirm & Book
+            </button>
+        </div>
+    </div>
+</div>
 
-    <!-- My Waitlist Entries -->
-    <section id="my-waitlist-section">
-      <h2>My Waitlist Entries</h2>
-      <button id="loadWaitlistBtn">Load My Waitlist</button>
-      <table id="waitlistTable">
-        <thead>
-          <tr>
-            <th>Court</th>
-            <th>Date</th>
-            <th>Time Slot</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="waitlistBody"></tbody>
-      </table>
-    </section>
-  </div>
+<script src="/js/app.js"></script>
+<script>
+    const WL_API = '/api/waitlist';
+    const COURTS_API = '/api/courts';
 
-  <script>
-    const API_BASE = '/api/waitlist';
-    const token = localStorage.getItem('token');
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+    const getWaitlistHeaders = () => {
+        const token = localStorage.getItem('supabase_token');
+        return token ? {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        } : { 'Content-Type': 'application/json' };
     };
 
-    // Join waitlist
+    // ------ Load courts into dropdown ------
+    const loadCourtsDropdown = async () => {
+        try {
+            const res = await fetch(COURTS_API);
+            const data = await res.json();
+            const courts = Array.isArray(data) ? data : (data.courts || []);
+            const select = document.getElementById('court_id');
+            courts.forEach(court => {
+                const option = document.createElement('option');
+                option.value = court.id;
+                option.textContent = `${court.name} — $${Number(court.price_per_hour).toFixed(2)}/hr`;
+                select.appendChild(option);
+            });
+        } catch (err) {
+            console.error('Failed to load courts:', err);
+        }
+    };
+
+    // ------ Load waitlist entries ------
+    const loadWaitlistEntries = async () => {
+        const token = localStorage.getItem('supabase_token');
+        const loadingEl = document.getElementById('waitlist-loading');
+        const emptyEl = document.getElementById('waitlist-empty');
+        const entriesEl = document.getElementById('waitlist-entries');
+
+        if (!token) {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (emptyEl) {
+                emptyEl.classList.remove('hidden');
+                emptyEl.querySelector('h4').textContent = 'Login Required';
+                emptyEl.querySelector('p').textContent = 'Please login to view and manage your waitlist entries.';
+            }
+            return;
+        }
+
+        try {
+            const res = await fetch(`${WL_API}/my`, { headers: getWaitlistHeaders() });
+            const entries = await res.json();
+
+            if (loadingEl) loadingEl.classList.add('hidden');
+
+            if (!Array.isArray(entries) || entries.length === 0) {
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                entriesEl.innerHTML = '';
+                updateStats(0, 0, 0);
+                return;
+            }
+
+            if (emptyEl) emptyEl.classList.add('hidden');
+
+            let notifiedCount = 0;
+            let waitingCount = 0;
+
+            entriesEl.innerHTML = entries.map((entry, idx) => {
+                const date = new Date(entry.requested_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                const status = entry.status || 'WAITING';
+                const isNotified = status === 'NOTIFIED';
+                const isWaiting = status === 'WAITING';
+
+                if (isNotified) notifiedCount++;
+                if (isWaiting) waitingCount++;
+
+                const statusConfig = {
+                    'WAITING': { color: 'yellow', icon: 'pending', label: 'Waiting', dot: 'bg-yellow-500' },
+                    'NOTIFIED': { color: 'primary', icon: 'notifications_active', label: 'Slot Available!', dot: 'bg-primary' },
+                    'CONFIRMED': { color: 'green', icon: 'check_circle', label: 'Confirmed', dot: 'bg-green-500' },
+                    'EXPIRED': { color: 'slate', icon: 'timer_off', label: 'Expired', dot: 'bg-slate-400' },
+                };
+                const cfg = statusConfig[status] || statusConfig['WAITING'];
+
+                return `
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm group hover:shadow-md transition-all animate-slide-up" style="animation-delay: ${idx * 80}ms">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-${cfg.color === 'primary' ? 'primary' : cfg.color + '-500'}/10 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-${cfg.color === 'primary' ? 'primary' : cfg.color + '-500'}">${cfg.icon}</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-base">${entry.court_name || 'Court #' + entry.court_id}</h4>
+                                    <div class="flex items-center gap-3 mt-1 text-slate-500 dark:text-slate-400 text-sm">
+                                        <div class="flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-primary text-sm">event</span>
+                                            ${date}
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-primary text-sm">schedule</span>
+                                            ${entry.preferred_time_slot}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="size-2 ${cfg.dot} rounded-full ${isWaiting ? 'pulse-dot' : ''}"></span>
+                                <span class="text-xs font-bold uppercase tracking-wider ${cfg.color === 'primary' ? 'text-primary' : 'text-' + cfg.color + '-500'}">${cfg.label}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                            ${isNotified ? `
+                            <button onclick="openConfirmModal('${entry.id}', '${entry.court_name || 'Court #' + entry.court_id}', '${date}', '${entry.preferred_time_slot}')" class="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-green-500/20">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                                Confirm Booking
+                            </button>
+                            ` : ''}
+                            <button onclick="removeWaitlistEntry('${entry.id}')" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 text-slate-600 dark:text-slate-400 rounded-lg text-sm font-bold transition-all ${isNotified ? '' : 'flex-1 flex items-center justify-center gap-2'}">
+                                <span class="material-symbols-outlined text-sm">close</span>
+                                ${isNotified ? '' : 'Remove from Waitlist'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            updateStats(entries.length, notifiedCount, waitingCount);
+
+        } catch (err) {
+            console.error('Failed to load waitlist:', err);
+            if (loadingEl) loadingEl.classList.add('hidden');
+            entriesEl.innerHTML = `<div class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-5 text-center text-red-500 text-sm">Failed to load waitlist entries: ${err.message}</div>`;
+        }
+    };
+
+    const updateStats = (total, notified, waiting) => {
+        const statActive = document.getElementById('stat-active');
+        const statNotified = document.getElementById('stat-notified');
+        const statWaiting = document.getElementById('stat-waiting');
+        const statBar = document.getElementById('stat-bar');
+
+        if (statActive) statActive.textContent = total;
+        if (statNotified) statNotified.textContent = notified;
+        if (statWaiting) statWaiting.textContent = waiting;
+        if (statBar) statBar.style.width = total > 0 ? `${Math.min((notified / total) * 100, 100)}%` : '0%';
+    };
+
+    // ------ Join waitlist ------
     document.getElementById('joinWaitlistForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const body = {
-        court_id: document.getElementById('court_id').value,
-        requested_date: document.getElementById('requested_date').value,
-        preferred_time_slot: document.getElementById('preferred_time_slot').value
-      };
-      try {
-        const res = await fetch(API_BASE, { method: 'POST', headers, body: JSON.stringify(body) });
-        const data = await res.json();
-        document.getElementById('joinMessage').textContent = res.ok
-          ? 'Successfully joined waitlist!'
-          : `Error: ${data.error}`;
-      } catch (err) {
-        document.getElementById('joinMessage').textContent = `Error: ${err.message}`;
-      }
+        e.preventDefault();
+        const msgEl = document.getElementById('joinMessage');
+        const btn = document.getElementById('joinWaitlistBtn');
+
+        const body = {
+            court_id: document.getElementById('court_id').value,
+            requested_date: document.getElementById('requested_date').value,
+            preferred_time_slot: document.getElementById('preferred_time_slot').value
+        };
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Joining...';
+
+        try {
+            const res = await fetch(WL_API, {
+                method: 'POST',
+                headers: getWaitlistHeaders(),
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+
+            msgEl.classList.remove('hidden');
+            if (res.ok) {
+                msgEl.className = 'mt-4 rounded-lg p-3 text-sm font-medium bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20';
+                msgEl.innerHTML = '<span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">check_circle</span> Successfully joined the waitlist!</span>';
+                document.getElementById('joinWaitlistForm').reset();
+                loadWaitlistEntries();
+            } else {
+                msgEl.className = 'mt-4 rounded-lg p-3 text-sm font-medium bg-red-500/10 text-red-500 border border-red-500/20';
+                msgEl.innerHTML = `<span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">error</span> ${data.error || 'Failed to join waitlist'}</span>`;
+            }
+        } catch (err) {
+            msgEl.classList.remove('hidden');
+            msgEl.className = 'mt-4 rounded-lg p-3 text-sm font-medium bg-red-500/10 text-red-500 border border-red-500/20';
+            msgEl.innerHTML = `<span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">error</span> ${err.message}</span>`;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-sm">add</span> Join Waitlist';
+        }
+
+        setTimeout(() => { msgEl.classList.add('hidden'); }, 5000);
     });
 
-    // Load my waitlist
-    document.getElementById('loadWaitlistBtn').addEventListener('click', async () => {
-      try {
-        const res = await fetch(`${API_BASE}/my`, { headers });
-        const entries = await res.json();
-        const tbody = document.getElementById('waitlistBody');
-        tbody.innerHTML = '';
-        entries.forEach((entry) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${entry.court_name || entry.court_id}</td>
-            <td>${entry.requested_date}</td>
-            <td>${entry.preferred_time_slot}</td>
-            <td>${entry.status}</td>
-            <td><button onclick="removeEntry('${entry.id}')">Remove</button></td>
-          `;
-          tbody.appendChild(tr);
-        });
-      } catch (err) {
-        console.error('Failed to load waitlist:', err);
-      }
+    // ------ Remove from waitlist ------
+    window.removeWaitlistEntry = async (id) => {
+        if (!confirm('Remove this entry from your waitlist?')) return;
+        try {
+            const res = await fetch(`${WL_API}/${id}`, {
+                method: 'DELETE',
+                headers: getWaitlistHeaders()
+            });
+            const data = await res.json();
+            loadWaitlistEntries();
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    };
+
+    // ------ Confirm booking modal ------
+    window.openConfirmModal = (waitlistId, courtName, date, timeSlot) => {
+        document.getElementById('confirm-waitlist-id').value = waitlistId;
+        document.getElementById('confirm-court-name').textContent = courtName;
+        document.getElementById('confirm-date').textContent = date;
+        document.getElementById('confirm-time').textContent = timeSlot;
+        const modal = document.getElementById('confirm-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    window.closeConfirmModal = () => {
+        const modal = document.getElementById('confirm-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    };
+
+    window.confirmWaitlistBooking = async () => {
+        const waitlistId = document.getElementById('confirm-waitlist-id').value;
+        const paymentMethod = document.getElementById('confirm-payment-method').value;
+
+        try {
+            const res = await fetch(`${WL_API}/${waitlistId}/confirm`, {
+                method: 'POST',
+                headers: getWaitlistHeaders(),
+                body: JSON.stringify({ payment_method: paymentMethod })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                alert('🎉 Booking confirmed successfully!');
+                closeConfirmModal();
+                loadWaitlistEntries();
+            } else {
+                alert(`Error: ${data.error || 'Could not confirm booking'}`);
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    };
+
+    // ------ Refresh button ------
+    document.getElementById('refreshWaitlistBtn')?.addEventListener('click', () => {
+        const loadingEl = document.getElementById('waitlist-loading');
+        if (loadingEl) loadingEl.classList.remove('hidden');
+        document.getElementById('waitlist-entries').innerHTML = '';
+        document.getElementById('waitlist-empty')?.classList.add('hidden');
+        loadWaitlistEntries();
     });
 
-    // Remove from waitlist
-    async function removeEntry(id) {
-      try {
-        const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE', headers });
-        const data = await res.json();
-        alert(data.message || 'Removed');
-        document.getElementById('loadWaitlistBtn').click();
-      } catch (err) {
-        alert(`Error: ${err.message}`);
-      }
+    // ------ Set minimum date to today ------
+    const dateInput = document.getElementById('requested_date');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+        dateInput.value = today;
     }
-  </script>
-</body>
-</html>
+
+    // ------ Initialize ------
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadCourtsDropdown();
+        await loadWaitlistEntries();
+    });
+</script>
+</body></html>
