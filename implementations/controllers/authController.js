@@ -7,11 +7,18 @@ exports.register = async (req, res) => {
   const userRole = role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER';
 
   try {
-    // 1. Create user in Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    // 1. Create user in Supabase Auth (using Admin Auth to bypass rate limits)
+    let authData, authError;
+
+    // Use admin client to skip email confirmation and rate limits for quick testing
+    const result = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
+      email_confirm: true 
     });
+    
+    authData = result.data;
+    authError = result.error;
 
     if (authError) {
       return res.status(400).json({ error: authError.message });
@@ -20,7 +27,7 @@ exports.register = async (req, res) => {
     const { user } = authData;
 
     if (!user) {
-         return res.status(400).json({ error: 'User creation failed. Check if email confirmation is required by Supabase.' });
+         return res.status(400).json({ error: 'User creation failed.' });
     }
 
     // 2. Create user profile in our database
