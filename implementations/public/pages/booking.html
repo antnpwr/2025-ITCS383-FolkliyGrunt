@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Book a badminton court and rent equipment">
+    <title>Book a Court - Badminton Court Management</title>
+    <link rel="stylesheet" href="..css/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Book a Court</h1>
+
+        <form id="bookingForm">
+            <div class="form-group">
+                <label for="court_id">Court</label>
+                <select id="court_id" name="court_id" required>
+                    <option value="">Select a court...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="start_time">Date &amp; Time</label>
+                <input type="datetime-local" id="start_time" name="start_time" required>
+            </div>
+
+            <div class="form-group">
+                <label for="duration_hours">Duration (hours)</label>
+                <select id="duration_hours" name="duration_hours" required>
+                    <option value="1">1 hour</option>
+                    <option value="2">2 hours</option>
+                    <option value="3">3 hours</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_method">Payment Method</label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="CREDIT_CARD">Credit Card</option>
+                    <option value="PROMPTPAY">PromptPay</option>
+                    <option value="CASH">Cash</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="total_amount">Total Amount (THB)</label>
+                <input type="number" id="total_amount" name="total_amount" min="0" step="0.01" value="0" required>
+            </div>
+
+            <h2>Equipment Rental (Optional)</h2>
+            <div id="equipmentSection">
+                <div class="equipment-item">
+                    <select name="equipment_type">
+                        <option value="">None</option>
+                        <option value="RACKET">Racket (50 THB)</option>
+                        <option value="SHUTTLECOCK">Shuttlecock Pack (30 THB)</option>
+                        <option value="SHOES">Shoes (40 THB)</option>
+                    </select>
+                    <input type="number" name="quantity" min="1" value="1" placeholder="Qty">
+                </div>
+            </div>
+            <button type="button" id="addEquipmentBtn" class="btn-secondary">+ Add Equipment</button>
+
+            <br><br>
+            <button type="submit" class="btn-primary">Book Now</button>
+        </form>
+
+        <div id="message"></div>
+
+        <p><a href="/pages/my-bookings.html">View My Bookings</a></p>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = '/pages/login.html';
+        }
+
+        // Load courts from Person 2's API (if available)
+        async function loadCourts() {
+            try {
+                const res = await fetch(`${API_BASE}/courts`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const courts = await res.json();
+                    const select = document.getElementById('court_id');
+                    courts.forEach(court => {
+                        const option = document.createElement('option');
+                        option.value = court.id;
+                        option.textContent = `${court.name} - ${court.hourly_rate} THB/hr`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (err) {
+                console.log('Courts API not available yet');
+            }
+        }
+
+        // Add equipment row
+        document.getElementById('addEquipmentBtn').addEventListener('click', () => {
+            const section = document.getElementById('equipmentSection');
+            const div = document.createElement('div');
+            div.className = 'equipment-item';
+            div.innerHTML = `
+        <select name="equipment_type">
+          <option value="">None</option>
+          <option value="RACKET">Racket (50 THB)</option>
+          <option value="SHUTTLECOCK">Shuttlecock Pack (30 THB)</option>
+          <option value="SHOES">Shoes (40 THB)</option>
+        </select>
+        <input type="number" name="quantity" min="1" value="1" placeholder="Qty">
+      `;
+            section.appendChild(div);
+        });
+
+        // Submit booking
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageDiv = document.getElementById('message');
+
+            // Collect equipment
+            const equipmentItems = [];
+            const prices = { RACKET: 50, SHUTTLECOCK: 30, SHOES: 40 };
+            document.querySelectorAll('.equipment-item').forEach(item => {
+                const type = item.querySelector('[name="equipment_type"]').value;
+                const qty = parseInt(item.querySelector('[name="quantity"]').value) || 1;
+                if (type) {
+                    equipmentItems.push({
+                        equipment_type: type,
+                        quantity: qty,
+                        unit_price: prices[type] || 0
+                    });
+                }
+            });
+
+            const body = {
+                court_id: document.getElementById('court_id').value,
+                start_time: document.getElementById('start_time').value,
+                duration_hours: parseInt(document.getElementById('duration_hours').value),
+                payment_method: document.getElementById('payment_method').value,
+                total_amount: parseFloat(document.getElementById('total_amount').value),
+                equipment: equipmentItems
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/bookings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    messageDiv.innerHTML = `<p style="color:green;">Booking confirmed! ID: ${data.id}</p>`;
+                    document.getElementById('bookingForm').reset();
+                } else {
+                    messageDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
+                }
+            } catch (err) {
+                messageDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+            }
+        });
+
+        loadCourts();
+    </script>
+</body>
+
+</html>
