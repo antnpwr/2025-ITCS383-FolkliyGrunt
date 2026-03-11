@@ -71,7 +71,7 @@ if (registerForm) {
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, fullName, address })
+                body: JSON.stringify({ email, password, full_name: fullName, address })
             });
 
             const data = await response.json();
@@ -90,3 +90,55 @@ if (registerForm) {
         }
     });
 }
+/* --- Dashboard / Global Logic --- */
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('supabase_token');
+    const welcomeSection = document.getElementById('welcome-section');
+    const guestSection = document.getElementById('guest-section');
+    const navLogin = document.getElementById('nav-login');
+    const navRegister = document.getElementById('nav-register');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    if (token) {
+        try {
+            const response = await fetch(`${API_URL}/auth/profile`, {
+                headers: getAuthHeaders()
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Update UI for logged-in user
+                if (welcomeSection) welcomeSection.style.display = 'block';
+                if (guestSection) guestSection.style.display = 'none';
+                if (navLogin) navLogin.style.display = 'none';
+                if (navRegister) navRegister.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'block';
+
+                const nameEl = document.getElementById('user-name');
+                const emailEl = document.getElementById('user-email');
+                if (nameEl) nameEl.textContent = data.profile.full_name;
+                if (emailEl) emailEl.textContent = data.profile.email;
+
+                // Auto-redirect if on login or register page
+                const path = window.location.pathname;
+                if (path.includes('login.html') || path.includes('register.html')) {
+                    window.location.href = '/';
+                }
+            } else {
+                // Token might be expired
+                localStorage.removeItem('supabase_token');
+            }
+        } catch (err) {
+            console.error('Failed to fetch profile:', err);
+        }
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('supabase_token');
+            alert('Logged out successfully');
+            window.location.href = '/pages/login.html';
+        });
+    }
+});
