@@ -307,7 +307,48 @@ Every team member MUST log their AI usage in their respective section below.
 ---
 
 ## Person 4: Waitlist & Payments
-*Log your AI interactions here...*
+
+### Entry 1 — Waitlist Model, Payment Service & Notification Service Implementation
+- **Date:** 2026-03-11
+- **Person:** Nattapat Yotraksa/Person 4
+- **AI Tool:** Gemini (Antigravity Agent)
+- **Task:** Implementing all Person 4 files: Waitlist model, Payment Service (Stripe), Notification Service (Nodemailer), Waitlist Controller, Routes, and Waitlist HTML page.
+
+**Prompt:**
+> Implement the waitlist, payment, and notification services as described in PERSON4_WAITLIST_PAYMENT_NOTIFICATION.md. Create the Waitlist model with add/getNextInQueue/markNotified/findByUser/expireOldEntries methods, the Stripe-based payment service with processPayment and processRefund, the Nodemailer notification service with notifyWaitlist and sendNotification, the waitlist controller and routes, and a waitlist HTML page. Also uncomment the waitlist route in server.js.
+
+**AI Output (Summary):**
+> Generated 6 source files: `models/Waitlist.js` (CRUD + FIFO queue), `services/paymentService.js` (Stripe charges + refunds), `services/notificationService.js` (SMTP email via Nodemailer), `controllers/waitlistController.js` (add/get/remove handlers), `routes/waitlist.js` (auth-protected routes), and `public/pages/waitlist.html` (join form + entries table). Uncommented the `/api/waitlist` route in `server.js`.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+
+**Modifications / Rejection Reason:**
+> None — all files matched the specification exactly.
+
+**Verification Method:**
+> Ran `npm run dev` — server started without errors. Verified route registration in `server.js`.
+
+### Entry 2 — Unit Tests for Waitlist, Payment & Notification Services
+- **Date:** 2026-03-11
+- **Person:** Nattapat Yotraksa/Person 4
+- **AI Tool:** Gemini (Antigravity Agent)
+- **Task:** Creating comprehensive Jest unit tests for all Person 4 modules with mocked dependencies.
+
+**Prompt:**
+> Create Jest unit tests for the Waitlist model (mock config/db), payment service (mock Stripe SDK with error handling tests), and notification service (mock Nodemailer and Waitlist model with error handling and sendNotification tests). Ensure overall coverage exceeds 80%.
+
+**AI Output (Summary):**
+> Generated 3 test files: `tests/waitlist.test.js` (6 tests covering all model methods), `tests/paymentService.test.js` (4 tests — success + error paths for both processPayment and processRefund), `tests/notificationService.test.js` (5 tests — notifyWaitlist success/empty/email-failure, sendNotification success/failure). All external dependencies (Stripe, Nodemailer, pg pool) are fully mocked.
+
+**Decision:**
+- [x] ✅ Accepted as-is
+
+**Modifications / Rejection Reason:**
+> None — tests were comprehensive with proper mocking.
+
+**Verification Method:**
+> Ran `npx jest tests/waitlist.test.js tests/paymentService.test.js tests/notificationService.test.js --forceExit --detectOpenHandles`. Result: **15 tests passed, 3 suites, 0 failures**. Coverage: **100% statements, 100% lines, 100% functions**.
 
 ---
 

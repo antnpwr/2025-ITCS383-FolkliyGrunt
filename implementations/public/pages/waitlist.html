@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Waitlist — Badminton Court System</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Court Waitlist</h1>
+    <p>Join the waitlist to be notified when a court becomes available.</p>
+
+    <!-- Join Waitlist Form -->
+    <section id="join-waitlist-section">
+      <h2>Join Waitlist</h2>
+      <form id="joinWaitlistForm">
+        <div class="form-group">
+          <label for="court_id">Court ID:</label>
+          <input type="text" id="court_id" name="court_id" required />
+        </div>
+        <div class="form-group">
+          <label for="requested_date">Requested Date:</label>
+          <input type="date" id="requested_date" name="requested_date" required />
+        </div>
+        <div class="form-group">
+          <label for="preferred_time_slot">Preferred Time Slot:</label>
+          <select id="preferred_time_slot" name="preferred_time_slot">
+            <option value="09:00-11:00">09:00 - 11:00</option>
+            <option value="11:00-13:00">11:00 - 13:00</option>
+            <option value="13:00-15:00">13:00 - 15:00</option>
+            <option value="15:00-17:00">15:00 - 17:00</option>
+            <option value="17:00-19:00">17:00 - 19:00</option>
+            <option value="19:00-21:00">19:00 - 21:00</option>
+          </select>
+        </div>
+        <button type="submit">Join Waitlist</button>
+      </form>
+      <div id="joinMessage"></div>
+    </section>
+
+    <!-- My Waitlist Entries -->
+    <section id="my-waitlist-section">
+      <h2>My Waitlist Entries</h2>
+      <button id="loadWaitlistBtn">Load My Waitlist</button>
+      <table id="waitlistTable">
+        <thead>
+          <tr>
+            <th>Court</th>
+            <th>Date</th>
+            <th>Time Slot</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="waitlistBody"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = '/api/waitlist';
+    const token = localStorage.getItem('token');
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    // Join waitlist
+    document.getElementById('joinWaitlistForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        court_id: document.getElementById('court_id').value,
+        requested_date: document.getElementById('requested_date').value,
+        preferred_time_slot: document.getElementById('preferred_time_slot').value
+      };
+      try {
+        const res = await fetch(API_BASE, { method: 'POST', headers, body: JSON.stringify(body) });
+        const data = await res.json();
+        document.getElementById('joinMessage').textContent = res.ok
+          ? 'Successfully joined waitlist!'
+          : `Error: ${data.error}`;
+      } catch (err) {
+        document.getElementById('joinMessage').textContent = `Error: ${err.message}`;
+      }
+    });
+
+    // Load my waitlist
+    document.getElementById('loadWaitlistBtn').addEventListener('click', async () => {
+      try {
+        const res = await fetch(`${API_BASE}/my`, { headers });
+        const entries = await res.json();
+        const tbody = document.getElementById('waitlistBody');
+        tbody.innerHTML = '';
+        entries.forEach((entry) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${entry.court_name || entry.court_id}</td>
+            <td>${entry.requested_date}</td>
+            <td>${entry.preferred_time_slot}</td>
+            <td>${entry.status}</td>
+            <td><button onclick="removeEntry('${entry.id}')">Remove</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load waitlist:', err);
+      }
+    });
+
+    // Remove from waitlist
+    async function removeEntry(id) {
+      try {
+        const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE', headers });
+        const data = await res.json();
+        alert(data.message || 'Removed');
+        document.getElementById('loadWaitlistBtn').click();
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      }
+    }
+  </script>
+</body>
+</html>

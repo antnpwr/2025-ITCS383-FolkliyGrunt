@@ -19,7 +19,7 @@ app.use('/api/courts', require('./routes/courts'));     // Person 2
 // app.use('/api/bookings', require('./routes/bookings')); // Person 3
 // app.use('/api/courts', require('./routes/courts'));     // Person 2
 app.use('/api/bookings', require('./routes/bookings')); // Person 3
-// app.use('/api/waitlist', require('./routes/waitlist')); // Person 4
+app.use('/api/waitlist', require('./routes/waitlist')); // Person 4
 // app.use('/api/reviews', require('./routes/reviews'));   // Person 5
 
 // Health check
