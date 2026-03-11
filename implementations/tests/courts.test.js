@@ -94,4 +94,33 @@ describe('Court Model', () => {
     );
     expect(result.name).toBe('New Court');
   });
+
+  test('update should modify court details and return updated court', async () => {
+    const updated = { id: '1', name: 'Updated Court', price_per_hour: 300 };
+    pool.query.mockResolvedValue({ rows: [updated] });
+    const result = await Court.update('1', { name: 'Updated Court', price_per_hour: 300 });
+    expect(pool.query).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE courts'),
+      expect.arrayContaining(['Updated Court', '1'])
+    );
+    expect(result.name).toBe('Updated Court');
+  });
+
+  test('update returns undefined if court not found', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+    const result = await Court.update('nonexistent', { name: 'Test' });
+    expect(result).toBeUndefined();
+  });
+
+  test('findById returns undefined if court not found', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+    const result = await Court.findById('nonexistent');
+    expect(result).toBeUndefined();
+  });
+
+  test('updateStatus returns undefined if court not found', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+    const result = await Court.updateStatus('nonexistent', 'AVAILABLE');
+    expect(result).toBeUndefined();
+  });
 });
