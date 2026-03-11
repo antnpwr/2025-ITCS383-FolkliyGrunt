@@ -1,0 +1,7 @@
+# Project-specific ignores
+PERSON1_LEAD_AUTH_FRONTEND.md
+implementations/.env
+
+# Node modules
+node_modules/
+implementations/node_modules/
