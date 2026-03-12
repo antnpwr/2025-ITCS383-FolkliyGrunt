@@ -13,35 +13,33 @@ An overview showing the relationship between the main system, the two types of u
 C4Context
     title Level 1: System Context Diagram — Badminton Court Management System
 
-    Person(customer, "Customer", "Registers, searches for courts (by name/distance/price), books timeslots, rents equipment, pays via credit card or bank transfer, joins waitlists, and writes reviews (1-5 stars).")
-    Person(admin, "Court Administrator", "Registers court details (location, hours, pricing, shoe rules), updates court status (e.g. renovation), and manages user accounts (block/disable).")
+    Person(customer, "Customer", "Registers, searches for courts (by name/price/distance), books timeslots, rents equipment, pays, joins waitlists, and writes reviews.")
+    Person(admin, "Court Administrator", "Registers court details, updates court status, and manages user accounts (register/block admin or staff).")
 
-    System(bms, "Badminton Court Management System", "A responsive web application for booking and managing badminton courts. Supports 1,000 concurrent users, localized in TH/EN/ZH, with encrypted personal data storage.")
+    System(bms, "Badminton Court Management System", "A responsive web application for booking and managing badminton courts. Supported by Redis for fast searches.")
 
-    System_Ext(payment_sys, "Stripe", "Processes credit card payments (Stripe Charges API) and bank transfers. Handles full refund requests via Stripe Refunds API.")
-    System_Ext(notification_sys, "Nodemailer (SMTP)", "Sends email notifications to users when a waitlisted court becomes available. Uses Gmail SMTP or Mailtrap for dev.")
-    System_Ext(map_sys, "OpenStreetMap (Nominatim)", "Provides free geocoding and reverse geocoding via Nominatim API. Distance calculations use the Haversine formula in PostgreSQL.")
-    System_Ext(auth_sys, "Supabase Auth", "Managed authentication service. Handles user registration, login, password hashing, and JWT session tokens via @supabase/supabase-js SDK.")
+    System_Ext(supabase_sys, "Supabase (Database & Auth)", "Managed service providing authentication and a PostgreSQL database. Handled via Supabase JS SDK.")
+    System_Ext(payment_sys, "Payment Gateway", "Processes credit card and bank transfer payments, triggering upon booking confirmation.")
+    System_Ext(notification_sys, "Notification Service", "Sends notifications to users when a waitlisted court becomes available.")
 
     Rel(customer, bms, "Searches, books, pays, cancels, rents equipment, reviews", "HTTPS / Web Browser")
     Rel(admin, bms, "Manages courts, statuses, and user accounts", "HTTPS / Web Browser")
 
-    Rel(bms, payment_sys, "Processes payments and refund requests", "Stripe Node.js SDK")
-    Rel(bms, notification_sys, "Sends waitlist availability alerts", "SMTP")
-    Rel(bms, map_sys, "Geocodes addresses to GPS coordinates", "Nominatim REST API (HTTPS)")
-    Rel(bms, auth_sys, "Authenticates users (signup, login, session)", "Supabase JS SDK")
+    Rel(bms, supabase_sys, "Authenticates users, Reads/Writes data, executes RPC actions", "Supabase JS SDK (HTTPS)")
+    Rel(bms, payment_sys, "Processes payments and refunds", "API")
+    Rel(bms, notification_sys, "Sends waitlist availability alerts", "API / SMTP")
 ```
 
 **Design Rationale:**
 
 | Requirement | How the Context Diagram Addresses It |
 |---|---|
-| **Concurrency (1,000 users)** | The system boundary description explicitly states the NFR. A single, well-optimized monolith on Node.js handles this via its non-blocking I/O event loop. |
-| **Security (Encryption)** | All relationships use HTTPS. Sensitive data (credit cards, passwords) is stored encrypted within the system, and actual payment processing is delegated to **Stripe** (PCI-DSS Level 1 certified), avoiding direct PCI liability. |
-| **Search (Name/Distance/Price)** | **OpenStreetMap Nominatim API** (free geocoding, no API key) converts addresses to GPS coordinates. Distance search (1km/2km/10km radius) uses the **Haversine formula in PostgreSQL** for fast, server-side calculations. Name and price filtering use PostgreSQL indexes. |
-| **Waitlist & Notification** | **Nodemailer** sends email alerts via SMTP (Gmail or Mailtrap for dev) when a waitlisted court becomes available, ensuring reliable delivery decoupled from core booking logic. |
-| **Payment & Cancellation** | **Stripe Charges API** handles credit card payments; **Stripe Refunds API** processes full refunds for cancellations (if play time hasn't started). Bank transfers are simulated via Stripe's test mode. |
-| **Localization (TH/EN/ZH)** | Stated in the system description. Implemented internally via a JSON-based i18n translation layer. |
+| **Concurrency (1,000 users)** | Handled by a single, well-optimized backend on Node.js using its non-blocking I/O event loop, further supported by **Redis Cache** for lightning-fast search indexing. |
+| **Security (Encryption)** | All personal data (including credit cards) is encrypted using Node's `crypto` module AES-256 before being stored in the database. Authentication is offloaded securely to **Supabase Auth**. |
+| **Search (Name/Distance/Price)** | Handled by the Court Search API and heavily optimized using **Redis Cache Support** ensuring response times of under 2 seconds. |
+| **Waitlist & Notification** | Triggered upon booking cancellation, scanning the waitlist and using the **Notification Service** to dispatch alerts to the appropriate users on the waitlist. |
+| **Payment & Cancellation** | The booking transaction checks availability and triggers a **Payment Gateway**. Full refund processes are triggered when a booking is correctly canceled within the allowed timeframe. |
+| **Localization (TH/EN/ZH)** | Frontend web UI is designed to accommodate dynamic i18n translation switches seamlessly without reloading the server. |
 | **Equipment Rental** | Included in the Customer's relationship label ("rents equipment"). Managed as part of the booking flow within the system. |
 | **Review System (1-5 stars)** | Included in the Customer's relationship label ("reviews"). Average ratings are displayed alongside court search results. |
 
@@ -59,32 +57,30 @@ C4Container
 
     System_Boundary(bms, "Badminton Court Management System") {
         Container(web_app, "Responsive Web UI", "HTML/CSS/JS", "Single web application for both customers and admins. Supports TH, EN, ZH localization.")
-        Container(api_server, "API Server", "Node.js / Express", "Monolith backend handling all business logic: auth, search, booking, payment, and reviews.")
-        ContainerDb(db, "Database", "PostgreSQL", "Stores Users, Courts, Bookings, Equipment Rentals, and Reviews. Runs via Docker locally or Supabase in cloud.")
+        Container(api_server, "API Server", "Node.js / Express", "Monolith backend handling all business logic: auth, booking, payment, and reviews.")
+        ContainerDb(redis_cache, "Redis Cache", "Redis", "High-performance in-memory cache for fast search queries (< 2s).")
     }
 
-    System_Ext(payment_sys, "Stripe", "Processes credit card and bank transfer payments via Stripe SDK. Handles refunds.")
-    System_Ext(map_sys, "OpenStreetMap (Nominatim)", "Free geocoding API for address-to-GPS conversion. No API key required.")
-    System_Ext(notification_sys, "Nodemailer (SMTP)", "Sends email alerts for waitlist availability via Gmail/Mailtrap SMTP.")
-    System_Ext(auth_sys, "Supabase Auth", "Managed auth (signup, login, JWT sessions)")
+    System_Ext(supabase_sys, "Supabase", "Provides Managed PostgreSQL, Row-Level Security, and Auth services used directly by the API Server.")
+    System_Ext(payment_sys, "Payment Service", "Handles payment completion and refunds.")
+    System_Ext(notification_sys, "Notification Service", "Sends email alerts for waitlist availability.")
 
     Rel(customer, web_app, "Searches, books, pays, reviews", "HTTPS")
     Rel(admin, web_app, "Manages courts, statuses, users", "HTTPS")
     
     Rel(web_app, api_server, "Makes API calls", "REST/JSON")
     
-    Rel(api_server, db, "Reads/Writes data", "SQL/TCP")
-    Rel(api_server, payment_sys, "Processes payments and refunds", "Stripe Node.js SDK")
-    Rel(api_server, map_sys, "Geocodes addresses", "Nominatim REST API")
-    Rel(api_server, notification_sys, "Sends waitlist alerts", "SMTP")
-    Rel(api_server, auth_sys, "Authenticates users", "Supabase JS SDK")
+    Rel(api_server, redis_cache, "Reads/Writes cached court search data", "TCP")
+    Rel(api_server, supabase_sys, "Authenticates users & queries database models via Supabase JS", "HTTPS / REST")
+    Rel(api_server, payment_sys, "Processes payments and refunds", "API")
+    Rel(api_server, notification_sys, "Sends waitlist alerts", "API")
 ```
 
 **Design Rationale:**
-*   **Monolith Architecture (Node.js/Express):** A single API server simplifies development, testing, and deployment. Node.js's non-blocking event loop efficiently handles 1,000 concurrent connections without the operational overhead of microservices or load balancers.
-*   **Single Responsive Web UI:** One web application serves both customers and administrators, eliminating the need for a separate mobile app while still supporting all device types through responsive CSS.
-*   **PostgreSQL with DB Indexes:** By creating indexes on frequently searched fields (court name, location coordinates, price), we achieve search response times **under 2 seconds** without the complexity of a Redis cache layer.
-*   **Hybrid Database Hosting:** The team develops against a shared Supabase instance (zero setup). For the professor's local review, a `docker-compose.yml` with the same schema is provided.
+*   **Monolith API with Cache:** The main architecture uses Node.js/Express but offloads read-heavy operations (court searching) to **Redis**, achieving response times under 2 seconds.
+*   **Single Responsive Web UI:** One web application serves both customers and administrators, fully eliminating the need for separate codebases while retaining responsive behavior across all mobile platforms.
+*   **Supabase Database & Auth Integration:** The previous raw raw-SQL `pg` connection pool was phased out in favor of the full **Supabase JS Client SDK**. Queries, inserts, and authentications natively use Supabase, offloading backend complexity to the managed cloud ecosystem.
+*   **Data Security:** Credit card endpoints parse info using Node.js `crypto` (AES-256) inside the Controller before sending encrypted tokens securely to the database.
 
 ---
 
@@ -96,45 +92,44 @@ C4Component
     title Level 3: Component Diagram — API Server (Node.js/Express)
 
     Container_Boundary(api_container, "API Server") {
-        Component(router, "Express Router", "Middleware", "Routes incoming HTTP requests to the appropriate controller based on URL path.")
-        Component(auth_controller, "Auth Controller", "Controller", "Handles user registration and login via Supabase Auth SDK. Manages admin user blocking/disabling.")
-        Component(court_controller, "Court & Search Controller", "Controller", "Manages court CRUD for admins. Handles search by name, distance, and price for customers.")
-        Component(booking_controller, "Booking Controller", "Controller", "Manages reservations, cancellations, equipment rentals, and waitlist logic.")
-        Component(review_controller, "Review Controller", "Controller", "Handles star ratings (1-5) and comment submissions. Computes average ratings.")
-        Component(payment_service, "Payment Service", "Stripe SDK", "Processes credit card/bank payments via Stripe Charges API and handles full refund requests via Stripe Refunds API.")
-        Component(notification_service, "Notification Service", "Nodemailer", "Triggers email alerts via SMTP when a waitlisted court becomes available.")
-        Component(data_access, "Data Access Layer", "Prisma / pg", "Centralized database interaction. Enforces encryption for sensitive fields (passwords, credit card tokens).")
+        Component(router, "Express Router", "Middleware", "Routes incoming requests to the appropriate controller.")
+        Component(auth_controller, "Auth Controller", "Controller", "Handles user registration, login, and credit card encryption (CryptoAES-256).")
+        Component(court_controller, "Court Controller", "Controller", "Manages court CRUD for admins.")
+        Component(search_controller, "Search Controller", "Controller", "Handles search by name, distance, and price utilizing Redis.")
+        Component(booking_controller, "Booking Controller", "Controller", "Manages reservations, transactions, waitlist flow, and equipment.")
+        Component(review_controller, "Review Controller", "Controller", "Handles star ratings and comment submissions.")
+        Component(payment_service, "Payment Service", "Service", "Processes payments tracking transaction IDs.")
+        Component(notification_service, "Notification Service", "Service", "Triggers alerts when a waitlisted court becomes available.")
+        Component(supabase_client, "Supabase Client Models", "Supabase SDK / DB Models", "Interact with the Supabase PostgREST API for entity data operations.")
     }
 
-    ContainerDb(db, "PostgreSQL Database", "Persistent storage for all entities")
-    System_Ext(payment_ext, "Stripe API", "stripe.com")
-    System_Ext(notification_ext, "SMTP Server", "Gmail / Mailtrap")
-    System_Ext(map_ext, "OpenStreetMap Nominatim", "nominatim.openstreetmap.org")
-    System_Ext(auth_ext, "Supabase Auth", "supabase.co/auth")
+    ContainerDb(redis_cache, "Redis", "In-Memory Cache")
+    System_Ext(supabase_sys, "Supabase (DB + Auth)", "Backend as a Service")
+    System_Ext(payment_ext, "Payment Gateway", "External API")
 
     Rel(router, auth_controller, "/api/auth/*")
     Rel(router, court_controller, "/api/courts/*")
+    Rel(router, search_controller, "/api/courts/search")
     Rel(router, booking_controller, "/api/bookings/*")
     Rel(router, review_controller, "/api/reviews/*")
 
-    Rel(auth_controller, auth_ext, "supabase.auth.signUp() / signInWithPassword()")
-    Rel(auth_controller, data_access, "User profile CRUD (address, language, credit card)")
-    Rel(court_controller, data_access, "Court CRUD + indexed search")
-    Rel(court_controller, map_ext, "Nominatim geocoding API call")
-    Rel(booking_controller, data_access, "Booking + waitlist + equipment")
-    Rel(booking_controller, payment_service, "Payment/refund flow")
-    Rel(booking_controller, notification_service, "Waitlist alerts")
-    Rel(review_controller, data_access, "Review CRUD")
-    Rel(payment_service, payment_ext, "stripe.charges.create() / stripe.refunds.create()")
-    Rel(notification_service, notification_ext, "nodemailer.sendMail()")
-    Rel(data_access, db, "SQL queries")
+    Rel(auth_controller, supabase_client, "Auth API + Profile Data & Encrypted CC")
+    Rel(search_controller, redis_cache, "Cache misses fetch from DB, then store in Redis. Cache hits return instantly.")
+    Rel(court_controller, supabase_client, "Court CRUD")
+    Rel(booking_controller, supabase_client, "Row-Level Booking Locks + Transaction Logic")
+    Rel(booking_controller, payment_service, "Process payment, record transaction ID")
+    Rel(booking_controller, notification_service, "Notify waitlist users upon cancellation")
+    Rel(review_controller, supabase_client, "Store feedback & calculate averages")
+    
+    Rel(payment_service, payment_ext, "Handles Gateway transaction APIs")
+    Rel(supabase_client, supabase_sys, "Supabase JS Client Requests")
 ```
 
 **Design Rationale:**
-*   **Controller-per-Feature:** Each controller maps to a core functional requirement (Auth, Courts/Search, Bookings, Reviews), making the codebase easy to navigate and test independently.
-*   **Centralized Data Access Layer:** All database interactions go through a single layer. **Supabase Auth** handles password hashing and JWT sessions externally, while the data access layer manages user profiles and encrypts sensitive fields (credit card tokens). This satisfies the Security requirement while keeping the code DRY.
-*   **Decoupled Payment & Notification Services:** **Stripe SDK** for payments and **Nodemailer** for email notifications are isolated into dedicated service modules. This means the booking logic can be tested without hitting external APIs, and the services can be swapped (e.g., Stripe → Omise, Gmail SMTP → SendGrid) without touching business logic.
-*   **Waitlist Flow:** When a booking is cancelled, the Booking Controller checks the waitlist. If users are waiting, it triggers the Notification Service to alert the next user in the queue — fulfilling the waitlist requirement.
+*   **Separation of Search from Standard Court Operations:** A dedicated **Search Controller** focuses purely on high-performance filtering. It integrates natively with **Redis** to intercept incoming search requests, bypassing database load on cache hits.
+*   **Supabase over Raw Database Connectors:** The traditional `pg` driver component was purged completely in favor of the **Supabase JS Client** Models. This allows offloading auth and leveraging Supabase's managed SDK features internally.
+*   **In-Memory Crypto:** The **Auth Controller** directly uses the Node.js `crypto` module (AES-256) to symmetrically encrypt user credit cards on registration ensuring PCI-DSS conceptual requirements without plain-text storage.
+*   **Booking Transaction Flow:** The Booking Controller locks the available slot on the database level, fires off the Payment Service returning a `transaction_id`, and gracefully commits the result or aborts the slot reservation if payment fails.
 
 ---
 
@@ -252,29 +247,35 @@ sequenceDiagram
     actor User as Customer
     participant UI as Web Browser
     participant API as API Server (Express)
-    participant DB as PostgreSQL
-    participant Map as Nominatim (OpenStreetMap)
-    participant Pay as Stripe
+    participant Cache as Redis
+    participant DB as Supabase DB
+    participant Pay as Payment Service
 
-    User->>UI: Opens search page, enters location and filters
-    UI->>API: GET /api/courts/search?lat=13.7&lng=100.5&radius=10km&maxPrice=200
-    API->>Map: GET /search?q=address (geocode user location if needed)
-    Map-->>API: Returns GPS coordinates (lat/lng)
-    API->>DB: SELECT courts WHERE distance <= 10km AND price <= 200 (Indexed query)
-    DB-->>API: Returns matching courts with avg ratings
-    API-->>UI: JSON response (court list + ratings)
-    UI-->>User: Displays courts with ratings and distances (< 2s)
+    User->>UI: Types search query, adjusts filters
+    UI->>API: GET /api/courts/search?...
+    API->>Cache: Check for cached search results
+    
+    alt Cache Hit
+        Cache-->>API: Returns cached court data
+    else Cache Miss
+        API->>DB: Fetch matching courts using SDK
+        DB-->>API: Returns courts
+        API->>Cache: Set cache with expiration
+    end
+    
+    API-->>UI: JSON response (court list)
+    UI-->>User: Displays highly responsive courts (< 2s)
 
-    User->>UI: Selects court, picks 2h slot, adds shuttlecocks → Clicks "Book & Pay"
-    UI->>API: POST /api/bookings {court_id, start, duration: 2h, equipment: ["shuttlecock"]}
-    API->>DB: Check slot availability (SELECT FOR UPDATE — prevents double booking)
-    DB-->>API: Slot is available
-    API->>Pay: stripe.charges.create({ amount, currency: 'thb', source: token })
-    Pay-->>API: Charge succeeded (ch_xxx)
-    API->>DB: INSERT booking + equipment rental (atomic transaction)
+    User->>UI: Select court, datetime, adds equipment → Clicks "Pay Now"
+    UI->>API: POST /api/bookings {...data}
+    API->>DB: Check slot (Pessimistic Row-Level Lock or Availability Logic)
+    DB-->>API: Slot is reserved/available
+    API->>Pay: Process payment with method/cc_token
+    Pay-->>API: Returns transaction_id
+    API->>DB: INSERT booking & equipment rentals including transaction_id
     DB-->>API: Saved
     API-->>UI: 201 Created — Booking confirmed
-    UI-->>User: Shows confirmation with booking details
+    UI-->>User: UI updates to show success and reroutes to My Bookings
 ```
 
 ### 2.2 Cancellation and Waitlist Notification Flow
