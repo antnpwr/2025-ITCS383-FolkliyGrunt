@@ -9,8 +9,19 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(helmet({ 
-  contentSecurityPolicy: false,
-  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "script-src": ["'self'", "'unsafe-inline'", "unpkg.com", "js.stripe.com"],
+      "style-src": ["'self'", "'unsafe-inline'", "fonts.googleapis.com", "unpkg.com"],
+      "img-src": ["'self'", "data:", "https:", "*.basemaps.cartocdn.com"],
+      "connect-src": ["'self'", "https://*.supabase.co", "https://api.stripe.com"],
+      "font-src": ["'self'", "fonts.gstatic.com"],
+      "frame-src": ["'self'", "js.stripe.com", "hooks.stripe.com"]
+    },
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginEmbedderPolicy: false,
   crossOriginOpenerPolicy: false
 }));
