@@ -5,11 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Pro Badminton – Find, book, and manage badminton courts across Bangkok. Premium booking system with instant confirmation.">
   <title>Pro Badminton – Find & Book Courts</title>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <link rel="stylesheet" href="/css/theme.css">
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
   <style>
     body{margin:0}
     /* Hero */
@@ -207,6 +210,12 @@
         const courts = await res.json();
         const grid = document.getElementById('courts-grid');
 
+        if (!res.ok || !Array.isArray(courts)) {
+          grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--pb-error)">Failed to load courts: ${courts.error || 'Server connection error'}</div>`;
+          document.getElementById('stat-courts').textContent = '0';
+          return;
+        }
+
         document.getElementById('stat-courts').textContent = courts.length;
 
         if (courts.length === 0) {
@@ -227,8 +236,8 @@
             </div>
             <div class="court-footer">
               <div class="court-rating">
-                <span class="stars" style="color:#f59e0b">${starsHtml(c.avg_rating)}</span>
-                <span class="val">${Number.parseFloat(c.avg_rating || 0).toFixed(1)}</span>
+                <span class="stars" style="color:#f59e0b">${starsHtml(Number(c.average_rating || 0))}</span>
+                <span class="val">${Number(c.average_rating || 0).toFixed(1)}</span>
               </div>
               <span class="pb-badge pb-badge-available">AVAILABLE</span>
             </div>
@@ -250,10 +259,10 @@
       }).addTo(map);
 
       courts.forEach(c => {
-        if (c.latitude && c.longitude) {
-          L.marker([c.latitude, c.longitude])
+        if (c.location_lat && c.location_lng) {
+          L.marker([c.location_lat, c.location_lng])
             .addTo(map)
-            .bindPopup(`<b>${c.name}</b><br>฿${c.price_per_hour}/hr<br><a href="/pages/court-detail.html?id=${c.id}">View Details</a>`);
+            .bindPopup(`<b>${c.name}</b><br>฿${Number(c.price_per_hour).toFixed(0)}/hr<br><a href="/pages/court.html?id=${c.id}">View Details</a>`);
         }
       });
     }

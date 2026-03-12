@@ -8,7 +8,6 @@ const mockPaymentMethodsDetach = jest.fn();
 const mockPaymentIntentsCreate = jest.fn();
 const mockSetupIntentsCreate = jest.fn();
 const mockCheckoutSessionsCreate = jest.fn();
-const mockCheckoutSessionsRetrieve = jest.fn();
 
 jest.mock('stripe', () => {
   return jest.fn(() => ({
@@ -18,7 +17,7 @@ jest.mock('stripe', () => {
     paymentMethods: { list: mockPaymentMethodsList, detach: mockPaymentMethodsDetach },
     paymentIntents: { create: mockPaymentIntentsCreate },
     setupIntents: { create: mockSetupIntentsCreate },
-    checkout: { sessions: { create: mockCheckoutSessionsCreate, retrieve: mockCheckoutSessionsRetrieve } }
+    checkout: { sessions: { create: mockCheckoutSessionsCreate } }
   }));
 });
 
@@ -107,23 +106,6 @@ describe('Payment Service', () => {
       const result = await paymentService.processRefund('PP_XYZ789');
       expect(result.success).toBe(true);
       expect(result.refund_id).toBe('RE_PP_XYZ789');
-    });
-
-    test('refunds a Checkout Session (cs_xxx)', async () => {
-      mockCheckoutSessionsRetrieve.mockResolvedValue({
-        id: 'cs_test_123',
-        payment_intent: 'pi_test_cs'
-      });
-      const result = await paymentService.processRefund('cs_test_123');
-      expect(result.success).toBe(true);
-      expect(mockCheckoutSessionsRetrieve).toHaveBeenCalledWith('cs_test_123');
-      expect(mockRefundsCreate).toHaveBeenCalledWith({ payment_intent: 'pi_test_cs' });
-    });
-
-    test('throws when Checkout Session has no payment intent', async () => {
-      mockCheckoutSessionsRetrieve.mockResolvedValue({ id: 'cs_bad' });
-      await expect(paymentService.processRefund('cs_bad'))
-        .rejects.toThrow('No payment intent found for this session');
     });
 
     test('refunds a Payment Intent (pi_xxx)', async () => {

@@ -232,6 +232,16 @@ const paymentService = {
    */
   processRefund: async (transactionId) => {
     try {
+      // No transaction ID — nothing to refund (e.g. booking had no payment)
+      if (!transactionId) {
+        return {
+          success: true,
+          refund_id: 'NO_TXN',
+          note: 'No transaction to refund',
+          timestamp: new Date().toISOString()
+        };
+      }
+
       // Mock refund for bank transfers / PromptPay
       if (transactionId?.startsWith('BT_') || transactionId?.startsWith('REF_') || transactionId?.startsWith('PP_')) {
         return {
@@ -241,14 +251,10 @@ const paymentService = {
         };
       }
 
-      // Checkout Session refund (cs_xxx)
-      if (transactionId?.startsWith('cs_')) {
-        const session = await stripe.checkout.sessions.retrieve(transactionId);
-        if (!session.payment_intent) {
-            throw new Error('No payment intent found for this session');
-        }
+      // Payment Intent refund (pi_xxx)
+      if (transactionId?.startsWith('pi_')) {
         const refund = await stripe.refunds.create({
-          payment_intent: session.payment_intent
+          payment_intent: transactionId
         });
         return {
           success: true,
@@ -257,10 +263,20 @@ const paymentService = {
         };
       }
 
-      // Payment Intent refund (pi_xxx)
-      if (transactionId?.startsWith('pi_')) {
+      // Checkout Session refund (cs_xxx)
+      if (transactionId?.startsWith('cs_')) {
+        const session = await stripe.checkout.sessions.retrieve(transactionId);
+        if (!session.payment_intent) {
+          // Session exists but payment was never completed — skip refund
+          return {
+            success: true,
+            refund_id: `SKIP_${transactionId.substring(0, 20)}`,
+            note: 'Checkout session had no completed payment — no refund needed',
+            timestamp: new Date().toISOString()
+          };
+        }
         const refund = await stripe.refunds.create({
-          payment_intent: transactionId
+          payment_intent: session.payment_intent
         });
         return {
           success: true,
