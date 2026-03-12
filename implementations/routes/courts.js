@@ -6,6 +6,7 @@ const { authMiddleware, adminOnly } = require('../middleware/authMiddleware');
 // Public routes (customers)
 router.get('/search', courtController.search);
 router.get('/:id', courtController.getById);
+router.get('/:id/availability', courtController.getAvailability);
 router.get('/', courtController.getAll);
 
 // Admin routes (requires login + admin role)

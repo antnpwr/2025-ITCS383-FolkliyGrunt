@@ -88,12 +88,20 @@ if (registerForm) {
         errorDiv.style.display = 'none';
         successDiv.style.display = 'none';
         
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const email = (document.getElementById('regEmail') || document.getElementById('email')).value;
+        const password = (document.getElementById('regPassword') || document.getElementById('password')).value;
         const fullName = document.getElementById('fullName').value;
         const address = document.getElementById('address').value;
         const registerModeInput = document.getElementById('registerMode');
         const role = registerModeInput ? registerModeInput.value : 'CUSTOMER';
+
+        // Strong password validation (min 8 chars, upper, lower, digit, special)
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            errorDiv.textContent = 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.';
+            errorDiv.style.display = 'block';
+            return;
+        }
 
         try {
             const response = await fetch(`${API_URL}/auth/register`, {
@@ -200,40 +208,49 @@ const fetchAndRenderCourts = async (searchQuery = '') => {
             return;
         }
 
-        courtsGrid.innerHTML = courtsArray.map(court => `
-<!-- Court Card dynamically rendered -->
-<div class="group bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-2xl transition-all duration-300">
-<div class="relative aspect-video overflow-hidden">
-<img alt="${court.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="${court.image_url || 'https://via.placeholder.com/400x200?text=Court+Image'}"/>
-<div class="absolute top-3 right-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-2 py-1 rounded text-xs font-bold ${court.current_status === 'AVAILABLE' ? 'text-green-600' : 'text-red-600'}">
-    ${court.current_status || 'UNKNOWN'}
-</div>
-</div>
-<div class="p-5 flex flex-col gap-4">
-<div class="flex justify-between items-start">
-<div>
-<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">${court.name}</h3>
-<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-sm mt-1">
-<span class="material-symbols-outlined text-sm">location_on</span>
-    ${court.address || 'Unknown Location'}
-</div>
-</div>
-<div class="flex items-center gap-1 bg-yellow-400/10 text-yellow-600 dark:text-yellow-400 px-2 py-0.5 rounded-full text-xs font-bold">
-<span class="material-symbols-outlined text-xs">star</span> ${Number(court.average_rating || 0).toFixed(1)}
-</div>
-</div>
-<div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
-<div class="flex flex-col">
-<span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Price</span>
-<span class="text-lg font-bold text-slate-900 dark:text-slate-100">฿${ court.price_per_hour }<span class="text-xs font-normal text-slate-500">/hr</span></span>
-</div>
-<button onclick="globalThis.location.href='/pages/court.html?id=${court.id}'" class="px-5 py-2.5 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-lg transition-colors">
-    View Details
-</button>
-</div>
-</div>
-</div>
-        `).join('');
+        courtsGrid.innerHTML = courtsArray.map(court => {
+            const rating = Number(court.average_rating || 0);
+            const stars = '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
+            const courtImage = court.image_url || 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=800&auto=format&fit=crop';
+            
+            return `
+            <!-- Court Card dynamically rendered -->
+            <div class="group bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-2xl transition-all duration-300">
+                <div class="relative aspect-[16/10] overflow-hidden">
+                    <img alt="${court.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="${courtImage}" onerror="this.src='https://via.placeholder.com/600x400?text=Court+Image'"/>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="absolute top-3 right-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider shadow-sm z-10 ${court.current_status === 'AVAILABLE' ? 'text-green-600' : 'text-red-500'}">
+                        ${court.current_status || 'UNKNOWN'}
+                    </div>
+                </div>
+                <div class="p-5 flex flex-col gap-4">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 min-w-0 pr-2">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">${court.name}</h3>
+                            <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs mt-1.5">
+                                <span class="material-symbols-outlined text-sm text-primary">location_on</span>
+                                <span class="truncate">${court.address || 'Unknown Location'}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1 shrink-0">
+                            <div class="flex items-center gap-1 bg-yellow-400/10 text-yellow-600 dark:text-yellow-400 px-2 py-1 rounded-full text-[10px] font-black">
+                                <span class="material-symbols-outlined text-xs">star</span> ${rating.toFixed(1)}
+                            </div>
+                            <span class="text-[8px] text-yellow-400 tracking-widest font-bold">${stars}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] text-slate-400 uppercase font-black tracking-tighter">Hourly Fee</span>
+                            <span class="text-xl font-bold text-slate-900 dark:text-slate-100">฿${ Number(court.price_per_hour).toFixed(0) }<span class="text-xs font-normal text-slate-500 ml-0.5">/hr</span></span>
+                        </div>
+                        <button onclick="globalThis.location.href='/pages/court.html?id=${court.id}'" class="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white text-xs font-black rounded-lg shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
         
         // Initialize Global Map
         initGlobalMap(courtsArray);
@@ -291,11 +308,27 @@ const fetchAndRenderCourtDetail = async () => {
         // Populate elements
         document.getElementById('court-name').textContent = court.name;
         document.getElementById('court-address').textContent = court.address || 'Location details not available';
-        document.getElementById('court-rating').textContent = Number(court.average_rating || 4.5).toFixed(1);
-        document.getElementById('court-reviews').textContent = '120 reviews';
+        
+        const rating = Number(court.average_rating || 0);
+        document.getElementById('court-rating').textContent = rating.toFixed(1);
+        
+        // Add stars in banner
+        const ratingBanner = document.querySelector('.flex.flex-col.items-end .flex.items-center.gap-1');
+        if (ratingBanner) {
+            const starStr = '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
+            ratingBanner.innerHTML = `
+                <span class="text-yellow-400 text-sm tracking-widest">${starStr}</span>
+                <span id="court-rating" class="text-primary font-bold text-sm ml-1">${rating.toFixed(1)}</span>
+            `;
+        }
+
+        document.getElementById('court-reviews').textContent = `${court.review_count || 0} reviews`;
         document.getElementById('court-image').src = court.image_url || 'https://via.placeholder.com/800x400?text=No+Image';
         document.getElementById('court-image').alt = court.name;
-        document.getElementById('court-price').textContent = `฿${Number(court.price_per_hour || 0).toFixed(2)}`;
+        const rateEl = document.getElementById('court-rate-display');
+        if (rateEl) {
+            rateEl.textContent = `฿${Number(court.price_per_hour || 0).toFixed(2)}`;
+        }
         document.getElementById('court-hours').textContent = `Open: ${court.opening_time} · Closes: ${court.closing_time}`;
 
         // Initialize Map
@@ -335,23 +368,25 @@ const fetchAndRenderCourtDetail = async () => {
                         reviewsList.innerHTML = `<div class="text-center py-6 text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">No reviews yet. Be the first to review!</div>`;
                     } else {
                         reviewsList.innerHTML = reviews.map(r => {
-                            const date = new Date(r.created_at).toLocaleDateString();
                             const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                            const initials = (r.full_name || 'U').charAt(0).toUpperCase();
                             return `
-                                <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl p-4 shadow-sm">
-                                    <div class="flex items-start justify-between mb-2">
+                                <div class="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+                                    <div class="flex justify-between items-start mb-2">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs uppercase">
-                                                ${(r.user_name || 'A')[0]}
+                                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                                                ${initials}
                                             </div>
                                             <div>
-                                                <p class="text-sm font-bold">${r.user_name || 'Anonymous User'}</p>
-                                                <p class="text-[10px] text-slate-400">${date}</p>
+                                                <h5 class="font-bold text-sm text-slate-900 dark:text-slate-100">${r.full_name || 'Anonymous User'}</h5>
+                                                <p class="text-[10px] text-slate-500 uppercase">${new Date(r.created_at).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <div class="text-yellow-400 text-sm tracking-widest">${stars}</div>
+                                        <div class="text-yellow-400 text-[10px] tracking-tighter">${stars}</div>
                                     </div>
-                                    <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">${r.comment_text || ''}</p>
+                                    <p class="text-sm text-slate-700 dark:text-white mt-2 leading-relaxed bg-slate-50 dark:bg-slate-800/20 p-3 rounded-lg border border-slate-100 dark:border-slate-800 italic">
+                                        "${r.comment_text || ''}"
+                                    </p>
                                 </div>
                             `;
                         }).join('');

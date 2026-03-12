@@ -1,147 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard - BadmintonPro</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                fontFamily: { display: ["Lexend", "sans-serif"] },
-                colors: {
-                    primary: "#257bf4",
-                    "background-light": "#f5f7f8"
-                }
-            }
-        }
-    }
-  </script>
-  <style> body { font-family: 'Lexend', sans-serif; bg-color: #f5f7f8; } </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Admin dashboard for managing courts and users.">
+  <title>Admin Dashboard - Pro Badminton</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root{--ad-bg:#f5f7fa;--ad-surface:#ffffff;--ad-border:#e2e8f0;--ad-primary:#257bf4;--ad-text:#1e293b;--ad-muted:#64748b;--ad-font:'Lexend','Inter',system-ui,sans-serif;--ad-radius:0.5rem;--ad-danger:#ef4444;--ad-success:#22c55e}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--ad-font);background:var(--ad-bg);color:var(--ad-text);min-height:100vh}
+    /* Header */
+    .admin-header{background:var(--ad-surface);border-bottom:1px solid var(--ad-border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+    .admin-header h1{font-size:1.2rem;display:flex;align-items:center;gap:0.5rem}
+    .admin-header h1 span{font-size:1.4rem}
+    .admin-user{display:flex;align-items:center;gap:1rem;font-size:0.88rem;color:var(--ad-muted)}
+    .btn-logout{background:var(--ad-danger);color:white;border:none;padding:0.5rem 1rem;border-radius:var(--ad-radius);font-family:var(--ad-font);font-weight:600;cursor:pointer;font-size:0.82rem}
+    .btn-logout:hover{background:#dc2626}
+    /* Layout */
+    .admin-layout{display:flex;gap:0}
+    .admin-sidebar{width:220px;background:var(--ad-surface);border-right:1px solid var(--ad-border);min-height:calc(100vh - 64px);padding:1.5rem 1rem}
+    .admin-tab{display:flex;align-items:center;gap:0.6rem;width:100%;padding:0.7rem 0.75rem;border:none;background:transparent;color:var(--ad-muted);font-family:var(--ad-font);font-size:0.88rem;font-weight:600;cursor:pointer;border-radius:var(--ad-radius);transition:all 0.2s;text-align:left}
+    .admin-tab:hover{background:#f1f5f9;color:var(--ad-text)}
+    .admin-tab.active{background:var(--ad-primary);color:white}
+    .admin-tab .material-symbols-outlined{font-size:1.2rem}
+    .admin-main{flex:1;padding:2rem;overflow-y:auto;max-height:calc(100vh - 64px)}
+    /* Panel */
+    .admin-panel{display:none}
+    .admin-panel.active{display:block}
+    .panel-title{font-size:1.2rem;font-weight:700;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+    /* Form Card */
+    .form-card{background:var(--ad-surface);border:1px solid var(--ad-border);border-radius:0.75rem;padding:1.5rem;margin-bottom:2rem;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+    .form-card h3{font-size:1rem;margin-bottom:1.25rem;color:var(--ad-text)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .form-group{display:flex;flex-direction:column;gap:0.3rem}
+    .form-group.full{grid-column:1/-1}
+    .form-label{font-size:0.82rem;font-weight:500;color:var(--ad-muted)}
+    .form-input{padding:0.6rem 0.75rem;border:1px solid var(--ad-border);border-radius:var(--ad-radius);font-size:0.88rem;font-family:var(--ad-font);transition:border-color 0.2s}
+    .form-input:focus{outline:none;border-color:var(--ad-primary);box-shadow:0 0 0 3px rgba(37,123,244,0.1)}
+    .btn-primary{background:var(--ad-primary);color:white;border:none;padding:0.65rem 1.5rem;border-radius:var(--ad-radius);font-family:var(--ad-font);font-weight:600;cursor:pointer;font-size:0.88rem;display:inline-flex;align-items:center;gap:0.4rem}
+    .btn-primary:hover{background:#1a6de0}
+    .btn-secondary{background:white;color:var(--ad-text);border:1px solid var(--ad-border);padding:0.5rem 1rem;border-radius:var(--ad-radius);font-family:var(--ad-font);font-weight:600;cursor:pointer;font-size:0.82rem}
+    .btn-secondary:hover{background:#f8fafc}
+    /* Map */
+    .map-container{height:250px;border-radius:var(--ad-radius);border:1px solid var(--ad-border);overflow:hidden;margin-top:0.5rem}
+    .map-hint{font-size:0.75rem;color:var(--ad-primary);margin-top:0.3rem;font-weight:500}
+    /* Image preview */
+    .img-preview{width:100%;max-height:120px;object-fit:cover;border-radius:var(--ad-radius);border:1px solid var(--ad-border);margin-top:0.5rem;display:none}
+    /* Table */
+    .data-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--ad-surface);border:1px solid var(--ad-border);border-radius:0.75rem;overflow:hidden}
+    .data-table th{background:#f8fafc;padding:0.75rem 1rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--ad-muted);font-weight:700;text-align:left;border-bottom:1px solid var(--ad-border)}
+    .data-table td{padding:0.75rem 1rem;font-size:0.88rem;border-bottom:1px solid #f1f5f9}
+    .data-table tr:last-child td{border-bottom:none}
+    .data-table tr:hover td{background:#f8fafc}
+    .court-thumb{width:48px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--ad-border)}
+    .status-select{padding:0.3rem 0.5rem;border-radius:var(--ad-radius);font-size:0.78rem;font-weight:700;border:1px solid var(--ad-border);font-family:var(--ad-font);cursor:pointer}
+    .badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:999px;font-size:0.72rem;font-weight:700}
+    .badge-customer{background:#dbeafe;color:#1d4ed8}
+    .badge-admin{background:#fce7f3;color:#be185d}
+    .badge-active{background:#dcfce7;color:#166534}
+    .badge-blocked{background:#fee2e2;color:#991b1b}
+    .btn-icon{background:none;border:none;cursor:pointer;color:var(--ad-muted);padding:0.25rem;border-radius:4px;transition:all 0.15s}
+    .btn-icon:hover{background:#f1f5f9;color:var(--ad-primary)}
+    .btn-block{background:white;border:1px solid var(--ad-danger);color:var(--ad-danger);padding:0.35rem 0.75rem;border-radius:var(--ad-radius);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:var(--ad-font)}
+    .btn-block:hover{background:#fef2f2}
+    /* Modal */
+    .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center}
+    .modal-overlay.show{display:flex}
+    .modal{background:white;border-radius:0.75rem;width:640px;max-height:90vh;overflow-y:auto;padding:1.5rem;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+    .modal-title{font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between}
+    .modal-actions{display:flex;gap:0.75rem;margin-top:1.25rem;justify-content:flex-end}
+    /* Lang picker */
+    .lang-picker{display:flex;gap:0.25rem;background:#f1f5f9;border-radius:var(--ad-radius);padding:0.15rem}
+    .lang-btn{padding:0.25rem 0.5rem;border:none;background:transparent;color:var(--ad-muted);font-size:0.72rem;font-weight:600;cursor:pointer;border-radius:0.3rem;font-family:var(--ad-font)}
+    .lang-btn.active{background:var(--ad-primary);color:white}
+    /* Toast */
+    .toast{position:fixed;top:80px;right:20px;padding:0.75rem 1.25rem;border-radius:var(--ad-radius);font-family:var(--ad-font);font-size:0.88rem;font-weight:500;color:white;z-index:2000;transform:translateX(120%);transition:transform 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+    .toast.show{transform:translateX(0)}
+    .toast-success{background:var(--ad-success)}
+    .toast-error{background:var(--ad-danger)}
+  </style>
 </head>
-<body class="bg-background-light text-slate-800 min-h-screen flex flex-col">
-  <!-- Top Navigation Bar -->
-  <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
-      <div class="flex items-center gap-2 text-primary">
-          <span class="material-symbols-outlined text-3xl font-bold">admin_panel_settings</span>
-          <h2 class="text-xl font-bold tracking-tight text-slate-900">Admin Dashboard</h2>
+<body>
+  <!-- Header -->
+  <header class="admin-header">
+    <h1><span>🏸</span> Admin Dashboard</h1>
+    <div class="admin-user">
+      <div class="lang-picker">
+        <button class="lang-btn active" data-lang="en" onclick="I18n.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">TH</button>
+        <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">中文</button>
       </div>
-      <div class="flex items-center gap-4">
-          <span class="text-sm font-medium text-slate-500">Logged in as Administrator</span>
-          <button id="adminLogoutBtn" class="text-sm border border-red-500 text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors">
-              Logout
-          </button>
-      </div>
+      <span>Logged in as <strong>Administrator</strong></span>
+      <button class="btn-logout" id="adminLogoutBtn">Logout</button>
+    </div>
   </header>
 
-  <main class="flex-1 max-w-7xl w-full mx-auto p-6 md:p-10 flex gap-8 flex-col md:flex-row">
-      
-      <!-- Sidebar Tabs -->
-      <aside class="w-full md:w-64 space-y-2 shrink-0">
-          <button id="tab-courts" class="w-full text-left flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-lg font-bold shadow-md transition-colors">
-              <span class="material-symbols-outlined">sports_tennis</span> Manage Courts
-          </button>
-          <button id="tab-users" class="w-full text-left flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-lg font-bold transition-colors">
-              <span class="material-symbols-outlined">group</span> Manage Users
-          </button>
-      </aside>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <button class="admin-tab active" id="tab-courts" onclick="switchPanel('courts', this)">
+        <span class="material-symbols-outlined">sports_tennis</span> Manage Courts
+      </button>
+      <button class="admin-tab" id="tab-users" onclick="switchPanel('users', this)">
+        <span class="material-symbols-outlined">group</span> Manage Users
+      </button>
+    </aside>
 
-      <!-- Content Area -->
-      <div class="flex-1 bg-white border border-slate-200 rounded-xl p-8 shadow-sm min-h-[500px]">
-          
-          <!-- COURTS PANEL -->
-          <div id="panel-courts" class="block">
-              <h3 class="text-2xl font-bold mb-6">Court Management</h3>
+    <!-- Main -->
+    <main class="admin-main">
+      <!-- Courts Panel -->
+      <div class="admin-panel active" id="panel-courts">
+        <div class="panel-title"><span class="material-symbols-outlined">add_circle</span> Court Management</div>
 
-              <!-- Add New Court Form -->
-              <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
-                  <h4 class="font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">add_circle</span> Register New Court</h4>
-                  <form id="addCourtForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                          <label class="block text-sm font-semibold mb-1">Court Name</label>
-                          <input id="c-name" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" type="text" required />
-                      </div>
-                      <div>
-                          <label class="block text-sm font-semibold mb-1">Price per Hour ($)</label>
-                          <input id="c-price" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" type="number" step="0.01" required />
-                      </div>
-                      <div>
-                          <label class="block text-sm font-semibold mb-1">Latitude</label>
-                          <input id="c-lat" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" type="number" step="any" placeholder="13.7948" required />
-                      </div>
-                      <div>
-                          <label class="block text-sm font-semibold mb-1">Longitude</label>
-                          <input id="c-lng" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" type="number" step="any" placeholder="100.3267" required />
-                      </div>
-                      <div>
-                          <label class="block text-sm font-semibold mb-1">Opening Time</label>
-                          <input id="c-open" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" type="time" required />
-                      </div>
-                      <div>
-                          <label class="block text-sm font-semibold mb-1">Closing Time</label>
-                          <input id="c-close" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" type="time" required />
-                      </div>
-                      <div class="md:col-span-2">
-                          <label class="block text-sm font-semibold mb-1">Allowed Shoes</label>
-                          <input id="c-shoes" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" type="text" placeholder="e.g. Non-marking shoes only" />
-                      </div>
-                      <div class="md:col-span-2 mt-2">
-                          <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-6 rounded-lg w-full md:w-auto transition-colors">
-                              Register Court
-                          </button>
-                      </div>
-                  </form>
+        <div class="form-card">
+          <h3>Register New Court</h3>
+          <form id="addCourtForm">
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label" for="c-name">Court Name *</label><input class="form-input" type="text" id="c-name" required placeholder="e.g. CU Sports Complex"></div>
+              <div class="form-group"><label class="form-label" for="c-price">Price per Hour (฿) *</label><input class="form-input" type="number" id="c-price" required placeholder="150"></div>
+              <div class="form-group"><label class="form-label" for="c-open">Opening Time *</label><input class="form-input" type="time" id="c-open" required value="06:00"></div>
+              <div class="form-group"><label class="form-label" for="c-close">Closing Time *</label><input class="form-input" type="time" id="c-close" required value="22:00"></div>
+              <div class="form-group"><label class="form-label" for="c-shoes">Allowed Shoes</label>
+                <select class="form-input" id="c-shoes">
+                  <option value="Non-marking">Non-marking only</option>
+                  <option value="All types">Any shoes</option>
+                  <option value="Indoor only">Indoor shoes only</option>
+                </select>
               </div>
-
-              <!-- List Courts -->
-              <h4 class="font-bold mb-4">Existing Courts</h4>
-              <div class="overflow-x-auto">
-                  <table class="w-full text-left text-sm whitespace-nowrap">
-                      <thead class="bg-slate-100 text-slate-500 uppercase text-xs font-bold">
-                          <tr>
-                              <th class="px-4 py-3 rounded-tl-lg">Court Name</th>
-                              <th class="px-4 py-3">Price/hr</th>
-                              <th class="px-4 py-3">Hours</th>
-                              <th class="px-4 py-3">Status</th>
-                              <th class="px-4 py-3 rounded-tr-lg">Action</th>
-                          </tr>
-                      </thead>
-                      <tbody id="admin-courts-tbody" class="divide-y divide-slate-100">
-                          <tr><td colspan="5" class="py-4 text-center text-slate-400">Loading courts...</td></tr>
-                      </tbody>
-                  </table>
+              <div class="form-group"><label class="form-label" for="c-image">Image URL</label>
+                <input class="form-input" type="url" id="c-image" placeholder="https://example.com/court-photo.jpg" oninput="previewImage(this.value, 'c-img-preview')">
               </div>
-
-          </div>
-
-          <!-- USERS PANEL -->
-          <div id="panel-users" class="hidden">
-              <h3 class="text-2xl font-bold mb-6">User Management</h3>
-              
-              <div class="overflow-x-auto">
-                  <table class="w-full text-left text-sm whitespace-nowrap">
-                      <thead class="bg-slate-100 text-slate-500 uppercase text-xs font-bold">
-                          <tr>
-                              <th class="px-4 py-3 rounded-tl-lg">Name</th>
-                              <th class="px-4 py-3">Role</th>
-                              <th class="px-4 py-3">Joined Date</th>
-                              <th class="px-4 py-3">Status</th>
-                              <th class="px-4 py-3 rounded-tr-lg">Action</th>
-                          </tr>
-                      </thead>
-                      <tbody id="admin-users-tbody" class="divide-y divide-slate-100">
-                          <tr><td colspan="5" class="py-4 text-center text-slate-400">Loading users...</td></tr>
-                      </tbody>
-                  </table>
+              <div class="form-group full">
+                <img id="c-img-preview" class="img-preview" alt="Court preview">
               </div>
-          </div>
+              <!-- Lat/Lng with interactive map -->
+              <div class="form-group"><label class="form-label" for="c-lat">Latitude *</label><input class="form-input" type="number" step="any" id="c-lat" required placeholder="13.7563"></div>
+              <div class="form-group"><label class="form-label" for="c-lng">Longitude *</label><input class="form-input" type="number" step="any" id="c-lng" required placeholder="100.5018"></div>
+              <div class="form-group full">
+                <label class="form-label">📍 Click on map to set location</label>
+                <div id="create-map" class="map-container"></div>
+                <span class="map-hint">Click anywhere on the map to set the court's exact location. The marker is draggable.</span>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top:1.25rem">
+              <span class="material-symbols-outlined" style="font-size:1rem">add</span> Register Court
+            </button>
+          </form>
+        </div>
 
+        <h3 style="margin-bottom:1rem">Existing Courts</h3>
+        <table class="data-table">
+          <thead><tr><th>Image</th><th>Court Name</th><th>Price/hr</th><th>Hours</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="admin-courts-tbody">
+            <tr><td colspan="6" style="text-align:center;color:var(--ad-muted);padding:2rem">Loading courts...</td></tr>
+          </tbody>
+        </table>
       </div>
-  </main>
 
+      <!-- Users Panel -->
+      <div class="admin-panel" id="panel-users">
+        <div class="panel-title"><span class="material-symbols-outlined">manage_accounts</span> User Management</div>
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="admin-users-tbody">
+            <tr><td colspan="6" style="text-align:center;color:var(--ad-muted);padding:2rem">Click "Manage Users" to load...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit Court Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-title">
+        <span>✏️ Edit Court</span>
+        <button class="btn-icon" onclick="closeEditModal()"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <form id="editCourtForm">
+        <input type="hidden" id="e-id">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="e-name">Court Name</label><input class="form-input" type="text" id="e-name" required></div>
+          <div class="form-group"><label class="form-label" for="e-price">Price per Hour (฿)</label><input class="form-input" type="number" id="e-price" required></div>
+          <div class="form-group"><label class="form-label" for="e-open">Opening Time</label><input class="form-input" type="time" id="e-open" required></div>
+          <div class="form-group"><label class="form-label" for="e-close">Closing Time</label><input class="form-input" type="time" id="e-close" required></div>
+          <div class="form-group"><label class="form-label" for="e-shoes">Allowed Shoes</label>
+            <select class="form-input" id="e-shoes">
+              <option value="Non-marking">Non-marking only</option>
+              <option value="All types">Any shoes</option>
+              <option value="Indoor only">Indoor shoes only</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label" for="e-image">Image URL</label>
+            <input class="form-input" type="url" id="e-image" placeholder="https://..." oninput="previewImage(this.value, 'e-img-preview')">
+          </div>
+          <div class="form-group full">
+            <img id="e-img-preview" class="img-preview" alt="Court preview">
+          </div>
+          <div class="form-group"><label class="form-label" for="e-lat">Latitude</label><input class="form-input" type="number" step="any" id="e-lat" required></div>
+          <div class="form-group"><label class="form-label" for="e-lng">Longitude</label><input class="form-input" type="number" step="any" id="e-lng" required></div>
+          <div class="form-group full">
+            <label class="form-label">📍 Click on map to change location</label>
+            <div id="edit-map" class="map-container"></div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn-primary"><span class="material-symbols-outlined" style="font-size:1rem">save</span> Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/i18n.js"></script>
   <script src="/js/admin.js"></script>
 </body>
 </html>

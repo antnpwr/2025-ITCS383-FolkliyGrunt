@@ -142,6 +142,47 @@ describe('Booking Model', () => {
 
         expect(mockClient.release).toHaveBeenCalled();
     });
+
+    // ── updateTransactionId ─────────────────────────────
+    test('updateTransactionId updates and returns booking', async () => {
+        const updated = { id: 'b1', transaction_id: 'TX_STRIPE_123' };
+        pool.query.mockResolvedValue({ rows: [updated] });
+
+        const result = await Booking.updateTransactionId('b1', 'TX_STRIPE_123');
+        expect(result).toEqual(updated);
+        expect(pool.query).toHaveBeenCalledWith(
+            expect.stringContaining('transaction_id'),
+            ['TX_STRIPE_123', 'b1']
+        );
+    });
+
+    test('updateTransactionId returns undefined for non-existent booking', async () => {
+        pool.query.mockResolvedValue({ rows: [] });
+        const result = await Booking.updateTransactionId('nonexistent', 'TX_123');
+        expect(result).toBeUndefined();
+    });
+
+    // ── findByCourtAndDate ──────────────────────────────
+    test('findByCourtAndDate returns booked start times', async () => {
+        const times = [
+            { start_time: '2025-06-01T10:00:00Z' },
+            { start_time: '2025-06-01T14:00:00Z' }
+        ];
+        pool.query.mockResolvedValue({ rows: times });
+
+        const result = await Booking.findByCourtAndDate('court-1', '2025-06-01');
+        expect(result).toEqual(['2025-06-01T10:00:00Z', '2025-06-01T14:00:00Z']);
+        expect(pool.query).toHaveBeenCalledWith(
+            expect.stringContaining('court_id'),
+            ['court-1', '2025-06-01']
+        );
+    });
+
+    test('findByCourtAndDate returns empty array for open day', async () => {
+        pool.query.mockResolvedValue({ rows: [] });
+        const result = await Booking.findByCourtAndDate('court-1', '2025-12-25');
+        expect(result).toEqual([]);
+    });
 });
 
 // ═══════════════════════════════════════════════════════════

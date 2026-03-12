@@ -2,11 +2,11 @@ const pool = require('../config/db');
 
 class Court {
   // Create a new court (Admin only)
-  static async create({ name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time }) {
+  static async create({ name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time, image_url }) {
     const result = await pool.query(
-      `INSERT INTO courts (name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time]
+      `INSERT INTO courts (name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time, image_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time, image_url]
     );
     return result.rows[0];
   }
@@ -19,6 +19,18 @@ class Court {
        LEFT JOIN reviews r ON c.id = r.court_id
        WHERE c.current_status = 'AVAILABLE'
        GROUP BY c.id`
+    );
+    return result.rows;
+  }
+
+  // Get ALL courts regardless of status (for admin)
+  static async findAllIncludingInactive() {
+    const result = await pool.query(
+      `SELECT c.*, COALESCE(AVG(r.rating), 0) as avg_rating
+       FROM courts c
+       LEFT JOIN reviews r ON c.id = r.court_id
+       GROUP BY c.id
+       ORDER BY c.name`
     );
     return result.rows;
   }
@@ -75,7 +87,7 @@ class Court {
   }
 
   // Update court details (Admin only)
-  static async update(courtId, { name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time }) {
+  static async update(courtId, { name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time, image_url }) {
     const result = await pool.query(
       `UPDATE courts
        SET name = COALESCE($1, name),
@@ -84,9 +96,10 @@ class Court {
            price_per_hour = COALESCE($4, price_per_hour),
            allowed_shoes = COALESCE($5, allowed_shoes),
            opening_time = COALESCE($6, opening_time),
-           closing_time = COALESCE($7, closing_time)
-       WHERE id = $8 RETURNING *`,
-      [name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time, courtId]
+           closing_time = COALESCE($7, closing_time),
+           image_url = COALESCE($8, image_url)
+       WHERE id = $9 RETURNING *`,
+      [name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time, image_url, courtId]
     );
     return result.rows[0];
   }

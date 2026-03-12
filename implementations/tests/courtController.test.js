@@ -1,7 +1,9 @@
 // Mock the Court model BEFORE requiring the controller
 jest.mock('../models/Court');
+jest.mock('../models/Booking');
 
 const Court = require('../models/Court');
+const Booking = require('../models/Booking');
 const courtController = require('../controllers/courtController');
 
 // Helper to create mock req/res
@@ -58,24 +60,25 @@ describe('courtController', () => {
             expect(res.json).toHaveBeenCalledWith(courts);
         });
 
-        test('returns all courts when no query params', async () => {
+        test('returns all courts (including inactive) when no query params', async () => {
             const courts = [{ id: '1' }, { id: '2' }];
-            Court.findAll.mockResolvedValue(courts);
+            Court.findAllIncludingInactive.mockResolvedValue(courts);
 
             const { req, res } = mockReqRes({ query: {} });
             await courtController.search(req, res);
 
-            expect(Court.findAll).toHaveBeenCalled();
+            expect(Court.findAllIncludingInactive).toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(courts);
         });
 
         test('returns 500 on error', async () => {
-            Court.findAll.mockRejectedValue(new Error('DB error'));
+            Court.findAllIncludingInactive.mockRejectedValue(new Error('DB error'));
 
             const { req, res } = mockReqRes({ query: {} });
             await courtController.search(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ error: 'DB error' });
         });
     });
 
@@ -156,6 +159,18 @@ describe('courtController', () => {
             expect(res.json).toHaveBeenCalledWith({ message: 'Court created successfully', court });
         });
 
+        test('creates court with image_url', async () => {
+            const bodyWithImage = { ...validBody, image_url: 'https://example.com/court.jpg' };
+            const court = { id: 'new-img', ...bodyWithImage };
+            Court.create.mockResolvedValue(court);
+
+            const { req, res } = mockReqRes({ body: bodyWithImage });
+            await courtController.create(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(Court.create).toHaveBeenCalledWith(expect.objectContaining({ image_url: 'https://example.com/court.jpg' }));
+        });
+
         test('creates court from address using Nominatim geocoding', async () => {
             const mockLocation = [{ lat: '14.0', lon: '101.0' }];
             global.fetch = jest.fn(() =>
@@ -212,6 +227,19 @@ describe('courtController', () => {
             await courtController.update(req, res);
 
             expect(res.json).toHaveBeenCalledWith({ message: 'Court updated successfully', court });
+        });
+
+        test('updates court with image_url', async () => {
+            const court = { id: '1', name: 'Court', image_url: 'https://example.com/new.jpg' };
+            Court.update.mockResolvedValue(court);
+
+            const { req, res } = mockReqRes({
+                params: { id: '1' },
+                body: { image_url: 'https://example.com/new.jpg' }
+            });
+            await courtController.update(req, res);
+
+            expect(Court.update).toHaveBeenCalledWith('1', expect.objectContaining({ image_url: 'https://example.com/new.jpg' }));
         });
 
         test('returns 404 when court not found', async () => {
@@ -297,6 +325,45 @@ describe('courtController', () => {
                 body: { status: 'AVAILABLE' }
             });
             await courtController.updateStatus(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+        });
+    });
+
+    // ── getAvailability ─────────────────────────────────
+    describe('getAvailability', () => {
+        test('returns booked slots for a given date', async () => {
+            const slots = [{ start_time: '10:00', end_time: '11:00' }];
+            Booking.findByCourtAndDate.mockResolvedValue(slots);
+
+            const { req, res } = mockReqRes({
+                params: { id: 'c1' },
+                query: { date: '2025-06-01' }
+            });
+            await courtController.getAvailability(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(slots);
+        });
+
+        test('returns 400 when date is missing', async () => {
+            const { req, res } = mockReqRes({
+                params: { id: 'c1' },
+                query: {}
+            });
+            await courtController.getAvailability(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Date is required' });
+        });
+
+        test('returns 500 on error', async () => {
+            Booking.findByCourtAndDate.mockRejectedValue(new Error('fail'));
+
+            const { req, res } = mockReqRes({
+                params: { id: 'c1' },
+                query: { date: '2025-06-01' }
+            });
+            await courtController.getAvailability(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
         });

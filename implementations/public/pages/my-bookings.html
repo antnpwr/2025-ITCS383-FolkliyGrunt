@@ -1,495 +1,182 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>My Bookings &amp; Profile Dashboard</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#257bf4",
-                        "background-light": "#f5f7f8",
-                        "background-dark": "#101722",
-                    },
-                    fontFamily: {
-                        "display": ["Inter"]
-                    },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage your badminton court bookings, view active waitlists, and check reviews.">
+  <title>My Bookings - Pro Badminton</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <style>
+    body{margin:0}
+    .dash-header{padding:1.5rem 2rem;border-bottom:1px solid var(--pb-border);display:flex;align-items:center;justify-content:space-between}
+    .dash-header h2{color:var(--pb-text-heading);font-size:1.3rem;margin:0}
+    .stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;padding:2rem}
+    .stat-card{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-lg);padding:1.25rem;text-align:center}
+    .stat-card .num{font-size:1.8rem;font-weight:700;color:var(--pb-primary)}
+    .stat-card .label{font-size:0.8rem;color:var(--pb-text-muted);margin-top:0.25rem}
+    .dash-section{padding:0 2rem 2rem}
+    .dash-section h3{color:var(--pb-text-heading);font-size:1.1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem}
+    .booking-card{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-lg);padding:1.25rem;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:border-color 0.2s}
+    .booking-card:hover{border-color:var(--pb-primary)}
+    .booking-info h4{color:var(--pb-text-heading);margin:0 0 0.3rem;font-size:0.95rem}
+    .booking-info p{color:var(--pb-text-muted);font-size:0.82rem;margin:0.15rem 0}
+    .booking-actions{display:flex;gap:0.5rem;align-items:center;flex-shrink:0}
+    .empty-state{text-align:center;padding:2.5rem;color:var(--pb-text-muted)}
+    .empty-state .material-symbols-outlined{font-size:2.5rem;color:var(--pb-border);display:block;margin-bottom:0.5rem}
+  </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex">
-<!-- Sidebar Navigation -->
-<aside class="w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark shrink-0 h-screen sticky top-0" aria-label="Main Navigation">
-<div class="p-6 flex items-center gap-3">
-<div class="bg-primary p-2 rounded-lg">
-<span class="material-symbols-outlined text-white">sports_tennis</span>
-</div>
-<div class="flex flex-col">
-<h1 class="text-slate-900 dark:text-white text-lg font-bold leading-none">Pro Badminton</h1>
-<p class="text-slate-500 dark:text-slate-400 text-xs">Player Dashboard</p>
-</div>
-</div>
-<nav class="flex-1 px-4 mt-4 space-y-2">
-<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/">
-<span class="material-symbols-outlined">dashboard</span>
-<span class="text-sm font-medium">Home / Courts</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" href="/pages/my-bookings.html">
-<span class="material-symbols-outlined">calendar_today</span>
-<span class="text-sm font-medium">My Bookings</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/pages/waitlist.html">
-<span class="material-symbols-outlined">groups</span>
-<span class="text-sm font-medium">Waitlists</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" href="/pages/reviews.html">
-<span class="material-symbols-outlined">star</span>
-<span class="text-sm font-medium">Reviews</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" onclick="alert('Settings page coming soon!')">
-<span class="material-symbols-outlined">settings</span>
-<span class="text-sm font-medium">Settings</span>
-</a>
-</nav>
-<div class="p-4 border-t border-slate-200 dark:border-slate-800">
-<div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
-<img class="size-10 rounded-full border-2 border-primary" alt="User profile avatar of a badminton player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD46KdRHuUHoG28iSVr6Vxg4kU7CaSMhq60Uk-uY5Y_HJe5kmPYV35fwCWnO-OdRb26U1UR-xWZ8_Bl30HuR13vtz1AZ2q2Dt_xnblJfz0DX5k4lM31I6wYvx_76Z3xaJ8yG3Ch7Xq6hO3dFCW2ViIK9ALv2umgpZWqM7LeGXfDDy1XXMKW1TUOn-ZVjN8kZAi7t2VaZAHoRDe_gZjdVyJi-EjYKKAiGL833ovpGbhdQxjAcJjaH5JO-jaEPPOh-uJ1Ai68uzHYysPG"/>
-<div class="flex flex-col min-w-0">
-<p class="text-sm font-semibold truncate" id="user-name">Guest</p>
-<p class="text-xs text-slate-500 truncate" id="user-email">Not logged in</p>
-</div>
-<button id="logoutBtn" style="display:none" class="ml-auto text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-<span class="material-symbols-outlined text-lg">logout</span>
-</button>
-</div>
-</div>
-</aside>
-<!-- Main Content Area -->
-<main class="flex-1 overflow-y-auto">
-<header class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-10">
-<div class="flex-1 max-w-xl">
-<div class="relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-<input class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search courts, bookings, or locations..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button class="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg relative">
-<span class="material-symbols-outlined">notifications</span>
-<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"></span>
-</button>
-<button class="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
-<span class="material-symbols-outlined">help_outline</span>
-</button>
-</div>
-</header>
-<div class="p-8 max-w-7xl mx-auto flex gap-8">
-<!-- Central Dashboard Content -->
-<div class="flex-1 space-y-8">
-<div>
-<h2 class="text-3xl font-extrabold tracking-tight">My Bookings</h2>
-<p class="text-slate-500 dark:text-slate-400 mt-1">Manage your court reservations and gaming history.</p>
-</div>
-<!-- Upcoming Bookings Section -->
-<section>
-<div class="flex items-center justify-between mb-4">
-<h3 class="text-lg font-bold">Upcoming Bookings</h3>
-<button onclick="globalThis.location.href='/'" class="text-primary text-sm font-semibold hover:underline">Book New Court</button>
-</div>
-<div id="upcoming-bookings" class="space-y-4">
-<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center">
-<span class="material-symbols-outlined text-4xl text-primary animate-spin mb-2">progress_activity</span>
-<p class="text-slate-500 text-sm">Loading your bookings...</p>
-</div>
-</div>
-</section>
-<!-- Past Bookings Section -->
-<section>
-<h3 class="text-lg font-bold mb-4">Past Bookings</h3>
-<div class="overflow-hidden border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900">
-<table class="w-full text-left text-sm">
-<thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-<tr>
-<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider">Date</th>
-<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider">Court</th>
-<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider">Amount</th>
-<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider">Payment</th>
-<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider">Status</th>
-<th class="px-6 py-4 font-bold uppercase text-xs tracking-wider text-right">Action</th>
-</tr>
-</thead>
-<tbody id="past-bookings-body" class="divide-y divide-slate-100 dark:divide-slate-800">
-<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">Loading...</td></tr>
-</tbody>
-</table>
-</div>
-</section>
-</div>
-<!-- Right Sidebar Panel -->
-<aside class="w-80 space-y-6 shrink-0" aria-label="Secondary Actions">
-<!-- Waitlists Panel -->
-<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-<div class="flex items-center gap-2 mb-6">
-<span class="material-symbols-outlined text-primary">hourglass_empty</span>
-<h3 class="text-lg font-bold">Active Waitlists</h3>
-</div>
-<div class="space-y-4">
-<div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
-<div class="flex justify-between items-start mb-2">
-<p class="text-xs font-bold text-primary uppercase tracking-wider">Position #2</p>
-<span class="size-2 bg-yellow-500 rounded-full animate-pulse"></span>
-</div>
-<h4 class="font-bold text-sm">Elite Arena - Sunday Prime</h4>
-<p class="text-xs text-slate-500 mt-1">Oct 29 • 07:00 PM</p>
-</div>
-<div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
-<div class="flex justify-between items-start mb-2">
-<p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Position #8</p>
-<span class="size-2 bg-slate-400 rounded-full"></span>
-</div>
-<h4 class="font-bold text-sm">City Sports - Weekend Special</h4>
-<p class="text-xs text-slate-500 mt-1">Oct 28 • 09:00 AM</p>
-</div>
-</div>
-<button onclick="globalThis.location.href='/pages/waitlist.html'" class="w-full mt-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                    Manage Waitlists
-                </button>
-</div>
-<!-- Membership Status -->
-<div class="bg-gradient-to-br from-primary to-blue-600 rounded-xl p-6 text-white shadow-lg shadow-primary/20">
-<div class="flex items-center gap-3 mb-4">
-<div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
-<span class="material-symbols-outlined text-white">verified</span>
-</div>
-<h3 class="font-bold">Pro Membership</h3>
-</div>
-<p class="text-white/80 text-sm leading-relaxed mb-4">You have 12 credits remaining for this month. Priority booking is active.</p>
-<div class="w-full bg-white/20 rounded-full h-2 mb-6">
-<div class="bg-white rounded-full h-2 w-[75%] shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
-</div>
-<button onclick="alert('Payment processing coming soon!')" class="w-full bg-white text-primary py-2.5 rounded-lg text-sm font-extrabold hover:bg-slate-50 transition-colors">
-                    Add Credits
-                </button>
-</div>
-<!-- Ad/CTA -->
-<div class="relative rounded-xl overflow-hidden group cursor-pointer">
-<img class="w-full h-40 object-cover brightness-50 group-hover:scale-105 transition-transform duration-500" alt="Action shot of badminton player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsOtX2tBunSS1CbEBTe6bjUcy7XmE2Or0bblAghFd_NSdTYiFRMR51A01jFxsYxkoSMyD7nJOqWn6XZn57V9_6ICG8WTHYOM62W03mvNkQ6E-25pUnJgk6Zc8B4xOxrKoNMXFbBwlTZ8o1ooIW3Q-4GYkEz_TA4Nb0juOYCvgEIGOWbloDDfUDscaTnftZ2dEXgm4oJKX4vhyy7gAoX1Ia-EsLTJ_sZYn1g9jFTc7tmtqrsBejGpmjxgcQrxAMARTePxMu6vGFWxTB"/>
-<div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-<h4 class="text-white font-bold mb-1">Upcoming Tournament</h4>
-<p class="text-white/70 text-xs mb-3">Register for the Summer Open 2024</p>
-<span class="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-white text-xs font-bold uppercase">Learn More</span>
-</div>
-</div>
-</aside>
-</div>
-
-<!-- Review Modal (Hidden by default) -->
-<div id="review-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeReviewModal()"></div>
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md p-6 relative z-10 transform transition-all mx-4">
-        <h3 class="text-2xl font-bold mb-2">Write a Review</h3>
-        <p class="text-sm text-slate-500 mb-6">How was your experience at the court?</p>
-        <form id="review-form" onsubmit="submitReview(event)">
-            <input type="hidden" id="review-court-id" />
-            <div class="mb-4">
-                <label class="block text-sm font-semibold mb-2">Rating</label>
-                <select id="review-rating" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary font-bold text-slate-700" required>
-                    <option value="" disabled selected>Select Rating (1-5 Stars)</option>
-                    <option value="5">⭐⭐⭐⭐⭐ (5) Excellent</option>
-                    <option value="4">⭐⭐⭐⭐ (4) Good</option>
-                    <option value="3">⭐⭐⭐ (3) Average</option>
-                    <option value="2">⭐⭐ (2) Below Average</option>
-                    <option value="1">⭐ (1) Poor</option>
-                </select>
-            </div>
-            <div class="mb-6">
-                <label class="block text-sm font-semibold mb-2">Comment</label>
-                <textarea id="review-comment" rows="4" class="w-full rounded-lg border-slate-300 py-2 px-3 text-sm focus:ring-primary focus:border-primary" placeholder="Tell us about the court condition, staff, and overall experience..." required></textarea>
-            </div>
-            <div class="flex justify-end gap-3">
-                <button type="button" onclick="closeReviewModal()" class="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Cancel</button>
-                <button type="submit" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-primary text-white hover:bg-primary/90 shadow-md shadow-primary/20 transition-all">Submit Review</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Cancel Booking Confirmation Modal -->
-<div id="cancel-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeCancelModal()"></div>
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md p-6 relative z-10 mx-4">
-        <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
-                <span class="material-symbols-outlined text-red-500">warning</span>
-            </div>
-            <div>
-                <h3 class="text-xl font-bold">Cancel Booking</h3>
-                <p class="text-sm text-slate-500">This action cannot be undone</p>
-            </div>
+<body class="pb-page">
+  <div class="pb-layout-sidebar">
+    <!-- Sidebar -->
+    <aside class="pb-sidebar">
+      <div class="pb-sidebar-brand">
+        <div class="pb-sidebar-brand-icon">🏸</div>
+        <div>
+          <h1>Pro Badminton</h1>
+          <p>User Dashboard</p>
         </div>
-        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-4 space-y-2">
-            <p class="text-sm"><span class="font-semibold">Court:</span> <span id="cancel-court-name">-</span></p>
-            <p class="text-sm"><span class="font-semibold">Date:</span> <span id="cancel-date">-</span></p>
-            <p class="text-sm"><span class="font-semibold">Amount:</span> <span id="cancel-amount">-</span></p>
+      </div>
+      <nav class="pb-sidebar-nav">
+        <a href="/"><span class="material-symbols-outlined">home</span> <span data-i18n="nav.home">Home</span></a>
+        <a href="/pages/search.html"><span class="material-symbols-outlined">search</span> <span data-i18n="nav.search">Find Courts</span></a>
+        <a href="/pages/my-bookings.html" class="active"><span class="material-symbols-outlined">calendar_month</span> <span data-i18n="nav.my_bookings">My Bookings</span></a>
+        <a href="/pages/waitlist.html"><span class="material-symbols-outlined">hourglass_top</span> <span data-i18n="nav.my_waitlist">Waitlists</span></a>
+        <a href="/pages/reviews.html"><span class="material-symbols-outlined">reviews</span> Reviews</a>
+      </nav>
+      <div class="pb-sidebar-user" id="sidebarUser">
+        <div class="pb-sidebar-user-avatar" id="userAvatar">?</div>
+        <div>
+          <div style="color:var(--pb-text-heading);font-weight:600;font-size:0.88rem" id="userName">Loading...</div>
+          <div style="color:var(--pb-text-muted);font-size:0.75rem" id="userRole">Customer</div>
         </div>
-        <div class="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 rounded-lg p-3 mb-6 text-sm text-green-700 dark:text-green-400 flex items-start gap-2">
-            <span class="material-symbols-outlined text-sm shrink-0 mt-0.5">info</span>
-            <span>A <strong>full refund</strong> will be processed to your original payment method. Refunds typically take 3-5 business days.</span>
+        <button class="pb-btn pb-btn-ghost" style="margin-left:auto" onclick="logout()" title="Logout">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="pb-main-content">
+      <div class="dash-header">
+        <h2 data-i18n="nav.my_bookings">My Bookings</h2>
+        <div class="pb-lang-picker">
+          <button class="lang-btn active" data-lang="en" onclick="I18n.setLang('en')">EN</button>
+          <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">TH</button>
+          <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">中文</button>
         </div>
-        <input type="hidden" id="cancel-booking-id" />
-        <div class="flex justify-end gap-3">
-            <button onclick="closeCancelModal()" class="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Keep Booking</button>
-            <button onclick="confirmCancelBooking()" id="cancel-confirm-btn" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-red-500 text-white hover:bg-red-600 shadow-md shadow-red-500/20 transition-all flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm">delete</span>
-                Cancel & Refund
-            </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-cards" id="statsRow">
+        <div class="stat-card"><div class="num" id="statTotal">-</div><div class="label">Total Bookings</div></div>
+        <div class="stat-card"><div class="num" id="statConfirmed" style="color:var(--pb-success)">-</div><div class="label">Confirmed</div></div>
+        <div class="stat-card"><div class="num" id="statPending" style="color:var(--pb-warning)">-</div><div class="label">Pending</div></div>
+        <div class="stat-card"><div class="num" id="statCancelled" style="color:var(--pb-error)">-</div><div class="label">Cancelled</div></div>
+      </div>
+
+      <!-- Bookings List -->
+      <div class="dash-section">
+        <h3><span class="material-symbols-outlined">calendar_today</span> Active & Past Bookings</h3>
+        <div id="bookingsList">
+          <div class="empty-state">
+            <span class="material-symbols-outlined">hourglass_top</span>
+            <span data-i18n="common.loading">Loading...</span>
+          </div>
         </div>
-    </div>
-</div>
+      </div>
+    </main>
+  </div>
 
-<script src="/js/app.js"></script>
-<script>
-    const BOOKINGS_API = '/api/bookings';
+  <script src="/js/i18n.js"></script>
+  <script>
+    const API_URL = '/api';
+    const token = localStorage.getItem('supabase_token');
+    if (!token) globalThis.location.href = '/pages/login.html';
 
-    const getBookingHeaders = () => {
-        const token = localStorage.getItem('supabase_token');
-        return token ? {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        } : { 'Content-Type': 'application/json' };
-    };
-
-    const PAYMENT_ICONS = {
-        'CREDIT_CARD': { icon: 'credit_card', label: 'Credit Card', color: 'primary' },
-        'BANK_TRANSFER': { icon: 'account_balance', label: 'Bank Transfer', color: 'blue-500' },
-        'CASH': { icon: 'payments', label: 'Cash', color: 'green-500' },
-    };
-
-    const loadMyBookings = async () => {
-        const token = localStorage.getItem('supabase_token');
-        const upcomingEl = document.getElementById('upcoming-bookings');
-        const pastBody = document.getElementById('past-bookings-body');
-
-        if (!token) {
-            upcomingEl.innerHTML = `
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-10 text-center">
-                    <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3">lock</span>
-                    <h4 class="font-bold text-lg mb-1">Login Required</h4>
-                    <p class="text-slate-500 text-sm mb-4">Please login to view your bookings.</p>
-                    <a href="/pages/login.html" class="px-6 py-2.5 bg-primary text-white font-bold rounded-lg text-sm inline-block">Login</a>
-                </div>`;
-            pastBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">Please login to view booking history.</td></tr>';
-            return;
-        }
-
-        try {
-            const res = await fetch(`${BOOKINGS_API}/my`, { headers: getBookingHeaders() });
-            const bookings = await res.json();
-
-            if (!Array.isArray(bookings) || bookings.length === 0) {
-                upcomingEl.innerHTML = `
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-10 text-center">
-                        <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3">calendar_today</span>
-                        <h4 class="font-bold text-lg mb-1">No Bookings Yet</h4>
-                        <p class="text-slate-500 text-sm mb-4">Book a court to get started!</p>
-                        <a href="/" class="px-6 py-2.5 bg-primary text-white font-bold rounded-lg text-sm inline-block">Browse Courts</a>
-                    </div>`;
-                pastBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">No booking history.</td></tr>';
-                return;
-            }
-
-            const now = new Date();
-            const upcoming = bookings.filter(b => new Date(b.start_time) > now && b.booking_status === 'CONFIRMED');
-            const past = bookings.filter(b => new Date(b.start_time) <= now || b.booking_status !== 'CONFIRMED');
-
-            // Render upcoming bookings
-            if (upcoming.length === 0) {
-                upcomingEl.innerHTML = `
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center">
-                        <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">event_available</span>
-                        <p class="text-slate-500 text-sm">No upcoming bookings.</p>
-                    </div>`;
-            } else {
-                upcomingEl.innerHTML = upcoming.map(b => {
-                    const startDate = new Date(b.start_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    const startTime = new Date(b.start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    const endTime = new Date(b.end_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    const payInfo = PAYMENT_ICONS[b.payment_method] || PAYMENT_ICONS['CREDIT_CARD'];
-
-                    return `
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden flex shadow-sm group hover:shadow-md transition-shadow">
-                        <div class="w-48 h-auto shrink-0 relative overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-5xl text-primary/30">sports_tennis</span>
-                            <span class="absolute bottom-2 left-3 text-white text-xs font-bold px-2 py-1 bg-primary rounded">${b.court_name || 'Court'}</span>
-                        </div>
-                        <div class="p-5 flex-1 flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="font-bold text-lg">${b.court_name || 'Court Booking'}</h4>
-                                    <div class="flex items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
-                                        <div class="flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-primary text-base">event</span>
-                                            ${startDate}
-                                        </div>
-                                        <div class="flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-primary text-base">schedule</span>
-                                            ${startTime} - ${endTime}
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-3 mt-2">
-                                        <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-green-500/10 text-green-600">
-                                            <span class="material-symbols-outlined text-xs">check_circle</span> Confirmed
-                                        </span>
-                                        <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
-                                            <span class="material-symbols-outlined text-xs">${payInfo.icon}</span> ${payInfo.label}
-                                        </span>
-                                        <span class="text-xs font-bold text-primary">฿${Number(b.total_amount).toFixed(2)}</span>
-                                    </div>
-                                </div>
-                                <button onclick="openCancelModal('${b.id}', '${(b.court_name || 'Court').replace(/'/g, "\\'")}', '${startDate} ${startTime}', '฿${Number(b.total_amount).toFixed(2)}')" class="bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 hover:text-red-500 dark:hover:bg-red-500/20 text-slate-600 dark:text-slate-400 px-4 py-2 rounded-lg text-sm font-bold transition-all">
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('');
-            }
-
-            // Render past bookings
-            if (past.length === 0) {
-                pastBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">No past bookings yet.</td></tr>';
-            } else {
-                pastBody.innerHTML = past.map(b => {
-                    const date = new Date(b.start_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    const payInfo = PAYMENT_ICONS[b.payment_method] || PAYMENT_ICONS['CREDIT_CARD'];
-                    const isCancelled = b.booking_status === 'CANCELLED';
-                    const statusBadge = isCancelled
-                        ? '<span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-red-500/10 text-red-500"><span class="material-symbols-outlined text-xs">cancel</span>Cancelled</span>'
-                        : '<span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500"><span class="material-symbols-outlined text-xs">check</span>Completed</span>';
-
-                    return `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td class="px-6 py-4">${date}</td>
-                        <td class="px-6 py-4">${b.court_name || 'Court'}</td>
-                        <td class="px-6 py-4 font-medium">${isCancelled ? '<s class="text-slate-400">฿' + Number(b.total_amount).toFixed(2) + '</s> <span class="text-green-500 text-xs font-bold">Refunded</span>' : '฿' + Number(b.total_amount).toFixed(2)}</td>
-                        <td class="px-6 py-4"><span class="inline-flex items-center gap-1 text-xs"><span class="material-symbols-outlined text-xs">${payInfo.icon}</span>${payInfo.label}</span></td>
-                        <td class="px-6 py-4">${statusBadge}</td>
-                        <td class="px-6 py-4 text-right">
-                            ${!isCancelled ? '<button onclick="openReviewModal(\'' + b.court_id + '\')" class="text-primary font-bold hover:underline text-sm">Write a Review</button>' : '<span class="text-slate-400 text-sm">—</span>'}
-                        </td>
-                    </tr>`;
-                }).join('');
-            }
-
-        } catch (err) {
-            console.error('Failed to load bookings:', err);
-            upcomingEl.innerHTML = '<div class="bg-red-50 dark:bg-red-500/10 border border-red-200 rounded-xl p-5 text-center text-red-500 text-sm">Failed to load bookings: ' + err.message + '</div>';
-        }
-    };
-
-    // Cancel modal
-    window.openCancelModal = (bookingId, courtName, dateTime, amount) => {
-        document.getElementById('cancel-booking-id').value = bookingId;
-        document.getElementById('cancel-court-name').textContent = courtName;
-        document.getElementById('cancel-date').textContent = dateTime;
-        document.getElementById('cancel-amount').textContent = amount;
-        const modal = document.getElementById('cancel-modal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    };
-
-    window.closeCancelModal = () => {
-        const modal = document.getElementById('cancel-modal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    };
-
-    window.confirmCancelBooking = async () => {
-        const bookingId = document.getElementById('cancel-booking-id').value;
-        const btn = document.getElementById('cancel-confirm-btn');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> Processing Refund...';
-
-        try {
-            const res = await fetch(`${BOOKINGS_API}/${bookingId}`, {
-                method: 'DELETE',
-                headers: getBookingHeaders()
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                closeCancelModal();
-                const toast = document.createElement('div');
-                toast.className = 'fixed top-20 right-8 z-[100] bg-green-500 text-white px-6 py-4 rounded-xl shadow-xl flex items-center gap-3';
-                toast.innerHTML = '<span class="material-symbols-outlined">check_circle</span><div><p class="font-bold">Booking Cancelled</p><p class="text-sm text-white/80">Full refund has been processed to your account.</p></div>';
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 4000);
-                loadMyBookings();
-            } else {
-                alert(data.error || 'Failed to cancel booking');
-            }
-        } catch (err) {
-            alert('Error: ' + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-outlined text-sm">delete</span> Cancel & Refund';
-        }
-    };
-
-    // Review Modal
-    window.openReviewModal = (courtId) => {
-        document.getElementById('review-court-id').value = courtId;
-        const modal = document.getElementById('review-modal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    };
-
-    window.closeReviewModal = () => {
-        const modal = document.getElementById('review-modal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    };
-
-    window.submitReview = async (event) => {
-        event.preventDefault();
-        const courtId = document.getElementById('review-court-id').value;
-        const rating = document.getElementById('review-rating').value;
-        const comment = document.getElementById('review-comment').value;
-        const token = localStorage.getItem('supabase_token');
-
-        try {
-            const res = await fetch('/api/reviews', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ court_id: courtId, rating: parseInt(rating), comment_text: comment })
-            });
-
-            if (res.ok) {
-                alert('Review submitted successfully!');
-                closeReviewModal();
-            } else {
-                const data = await res.json();
-                alert(data.error || 'Failed to submit review');
-            }
-        } catch (err) {
-            alert('Error: ' + err.message);
-        }
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-        loadMyBookings();
+    const authHeaders = () => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
     });
-</script>
-</body></html>
+
+    function statusBadgeClass(s) {
+      if (s === 'CONFIRMED') return 'pb-badge-confirmed';
+      if (s === 'PENDING') return 'pb-badge-pending';
+      if (s === 'CANCELLED') return 'pb-badge-cancelled';
+      return 'pb-badge-notified';
+    }
+
+    async function loadProfile() {
+      try {
+        const res = await fetch(`${API_URL}/auth/profile`, { headers: authHeaders() });
+        const data = await res.json();
+        if (data.profile) {
+          document.getElementById('userName').textContent = data.profile.full_name;
+          document.getElementById('userRole').textContent = data.profile.role;
+          document.getElementById('userAvatar').textContent = data.profile.full_name?.charAt(0)?.toUpperCase() || '?';
+        }
+      } catch(e) { /* silent */ }
+    }
+
+    async function loadBookings() {
+      const list = document.getElementById('bookingsList');
+      try {
+        const res = await fetch(`${API_URL}/bookings/my`, { headers: authHeaders() });
+        const bookings = await res.json();
+        if (!res.ok) throw new Error(bookings.error);
+
+        // Stats
+        document.getElementById('statTotal').textContent = bookings.length;
+        document.getElementById('statConfirmed').textContent = bookings.filter(b => b.booking_status === 'CONFIRMED').length;
+        document.getElementById('statPending').textContent = bookings.filter(b => b.booking_status === 'PENDING').length;
+        document.getElementById('statCancelled').textContent = bookings.filter(b => b.booking_status === 'CANCELLED').length;
+
+        if (bookings.length === 0) {
+          list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">event_busy</span><p>No bookings yet. <a href="/pages/search.html" style="color:var(--pb-primary)">Find a court</a> to get started!</p></div>`;
+          return;
+        }
+
+        list.innerHTML = bookings.map(b => {
+          const start = new Date(b.start_time);
+          const end = new Date(b.end_time);
+          const dateStr = start.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+          const timeStr = `${start.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})} – ${end.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`;
+          const canCancel = (b.booking_status === 'CONFIRMED' || b.booking_status === 'PENDING') && start > new Date();
+          return `
+            <div class="booking-card">
+              <div class="booking-info">
+                <h4>${b.court_name || 'Court'}</h4>
+                <p>📅 ${dateStr} &nbsp; 🕐 ${timeStr}</p>
+                <p>💰 ฿${b.total_amount} &nbsp; 💳 ${b.payment_method || 'N/A'}</p>
+              </div>
+              <div class="booking-actions">
+                <span class="pb-badge ${statusBadgeClass(b.booking_status)}">${b.booking_status}</span>
+                ${canCancel ? `<button class="pb-btn pb-btn-danger" style="font-size:0.78rem;padding:0.4rem 0.8rem" onclick="cancelBooking('${b.id}')" data-i18n="booking.cancel">Cancel</button>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+      } catch (err) {
+        list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">error</span><p>${err.message}</p></div>`;
+      }
+    }
+
+    async function cancelBooking(id) {
+      if (!confirm(I18n.t('booking.cancel_confirm') || 'Cancel this booking? You will receive a full refund.')) return;
+      try {
+        const res = await fetch(`${API_URL}/bookings/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+        loadBookings();
+      } catch (err) { alert(err.message); }
+    }
+
+    function logout() {
+      localStorage.removeItem('supabase_token');
+      globalThis.location.href = '/pages/login.html';
+    }
+
+    loadProfile();
+    loadBookings();
+  </script>
+</body>
+</html>

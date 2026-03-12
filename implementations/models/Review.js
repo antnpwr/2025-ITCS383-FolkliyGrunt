@@ -48,14 +48,14 @@ class Review {
   // Get all reviews for a court
   static async findByCourtId(courtId) {
     const result = await pool.query(
-      `SELECT r.*, p.full_name as reviewer_name
+      `SELECT r.*, p.full_name
        FROM reviews r
        LEFT JOIN profiles p ON r.user_id = p.auth_id
        WHERE r.court_id = $1
        ORDER BY r.created_at DESC`,
       [courtId]
     );
-    return result.rows;
+    return { reviews: result.rows };
   }
 
   // Get average rating for a court

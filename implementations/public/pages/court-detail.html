@@ -3,279 +3,165 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Court Details - Badminton Court Management</title>
-  <meta name="description" content="View badminton court details, ratings, and availability.">
-  <link rel="stylesheet" href="../css/styles.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <title>Court Details - Pro Badminton</title>
+  <meta name="description" content="View badminton court details, ratings, availability, and book your session.">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="/css/theme.css">
   <style>
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin: 1.5rem 0 1rem;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .back-link:hover { color: var(--primary); text-decoration: none; }
-
-    .detail-hero {
-      background: linear-gradient(135deg, var(--primary), #7C3AED);
-      border-radius: 1rem;
-      padding: 2.5rem;
-      color: white;
-      margin-bottom: 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .detail-hero::after {
-      content: '🏸';
-      position: absolute;
-      right: 2rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 6rem;
-      opacity: 0.15;
-    }
-    .detail-hero h1 { color: white; font-size: 2rem; margin-bottom: 0.5rem; }
-    .detail-hero .status-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-    .badge-available { background: #047857; color: white; }
-    .badge-renovate  { background: #B45309; color: white; }
-    .badge-damaged   { background: #B91C1C; color: white; }
-
-    .detail-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-    }
-    @media (max-width: 768px) {
-      .detail-grid { grid-template-columns: 1fr; }
-    }
-
-    .info-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .info-item:last-child { border-bottom: none; }
-    .info-icon { font-size: 1.25rem; flex-shrink: 0; }
-    .info-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
-    .info-value { font-size: 1rem; color: var(--text-main); font-weight: 500; }
-
-    .rating-display {
-      text-align: center;
-      padding: 1.5rem;
-    }
-    .rating-big {
-      font-size: 3.5rem;
-      font-weight: 800;
-      color: var(--primary);
-      line-height: 1;
-    }
-    .rating-stars { font-size: 1.5rem; color: #F59E0B; margin: 0.5rem 0; }
-    .rating-count { font-size: 0.85rem; color: var(--text-muted); }
-
-    .price-highlight {
-      text-align: center;
-      padding: 1.5rem;
-      border-top: 1px solid var(--border);
-    }
-    .price-big {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: var(--primary);
-      line-height: 1;
-    }
-    .price-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
-
-    .map-placeholder {
-      background: #F3F4F6;
-      border-radius: 0.75rem;
-      height: 250px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border: 1px solid var(--border);
-      gap: 0.5rem;
-      z-index: 1;
-    }
-    .map-placeholder span:first-child { font-size: 2rem; }
-
-    .loading { text-align: center; padding: 4rem; color: var(--text-muted); font-size: 1.1rem; }
-    .not-found {
-      text-align: center;
-      padding: 4rem;
-      color: var(--text-muted);
-    }
-    .not-found h2 { margin-bottom: 0.5rem; }
-
-    /* Admin panel */
-    .admin-panel {
-      background: #FFF7ED;
-      border: 1px solid #FED7AA;
-      border-radius: 0.75rem;
-      padding: 1.25rem 1.5rem;
-      margin-top: 1.5rem;
-    }
-    .admin-panel h3 { color: #C2410C; margin-bottom: 1rem; }
-    .admin-panel select { margin-bottom: 0.75rem; }
+    body{margin:0}
+    .back-link{display:inline-flex;align-items:center;gap:0.4rem;color:var(--pb-text-muted);font-size:0.9rem;margin:1.5rem 0 1rem;text-decoration:none;transition:color 0.2s}
+    .back-link:hover{color:var(--pb-primary)}
+    .detail-hero{background:linear-gradient(135deg,#257bf4,#7C3AED);border-radius:var(--pb-radius-xl);padding:2.5rem;color:white;margin-bottom:2rem;position:relative;overflow:hidden}
+    .detail-hero::after{content:'🏸';position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-size:6rem;opacity:0.15}
+    .detail-hero h1{color:white;font-size:2rem;margin:0 0 0.5rem}
+    .detail-grid{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem}
+    @media(max-width:768px){.detail-grid{grid-template-columns:1fr}}
+    .info-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--pb-border)}
+    .info-item:last-child{border-bottom:none}
+    .info-icon{font-size:1.25rem;flex-shrink:0;color:var(--pb-primary)}
+    .info-label{font-size:0.8rem;color:var(--pb-text-muted);font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
+    .info-value{font-size:1rem;color:var(--pb-text-heading);font-weight:500}
+    .rating-display{text-align:center;padding:1.5rem}
+    .rating-big{font-size:3.5rem;font-weight:800;color:var(--pb-primary);line-height:1}
+    .rating-stars{font-size:1.5rem;color:#f59e0b;margin:0.5rem 0}
+    .rating-count{font-size:0.85rem;color:var(--pb-text-muted)}
+    .price-highlight{text-align:center;padding:1.5rem;border-top:1px solid var(--pb-border)}
+    .price-big{font-size:2.5rem;font-weight:800;color:var(--pb-primary);line-height:1}
+    .price-sub{font-size:0.85rem;color:var(--pb-text-muted);margin-top:0.25rem}
+    .detail-map{border-radius:var(--pb-radius-lg);height:280px;overflow:hidden;border:1px solid var(--pb-border);margin-top:1rem;z-index:1}
+    .loading{text-align:center;padding:4rem;color:var(--pb-text-muted);font-size:1.1rem}
+    .not-found{text-align:center;padding:4rem;color:var(--pb-text-muted)}
+    .admin-panel-box{background:rgba(194,65,12,0.08);border:1px solid rgba(194,65,12,0.2);border-radius:var(--pb-radius-lg);padding:1.25rem 1.5rem;margin-top:1.5rem}
+    .admin-panel-box h3{color:#ea580c;margin:0 0 1rem;font-size:1rem}
+    .reviews-section{margin-top:2rem}
+    .reviews-section h3{color:var(--pb-text-heading);font-size:1.1rem;margin-bottom:1rem}
+    .review-item{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-lg);padding:1rem;margin-bottom:0.75rem}
+    .review-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem}
+    .review-item-header h4{margin:0;color:var(--pb-text-heading);font-size:0.9rem}
+    .review-item-header .date{color:var(--pb-text-muted);font-size:0.75rem}
+    .review-item-comment{color:var(--pb-text);font-size:0.88rem;line-height:1.5}
   </style>
 </head>
-<body>
+<body class="pb-page">
   <!-- Navbar -->
-  <nav class="navbar">
-    <div class="container">
-      <h2><a href="/" style="color: var(--text-main); text-decoration: none;">🏸 Badminton Center</a></h2>
-      <div class="nav-links">
-        <a href="search.html">Find Courts</a>
-        <a href="login.html">Login</a>
-        <a href="register.html">Register</a>
+  <nav class="pb-navbar">
+    <a href="/" class="pb-navbar-brand"><span>🏸</span> Pro Badminton</a>
+    <div style="display:flex;align-items:center;gap:1.5rem;">
+      <ul class="pb-nav-links">
+        <li><a href="/" data-i18n="nav.home">Home</a></li>
+        <li><a href="/pages/search.html" data-i18n="nav.search">Find Courts</a></li>
+        <li><a href="/pages/my-bookings.html" data-i18n="nav.my_bookings">My Bookings</a></li>
+        <li><a href="/pages/login.html" data-i18n="nav.login">Login</a></li>
+      </ul>
+      <div class="pb-lang-picker">
+        <button class="lang-btn active" data-lang="en" onclick="I18n.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">TH</button>
+        <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">中文</button>
       </div>
     </div>
   </nav>
 
-  <main class="container" id="main-content">
-    <div class="loading">⏳ Loading court details...</div>
-  </main>
+  <div class="pb-container" id="main-content" style="padding-bottom:3rem">
+    <div class="loading">
+      <span class="material-symbols-outlined" style="font-size:2rem;display:block;margin-bottom:0.5rem">hourglass_top</span>
+      Loading court details...
+    </div>
+  </div>
 
+  <script src="/js/i18n.js"></script>
   <script>
     const API_BASE = '/api/courts';
+    const token = localStorage.getItem('supabase_token');
+    const authHeaders = () => token ? { 'Authorization': `Bearer ${token}` } : {};
 
     function getCourtId() {
-      const params = new URLSearchParams(globalThis.location.search);
-      return params.get('id');
+      return new URLSearchParams(globalThis.location.search).get('id');
     }
 
     function statusBadgeClass(status) {
-      if (status === 'AVAILABLE') return 'badge-available';
-      if (status === 'RENOVATE') return 'badge-renovate';
-      return 'badge-damaged';
+      if (status === 'AVAILABLE') return 'pb-badge-available';
+      if (status === 'RENOVATE') return 'pb-badge-renovate';
+      return 'pb-badge-damaged';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(text || ''));
+      return div.innerHTML;
     }
 
     function renderCourt(court) {
-      const rating       = Number.parseFloat(court.avg_rating || 0);
-      const reviewCount  = Number.parseInt(court.review_count || 0, 10);
-      const stars        = '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
-      const statusClass  = statusBadgeClass(court.current_status);
-      const mapsUrl      = `https://www.google.com/maps?q=${court.location_lat},${court.location_lng}`;
-      const osmUrl       = `https://www.openstreetmap.org/?mlat=${court.location_lat}&mlon=${court.location_lng}&zoom=16`;
-
+      const rating = Number.parseFloat(court.avg_rating || 0);
+      const reviewCount = Number.parseInt(court.review_count || 0, 10);
+      const stars = '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
+      const mapsUrl = `https://www.google.com/maps?q=${court.location_lat},${court.location_lng}`;
       const userRole = localStorage.getItem('user_role') || '';
 
       const bookingSection = court.current_status === 'AVAILABLE'
-        ? `<a href="booking.html?courtId=${court.id}" class="btn btn-primary" style="width:100%; margin-top:1rem; display:block; text-align:center;">
-             📅 Book This Court
-           </a>`
-        : `<div class="btn btn-outline" style="width:100%; text-align:center; margin-top:1rem; cursor:not-allowed; opacity:0.6;">
-             Court Unavailable
-           </div>`;
-
-      const selAvail = court.current_status === 'AVAILABLE' ? 'selected' : '';
-      const selRenov = court.current_status === 'RENOVATE' ? 'selected' : '';
-      const selDamag = court.current_status === 'DAMAGED' ? 'selected' : '';
+        ? `<a href="booking.html?courtId=${court.id}" class="pb-btn pb-btn-primary pb-w-full" style="margin-top:1rem;display:block;text-align:center">📅 Book This Court</a>`
+        : `<div class="pb-btn pb-btn-secondary pb-w-full" style="margin-top:1rem;text-align:center;cursor:not-allowed;opacity:0.6">Court Unavailable</div>`;
 
       const adminPanel = userRole === 'ADMIN'
-        ? `<div class="admin-panel">
+        ? `<div class="admin-panel-box">
              <h3>⚙️ Admin Controls</h3>
-             <div class="form-group">
-               <label for="status-select">Change Status</label>
-               <select id="status-select">
-                 <option value="AVAILABLE" ${selAvail}>AVAILABLE</option>
-                 <option value="RENOVATE"  ${selRenov}>RENOVATE</option>
-                 <option value="DAMAGED"   ${selDamag}>DAMAGED</option>
+             <div class="pb-form-group">
+               <label class="pb-label" for="status-select">Change Status</label>
+               <select class="pb-input" id="status-select">
+                 <option value="AVAILABLE" ${court.current_status === 'AVAILABLE' ? 'selected' : ''}>AVAILABLE</option>
+                 <option value="RENOVATE" ${court.current_status === 'RENOVATE' ? 'selected' : ''}>RENOVATE</option>
+                 <option value="DAMAGED" ${court.current_status === 'DAMAGED' ? 'selected' : ''}>DAMAGED</option>
                </select>
              </div>
-             <button class="btn btn-primary" onclick="updateStatus('${court.id}')">Update Status</button>
-             <div id="admin-msg" style="margin-top:0.75rem; font-size:0.9rem;"></div>
-           </div>`
-        : '';
+             <button class="pb-btn pb-btn-primary" onclick="updateStatus('${court.id}')">Update Status</button>
+             <div id="admin-msg" style="margin-top:0.75rem;font-size:0.9rem"></div>
+           </div>` : '';
 
       return `
-        <a class="back-link" href="search.html">← Back to Search</a>
-
+        <a class="back-link" href="/pages/search.html">← Back to Search</a>
         <div class="detail-hero">
           <h1>${escapeHtml(court.name)}</h1>
-          <span class="status-badge ${statusClass}">${court.current_status || 'AVAILABLE'}</span>
+          <span class="pb-badge ${statusBadgeClass(court.current_status)}">${court.current_status || 'AVAILABLE'}</span>
         </div>
-
         <div class="detail-grid">
-          <!-- Left: Info -->
           <div>
-            <div class="card" style="margin-bottom:1.5rem;">
-              <h2 style="margin-bottom:1rem;">Court Information</h2>
-
-              <div class="info-item">
-                <span class="info-icon">⏰</span>
-                <div>
-                  <div class="info-label">Opening Hours</div>
-                  <div class="info-value">${court.opening_time || '--'} – ${court.closing_time || '--'}</div>
+            <div class="pb-card" style="margin-bottom:1.5rem">
+              <h2 style="color:var(--pb-text-heading);margin:0 0 1rem;font-size:1.15rem">Court Information</h2>
+              <div class="info-item"><span class="info-icon material-symbols-outlined">schedule</span><div><div class="info-label">Opening Hours</div><div class="info-value">${court.opening_time || '--'} – ${court.closing_time || '--'}</div></div></div>
+              <div class="info-item"><span class="info-icon material-symbols-outlined">directions_run</span><div><div class="info-label">Allowed Shoes</div><div class="info-value">${court.allowed_shoes || 'Any shoes allowed'}</div></div></div>
+              <div class="info-item"><span class="info-icon material-symbols-outlined">location_on</span><div><div class="info-label">Location</div><div class="info-value">${court.location_lat}, ${court.location_lng}</div>
+                <div style="margin-top:0.4rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+                  <a href="${mapsUrl}" target="_blank" class="pb-btn pb-btn-secondary" style="font-size:0.78rem;padding:0.35rem 0.8rem">🗺 Google Maps</a>
                 </div>
-              </div>
-
-              <div class="info-item">
-                <span class="info-icon">👟</span>
-                <div>
-                  <div class="info-label">Allowed Shoes</div>
-                  <div class="info-value">${court.allowed_shoes || 'Any shoes allowed'}</div>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <span class="info-icon">📍</span>
-                <div>
-                  <div class="info-label">GPS Coordinates</div>
-                  <div class="info-value">${court.location_lat}, ${court.location_lng}</div>
-                  <div style="margin-top:0.4rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-                    <a href="${osmUrl}" target="_blank" class="btn btn-outline" style="padding:0.35rem 0.8rem; font-size:0.8rem;">🗺 OpenStreetMap</a>
-                    <a href="${mapsUrl}" target="_blank" class="btn btn-outline" style="padding:0.35rem 0.8rem; font-size:0.8rem;">Google Maps</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <span class="info-icon">🆔</span>
-                <div>
-                  <div class="info-label">Court ID</div>
-                  <div class="info-value" style="font-family:monospace; font-size:0.85rem;">${court.id}</div>
-                </div>
-              </div>
+              </div></div>
             </div>
+            <div id="map" class="detail-map"></div>
 
-            <!-- Map placeholder -->
-            <div id="map" class="map-placeholder"></div>
+            <!-- Reviews Section -->
+            <div class="reviews-section" id="reviews-section">
+              <h3><span class="material-symbols-outlined" style="vertical-align:middle;margin-right:0.3rem">reviews</span> Reviews</h3>
+              <div id="court-reviews-list"><span style="color:var(--pb-text-muted)">Loading reviews...</span></div>
+            </div>
           </div>
-
-          <!-- Right: Rating & Price & Booking -->
           <div>
-            <div class="card" style="margin-bottom:1.5rem;">
+            <div class="pb-card" style="margin-bottom:1.5rem">
               <div class="rating-display">
-                <div class="info-label" style="text-align:center;">Average Rating</div>
+                <div class="info-label" style="text-align:center">Average Rating</div>
                 <div class="rating-big">${rating.toFixed(1)}</div>
                 <div class="rating-stars">${stars}</div>
                 <div class="rating-count">${reviewCount} review${reviewCount === 1 ? '' : 's'}</div>
               </div>
               <div class="price-highlight">
                 <div class="info-label">Price per Hour</div>
-                <div class="price-big">฿${Number.parseFloat(court.price_per_hour).toFixed(0)}</div>
+                <div class="price-big" style="display: flex; align-items: center; justify-content: center; gap: 0.25rem;">
+                  <span style="font-size: 1.5rem; color: var(--pb-text-muted);">฿</span>${Number.parseFloat(court.price_per_hour).toFixed(0)}
+                </div>
                 <div class="price-sub">per hour</div>
               </div>
               ${bookingSection}
             </div>
-
             ${adminPanel}
           </div>
         </div>`;
@@ -284,30 +170,48 @@
     async function updateStatus(courtId) {
       const status = document.getElementById('status-select').value;
       const msgEl = document.getElementById('admin-msg');
-      const token = localStorage.getItem('access_token');
-      if (!token) { msgEl.textContent = '⚠️ Not authenticated.'; msgEl.style.color = 'var(--error)'; return; }
-
+      if (!token) { msgEl.textContent = '⚠️ Not authenticated.'; msgEl.style.color = 'var(--pb-error)'; return; }
       try {
         const res = await fetch(`${API_BASE}/${courtId}/status`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({ status })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Update failed');
         msgEl.textContent = `✅ Status updated to ${status}`;
-        msgEl.style.color = 'var(--secondary)';
-        setTimeout(() => location.reload(), 1500);
+        msgEl.style.color = 'var(--pb-success)';
+        setTimeout(() => globalThis.location.reload(), 1500);
       } catch (err) {
         msgEl.textContent = '❌ ' + err.message;
-        msgEl.style.color = 'var(--error)';
+        msgEl.style.color = 'var(--pb-error)';
       }
     }
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.appendChild(document.createTextNode(text));
-      return div.innerHTML;
+    async function loadReviews(courtId) {
+      const list = document.getElementById('court-reviews-list');
+      try {
+        const res = await fetch(`/api/reviews/court/${courtId}`);
+        const reviews = await res.json();
+        if (!res.ok || !reviews.length) {
+          list.innerHTML = '<p style="color:var(--pb-text-muted);font-size:0.88rem">No reviews yet. Be the first to review!</p>';
+          return;
+        }
+        list.innerHTML = reviews.map(r => {
+          const date = new Date(r.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+          const stars = '★'.repeat(Math.round(r.rating)) + '☆'.repeat(5 - Math.round(r.rating));
+          return `<div class="review-item">
+            <div class="review-item-header">
+              <h4>${escapeHtml(r.full_name || r.reviewer_name || 'Anonymous')}</h4>
+              <span class="date">${date}</span>
+            </div>
+            <div style="color:#f59e0b;font-size:1rem;margin-bottom:0.4rem">${stars}</div>
+            <div class="review-item-comment">${escapeHtml(r.comment_text)}</div>
+          </div>`;
+        }).join('');
+      } catch (err) {
+        list.innerHTML = `<p style="color:var(--pb-error)">${err.message}</p>`;
+      }
     }
 
     async function init() {
@@ -315,33 +219,36 @@
       const main = document.getElementById('main-content');
 
       if (!id) {
-        main.innerHTML = `<div class="not-found"><h2>No court specified</h2><p><a href="search.html">← Back to Search</a></p></div>`;
+        main.innerHTML = `<div class="not-found"><h2>No court specified</h2><p><a href="/pages/search.html" style="color:var(--pb-primary)">← Back to Search</a></p></div>`;
         return;
       }
 
       try {
         const res = await fetch(`${API_BASE}/${id}`);
         if (res.status === 404) {
-          main.innerHTML = `<div class="not-found"><h2>Court Not Found</h2><p>This court does not exist or has been removed.</p><p><a href="search.html">← Back to Search</a></p></div>`;
+          main.innerHTML = `<div class="not-found"><h2>Court Not Found</h2><p>This court does not exist or has been removed.</p><p><a href="/pages/search.html" style="color:var(--pb-primary)">← Back to Search</a></p></div>`;
           return;
         }
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const court = await res.json();
-        document.title = `${court.name} - Badminton Court Management`;
+        document.title = `${court.name} - Pro Badminton`;
         main.innerHTML = renderCourt(court);
 
-        // Initialize Leaflet Map
+        // Initialize Leaflet Map with dark tiles
         if (court.location_lat && court.location_lng) {
           const map = L.map('map').setView([court.location_lat, court.location_lng], 15);
-          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            attribution: '© OpenStreetMap © CARTO'
           }).addTo(map);
           L.marker([court.location_lat, court.location_lng]).addTo(map)
             .bindPopup(`<b>${escapeHtml(court.name)}</b>`).openPopup();
         }
+
+        // Load reviews
+        loadReviews(id);
       } catch (err) {
-        main.innerHTML = `<div class="not-found"><h2>Failed to load court</h2><p>${err.message}</p><p><a href="search.html">← Back to Search</a></p></div>`;
+        main.innerHTML = `<div class="not-found"><h2>Failed to load court</h2><p>${err.message}</p><p><a href="/pages/search.html" style="color:var(--pb-primary)">← Back to Search</a></p></div>`;
       }
     }
 

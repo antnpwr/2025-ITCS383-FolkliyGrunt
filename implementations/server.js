@@ -17,6 +17,7 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/locales', express.static(path.join(__dirname, 'locales')));
 
 // Routes — each person registers their own route file here
 app.use('/api/auth', require('./routes/auth'));
@@ -26,6 +27,7 @@ app.use('/api/courts', require('./routes/courts'));     // Person 2
 app.use('/api/bookings', require('./routes/bookings')); // Person 3
 app.use('/api/waitlist', require('./routes/waitlist')); // Person 4
 app.use('/api/reviews', require('./routes/reviews'));   // Person 5
+app.use('/api/payments', require('./routes/payments')); // Stripe payments & saved cards
 
 // Health check
 app.get('/api/health', (req, res) => {

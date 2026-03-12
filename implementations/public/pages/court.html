@@ -120,104 +120,122 @@
 <h3 class="text-lg font-bold">Book a Slot</h3>
 <button onclick="alert('Calendar selection coming soon!')" class="text-primary text-xs font-bold uppercase tracking-wider hover:underline">Select Month</button>
 </div>
-<div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-primary text-white shadow-lg shadow-primary/30">
-<span class="text-xs opacity-80">MON</span>
-<span class="text-xl font-bold">12</span>
-</div>
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-<span class="text-xs text-slate-500">TUE</span>
-<span class="text-xl font-bold">13</span>
-</div>
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-<span class="text-xs text-slate-500">WED</span>
-<span class="text-xl font-bold">14</span>
-</div>
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-<span class="text-xs text-slate-500">THU</span>
-<span class="text-xl font-bold">15</span>
-</div>
-<div class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-<span class="text-xs text-slate-500">FRI</span>
-<span class="text-xl font-bold">16</span>
-</div>
-</div>
-</div>
-<!-- Time Slots Grid -->
-<div class="mt-6 grid grid-cols-3 gap-3">
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border-2 border-primary bg-white dark:bg-slate-900">
-<span class="text-sm font-bold">08:00 AM</span>
-<span class="text-[10px] text-primary mt-1 font-medium">Available</span>
-</div>
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-<span class="text-sm font-bold">09:00 AM</span>
-<span class="text-[10px] text-primary mt-1 font-medium">Available</span>
-</div>
-<div class="relative flex flex-col items-center justify-center py-3 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent opacity-60">
-<span class="text-sm font-bold text-slate-400">10:00 AM</span>
-<span class="text-[8px] bg-slate-400 text-white px-1.5 py-0.5 rounded-full mt-1 uppercase">Full</span>
-<div class="absolute -top-1 -right-1">
-<span class="bg-primary text-[8px] text-white px-1.5 py-0.5 rounded-full shadow-sm">Join Waitlist</span>
-</div>
-</div>
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-<span class="text-sm font-bold">11:00 AM</span>
-<span class="text-[10px] text-primary mt-1 font-medium">Available</span>
-</div>
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-<span class="text-sm font-bold">12:00 PM</span>
-<span class="text-[10px] text-primary mt-1 font-medium">Available</span>
-</div>
-<div class="flex flex-col items-center justify-center py-3 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent opacity-60">
-<span class="text-sm font-bold text-slate-400">01:00 PM</span>
-<span class="text-[8px] bg-slate-400 text-white px-1.5 py-0.5 rounded-full mt-1 uppercase">Full</span>
-</div>
-</div>
+                <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="date-picker-container">
+                    <!-- Dates will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <!-- Duration Selection (NEW) -->
+            <div class="mt-8">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Select Duration</h3>
+                <div class="flex gap-3">
+                    <button onclick="setDuration(1, this)" class="flex-1 py-3 rounded-xl border-2 border-primary bg-primary/5 text-primary font-bold transition-all">
+                        1 Hour
+                    </button>
+                    <button onclick="setDuration(2, this)" class="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold hover:border-primary/30 transition-all">
+                        2 Hours
+                    </button>
+                    <button onclick="setDuration(3, this)" class="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold hover:border-primary/30 transition-all">
+                        3 Hours
+                    </button>
+                </div>
+            </div>
+
+            <!-- Time Slots Grid -->
+            <div class="mt-8">
+                <h3 class="text-lg font-bold mb-4">Available Start Times</h3>
+                <div class="grid grid-cols-4 gap-3" id="current-slots-grid">
+                    <!-- Slots will be dynamically loaded here -->
+                    <div class="col-span-4 text-center py-8 text-slate-400 italic">Please select a date first...</div>
+                </div>
+            </div>
 <!-- Equipment Rental -->
 <div class="mt-8">
 <h3 class="text-lg font-bold mb-4">Equipment Rental</h3>
 <div class="space-y-4">
-<div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
-<div class="flex items-center gap-4">
-<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined">sports_tennis</span>
-</div>
-<div>
-<p class="text-sm font-bold">Professional Rackets</p>
-<p class="text-xs text-slate-500">$5.00 / session</p>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button onclick="updateEquipmentCount('RACKET', -1)" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
-<span class="material-symbols-outlined text-base">remove</span>
-</button>
-<span id="count-RACKET" class="text-base font-bold w-4 text-center">0</span>
-<button onclick="updateEquipmentCount('RACKET', 1)" class="size-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-transform active:scale-95">
-<span class="material-symbols-outlined text-base">add</span>
-</button>
-</div>
-</div>
-<div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
-<div class="flex items-center gap-4">
-<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined">badminton</span>
-</div>
-<div>
-<p class="text-sm font-bold">Shuttlecocks (Tube of 12)</p>
-<p class="text-xs text-slate-500">$12.00 / tube</p>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button onclick="updateEquipmentCount('SHUTTLECOCK', -1)" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
-<span class="material-symbols-outlined text-base">remove</span>
-</button>
-<span id="count-SHUTTLECOCK" class="text-base font-bold w-4 text-center">0</span>
-<button onclick="updateEquipmentCount('SHUTTLECOCK', 1)" class="size-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-transform active:scale-95">
-<span class="material-symbols-outlined text-base">add</span>
-</button>
-</div>
-</div>
-</div>
+                <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">sports_tennis</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold">Professional Rackets</p>
+                            <p class="text-xs text-slate-500">฿50.00 / session</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="updateEquipmentCount('RACKET', -1)" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                            <span class="material-symbols-outlined text-base">remove</span>
+                        </button>
+                        <span id="count-RACKET" class="text-base font-bold w-4 text-center">0</span>
+                        <button onclick="updateEquipmentCount('RACKET', 1)" class="size-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-transform active:scale-95">
+                            <span class="material-symbols-outlined text-base">add</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">badminton</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold">Shuttlecocks (Tube of 12)</p>
+                            <p class="text-xs text-slate-500">฿20.00 / tube</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="updateEquipmentCount('SHUTTLECOCK', -1)" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                            <span class="material-symbols-outlined text-base">remove</span>
+                        </button>
+                        <span id="count-SHUTTLECOCK" class="text-base font-bold w-4 text-center">0</span>
+                        <button onclick="updateEquipmentCount('SHUTTLECOCK', 1)" class="size-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-transform active:scale-95">
+                            <span class="material-symbols-outlined text-base">add</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Added BALL and BAG -->
+                <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">circle</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold">Tennis Balls (Can of 3)</p>
+                            <p class="text-xs text-slate-500">฿30.00 / can</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="updateEquipmentCount('BALL', -1)" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                            <span class="material-symbols-outlined text-base">remove</span>
+                        </button>
+                        <span id="count-BALL" class="text-base font-bold w-4 text-center">0</span>
+                        <button onclick="updateEquipmentCount('BALL', 1)" class="size-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-transform active:scale-95">
+                            <span class="material-symbols-outlined text-base">add</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">shopping_bag</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold">Equipment Bag</p>
+                            <p class="text-xs text-slate-500">฿20.00 / rental</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="updateEquipmentCount('BAG', -1)" class="size-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                            <span class="material-symbols-outlined text-base">remove</span>
+                        </button>
+                        <span id="count-BAG" class="text-base font-bold w-4 text-center">0</span>
+                        <button onclick="updateEquipmentCount('BAG', 1)" class="size-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-transform active:scale-95">
+                            <span class="material-symbols-outlined text-base">add</span>
+                        </button>
+                    </div>
+                </div>
 </div>
 </div>
 <!-- Reviews Section -->
@@ -238,9 +256,10 @@
 <div class="flex flex-col">
 <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Total Amount</p>
 <div class="flex items-baseline gap-1">
-<span id="court-price" class="text-2xl font-bold">฿0.00</span>
-<span class="text-xs text-slate-400">/ hr</span>
+<span id="court-price" class="text-2xl font-bold text-primary">฿0.00</span>
+<span id="price-duration-label" class="text-xs text-slate-400">/ 1 hr</span>
 </div>
+<p id="court-rate-display" class="hidden text-[10px] text-slate-400">฿0.00 / hr</p>
 </div>
 <button id="open-payment-btn" class="bg-primary text-white px-10 py-4 rounded-full font-bold shadow-lg shadow-primary/40 active:scale-95 transition-transform hover:bg-primary/90">
                 Confirm &amp; Pay
@@ -290,7 +309,7 @@
                 </div>
                 <div class="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 flex justify-between">
                     <span class="font-bold">Total</span>
-                    <span id="pay-total" class="font-bold text-primary text-lg">$0.00</span>
+                    <span id="pay-total" class="font-bold text-primary text-lg">฿0.00</span>
                 </div>
             </div>
         </div>
@@ -418,13 +437,14 @@
     };
 
     const EQUIPMENT_PRICES = {
-        'RACKET': 5.0,
-        'SHUTTLECOCK': 12.0,
-        'BALL': 3.0,
-        'BAG': 2.0
+        'RACKET': 50.0,
+        'SHUTTLECOCK': 20.0,
+        'BALL': 30.0,
+        'BAG': 20.0
     };
 
-    function updateEquipmentCount(type, delta) {
+// Update equipment quantities and re-calculate total
+    globalThis.updateEquipmentCount = (type, delta) => {
         if (!selectedEquipment.hasOwnProperty(type)) return;
         const newCount = Math.max(0, selectedEquipment[type] + delta);
         selectedEquipment[type] = newCount;
@@ -433,12 +453,38 @@
         if (countEl) countEl.textContent = newCount;
         
         updateTotalAmountUI();
-    }
+    };
+
+    globalThis.setDuration = (hours, el) => {
+        selectedDurationHours = hours;
+        // Reset all buttons
+        el.parentElement.querySelectorAll('button').forEach(btn => {
+            btn.className = 'flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold hover:border-primary/30 transition-all';
+        });
+        // Select this one
+        el.className = 'flex-1 py-3 rounded-xl border-2 border-primary bg-primary/5 text-primary font-bold transition-all';
+        
+        const label = document.getElementById('price-duration-label');
+        if (label) label.textContent = `/ ${hours} hr${hours > 1 ? 's' : ''}`;
+        
+        updateTotalAmountUI();
+    };
 
     const updateTotalAmountUI = () => {
-        if (!currentCourtData) return;
-        const basePrice = Number.parseFloat(currentCourtData.price_per_hour || 0);
-        let total = basePrice * selectedDurationHours;
+        let pricePerHour = 0;
+        if (currentCourtData && currentCourtData.price_per_hour) {
+            pricePerHour = Number.parseFloat(currentCourtData.price_per_hour);
+        } else {
+            // Fallback: try to read from the UI price label if data not ready
+            const priceLabel = document.getElementById('court-price-display');
+            if (priceLabel) {
+                pricePerHour = Number.parseFloat(priceLabel.textContent.replace('฿', '').split('/')[0].trim()) || 0;
+            }
+        }
+
+        if (pricePerHour === 0 && (!currentCourtData)) return; 
+        
+        let total = pricePerHour * selectedDurationHours;
         
         for (const [type, count] of Object.entries(selectedEquipment)) {
             total += (EQUIPMENT_PRICES[type] || 0) * count;
@@ -446,6 +492,16 @@
         
         const totalEl = document.getElementById('court-price');
         if (totalEl) totalEl.textContent = `฿${total.toFixed(2)}`;
+        
+        // Also update the payment modal total if it's open
+        const payTotalEl = document.getElementById('pay-total');
+        if (payTotalEl) payTotalEl.textContent = `฿${total.toFixed(2)}`;
+        const confirmPayTextEl = document.getElementById('confirm-pay-text');
+        if (confirmPayTextEl && !confirmPayTextEl.textContent.includes('Processing')) {
+            if (currentPaymentMethod === 'CREDIT_CARD') {
+                confirmPayTextEl.textContent = `Pay ฿${total.toFixed(2)}`;
+            }
+        }
     };
 
     const getPayHeaders = () => {
@@ -501,50 +557,113 @@
     }
 
     // --- Time Slots ---
-    function loadTimeSlots() {
-        const grid = document.querySelector('.mt-6.grid.grid-cols-3');
-        if (!grid || !currentCourtData) return;
+    async function loadTimeSlots() {
+        const grid = document.getElementById('current-slots-grid');
+        if (!grid || !selectedDate) return;
 
-        const openH = Number.parseInt(currentCourtData.opening_time?.split(':')[0] || '7');
-        const closeH = Number.parseInt(currentCourtData.closing_time?.split(':')[0] || '23');
+        grid.innerHTML = '<div class="col-span-4 text-center py-4">Checking availability...</div>';
 
-        grid.innerHTML = '';
-        for (let h = openH; h < closeH; h++) {
-            const timeLabel = h < 12 ? `${String(h).padStart(2, '0')}:00 AM` : h === 12 ? '12:00 PM' : `${String(h - 12).padStart(2, '0')}:00 PM`;
-            const slotTime = `${String(h).padStart(2, '0')}:00`;
-            const isSelected = selectedTimeSlot === slotTime;
+        try {
+            // Fetch existing bookings for this court and date to show availability
+            const res = await fetch(`/api/courts/${currentCourtId}/availability?date=${selectedDate}`);
+            const bookedSlots = await res.json(); // Expected array of start times that are booked
 
-            const el = document.createElement('div');
-            el.className = `flex flex-col items-center justify-center py-3 px-2 rounded-xl cursor-pointer transition-all ${isSelected ? 'border-2 border-primary bg-primary/5' : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary/50'}`;
-            el.innerHTML = `
-                <span class="text-sm font-bold ${isSelected ? 'text-primary' : ''}">${timeLabel}</span>
-                <span class="text-[10px] ${isSelected ? 'text-primary font-bold' : 'text-slate-400'} mt-1 font-medium">Available</span>
-            `;
-            el.onclick = () => selectTimeSlot(slotTime, el);
-            grid.appendChild(el);
-        }
+            grid.innerHTML = '';
+            // Generate slots based on opening/closing if possible, otherwise use default
+            const times = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
 
-        if (!selectedTimeSlot && grid.children.length > 0) {
-            const firstSlot = `${String(openH).padStart(2, '0')}:00`;
-            selectTimeSlot(firstSlot, grid.children[0]);
+            times.forEach(time => {
+                // Normalize time to compare (HH:MM or H:MM)
+                const isBooked = Array.isArray(bookedSlots) && bookedSlots.some(b => {
+                    const d = new Date(b);
+                    const hours = d.getHours().toString().padStart(2, '0');
+                    const minutes = d.getMinutes().toString().padStart(2, '0');
+                    const bookedTime = `${hours}:${minutes}`;
+                    return bookedTime === time;
+                });
+                
+                const isAvailable = !isBooked;
+                const slot = document.createElement('div');
+                slot.className = `relative flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all border-2 ${
+                    isAvailable 
+                    ? 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 cursor-pointer hover:border-primary/50' 
+                    : 'border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-not-allowed opacity-60'
+                }`;
+                
+                if (isAvailable) {
+                    slot.onclick = () => selectTimeSlot(time, slot);
+                }
+
+                slot.innerHTML = `
+                    <span class="text-sm font-bold ${isAvailable ? '' : 'text-slate-400'}">${time}</span>
+                    <span class="text-[10px] ${isAvailable ? 'text-primary' : 'text-slate-400'} mt-1 font-medium">${isAvailable ? 'Available' : 'Booked'}</span>
+                    ${!isAvailable ? `
+                    <div class="absolute -top-1 -right-1">
+                        <button onclick="event.stopPropagation(); joinWaitlistDirect('${time}')" class="bg-primary text-[8px] text-white px-2 py-0.5 rounded-full shadow-lg hover:scale-105 transition-transform font-bold">JOIN WAITLIST</button>
+                    </div>
+                    ` : ''}
+                `;
+                grid.appendChild(slot);
+            });
+        } catch (err) {
+            console.error('Error loading slots:', err);
+            grid.innerHTML = '<div class="col-span-4 text-center py-4 text-red-500">Error loading availability</div>';
         }
     }
 
+    globalThis.joinWaitlistDirect = async (timeStr) => {
+        const token = localStorage.getItem('supabase_token');
+        if (!token) {
+            alert('Please login to join the waitlist');
+            globalThis.location.href = '/pages/login.html';
+            return;
+        }
+        const time = Number.parseInt(timeStr.split(':')[0]);
+        if (!confirm(`Join waitlist for ${selectedDate} at ${timeStr}?`)) return;
+
+        try {
+            const res = await fetch('/api/waitlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    court_id: currentCourtId,
+                    requested_date: selectedDate,
+                    preferred_time_slot: `${time.toString().padStart(2,'0')}:00-${(time+selectedDurationHours).toString().padStart(2,'0')}:00`
+                })
+            });
+            if (res.ok) {
+                alert('Successfully joined the waitlist!');
+                globalThis.location.href = '/pages/waitlist.html';
+            } else {
+                const data = await res.json();
+                alert(`Error: ${data.error}`);
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    };
+
     function selectTimeSlot(timeStr, el) {
         selectedTimeSlot = timeStr;
-        const grid = document.querySelector('.mt-6.grid.grid-cols-3');
+        const grid = document.getElementById('current-slots-grid');
         if (!grid) return;
         
         grid.querySelectorAll(':scope > div').forEach(d => {
-            d.className = 'flex flex-col items-center justify-center py-3 px-2 rounded-xl cursor-pointer transition-all border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary/50';
-            const span = d.querySelector('span:last-child');
-            if (span) {
-                span.className = 'text-[10px] text-slate-400 mt-1 font-medium';
-                span.textContent = 'Available';
+            const statusNode = d.querySelector('span:nth-child(2)');
+            const isBooked = statusNode?.textContent === 'Booked';
+            if (!isBooked) {
+                d.className = 'relative flex flex-col items-center justify-center py-3 px-2 rounded-xl cursor-pointer transition-all border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary/50';
+                if (statusNode) {
+                    statusNode.className = 'text-[10px] text-primary mt-1 font-medium';
+                    statusNode.textContent = 'Available';
+                }
             }
         });
-        el.className = 'flex flex-col items-center justify-center py-3 px-2 rounded-xl cursor-pointer transition-all border-2 border-primary bg-primary/5';
-        const activeSpan = el.querySelector('span:last-child');
+        el.className = 'relative flex flex-col items-center justify-center py-3 px-2 rounded-xl cursor-pointer transition-all border-2 border-primary bg-primary/5';
+        const activeSpan = el.querySelector('span:nth-child(2)');
         if (activeSpan) {
             activeSpan.className = 'text-[10px] text-primary font-bold mt-1 font-medium';
             activeSpan.textContent = 'Selected';
@@ -660,6 +779,7 @@
             start_time: startTimeISO,
             duration_hours: selectedDurationHours,
             payment_method: currentPaymentMethod,
+            transfer_reference: currentPaymentMethod === 'BANK_TRANSFER' ? document.getElementById('transfer-ref')?.value : undefined,
             credit_card_token: currentPaymentMethod === 'CREDIT_CARD' ? 'tok_visa' : undefined,
             equipment: Object.entries(selectedEquipment)
                 .filter(([_, count]) => count > 0)

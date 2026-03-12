@@ -1,4 +1,7 @@
+const pool = require('../config/db');
 const Waitlist = require('../models/Waitlist');
+const Booking = require('../models/Booking');
+const paymentService = require('../services/paymentService');
 
 const waitlistController = {
   addToWaitlist: async (req, res) => {
@@ -26,17 +29,20 @@ const waitlistController = {
   },
 
   removeFromWaitlist: async (req, res) => {
-    // TODO: implement removal
-    res.json({ message: 'Removed from waitlist' });
+    try {
+      await Waitlist.remove(req.params.id, req.user.id);
+      res.json({ message: 'Removed from waitlist' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   },
 
   confirmWaitlist: async (req, res) => {
     try {
       const waitlistId = req.params.id;
-      const { payment_method } = req.body;
+      const { payment_method, transfer_reference } = req.body;
 
       // 1. Get waitlist entry
-      const pool = require('../config/db');
       const entryResult = await pool.query(
         'SELECT * FROM waitlist WHERE id = $1 AND status = $2 AND user_id = $3', 
         [waitlistId, 'NOTIFIED', req.user.id]
@@ -61,7 +67,7 @@ const waitlistController = {
       const courtPrice = Number.parseFloat(courtQuery.rows[0].price_per_hour);
       const total_amount = courtPrice * duration;
 
-      const booking = await require('../models/Booking').create({
+      const booking = await Booking.create({
         user_id: req.user.id,
         court_id: entry.court_id,
         start_time,
@@ -71,16 +77,17 @@ const waitlistController = {
       });
 
       // 4. Run payment
-      await require('../services/paymentService').processPayment({ 
+      await paymentService.processPayment({ 
         booking_id: booking.id, 
         amount: total_amount, 
-        method: payment_method || 'CREDIT_CARD' 
+        method: payment_method || 'CREDIT_CARD',
+        transfer_reference: transfer_reference
       });
 
-      // 5. Remove parsed waitlist entry
-      await pool.query('DELETE FROM waitlist WHERE id = $1', [waitlistId]);
+      // 5. Update waitlist entry status instead of deleting to show "Payment Successful"
+      await Waitlist.updateStatus(waitlistId, 'CONFIRMED');
 
-      res.status(201).json({ message: 'Waitlist converted to booking successfully', booking });
+      res.status(201).json({ message: 'Payment Successful! Booking confirmed.', booking });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

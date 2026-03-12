@@ -1,160 +1,265 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Badminton Court Management Dashboard</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#257bf4",
-                        "background-light": "#f5f7f8",
-                        "background-dark": "#101722",
-                    },
-                    fontFamily: {
-                        "display": ["Lexend", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-<style>
-        body {
-            font-family: 'Lexend', sans-serif;
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-    </style>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pro Badminton – Find, book, and manage badminton courts across Bangkok. Premium booking system with instant confirmation.">
+  <title>Pro Badminton – Find & Book Courts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="/css/theme.css">
+  <style>
+    body{margin:0}
+    /* Hero */
+    .hero{position:relative;padding:5rem 2rem;text-align:center;overflow:hidden;background:linear-gradient(135deg,#0f172a 0%,#1a2332 40%,#1e3a5f 100%)}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(37,123,244,0.15),transparent 50%),radial-gradient(circle at 30% 70%,rgba(124,58,237,0.1),transparent 50%);pointer-events:none}
+    .hero h1{font-size:3rem;font-weight:800;color:white;margin:0 0 1rem;position:relative;line-height:1.1}
+    .hero h1 span{background:var(--pb-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{font-size:1.1rem;color:#94a3b8;margin:0 0 2.5rem;max-width:600px;margin-left:auto;margin-right:auto;position:relative}
+    /* Search Bar */
+    .hero-search{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-xl);display:flex;align-items:center;max-width:700px;margin:0 auto;overflow:hidden;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+    .hero-search-input{flex:1;display:flex;align-items:center;gap:0.75rem;padding:0 1.25rem;height:56px;border-right:1px solid var(--pb-border)}
+    .hero-search-input input{flex:1;background:transparent;border:none;color:var(--pb-text);font-family:var(--pb-font);font-size:0.95rem;outline:none}
+    .hero-search-input input::placeholder{color:var(--pb-text-muted)}
+    .hero-search-input .material-symbols-outlined{color:var(--pb-text-muted);font-size:1.3rem}
+    .hero-search button{padding:0 1.75rem;height:56px;background:var(--pb-primary);border:none;color:white;font-family:var(--pb-font);font-weight:700;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;transition:background 0.2s}
+    .hero-search button:hover{background:var(--pb-primary-hover)}
+    /* Stats */
+    .stats-strip{display:flex;justify-content:center;gap:3rem;padding:2rem;border-bottom:1px solid var(--pb-border)}
+    .stat-item{text-align:center}
+    .stat-item .num{font-size:1.5rem;font-weight:700;color:var(--pb-primary)}
+    .stat-item .label{font-size:0.78rem;color:var(--pb-text-muted)}
+    /* Section */
+    .section{padding:3rem 0}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+    .section-header h2{font-size:1.5rem;font-weight:700;color:var(--pb-text-heading);margin:0}
+    .section-header p{color:var(--pb-text-muted);font-size:0.88rem;margin:0.25rem 0 0}
+    /* Court Cards */
+    .court-card{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-xl);overflow:hidden;transition:transform 0.25s,box-shadow 0.25s}
+    .court-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(37,123,244,0.15)}
+    .court-img{height:180px;background:var(--pb-gradient);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .court-img img{width:100%;height:100%;object-fit:cover}
+    .court-img-fallback{display:flex;flex-direction:column;align-items:center;gap:0.5rem;color:white;opacity:0.7}
+    .court-img-fallback .material-symbols-outlined{font-size:2.5rem}
+    .court-img .court-price-tag{position:absolute;top:0.75rem;right:0.75rem;background:rgba(16,23,34,0.8);backdrop-filter:blur(8px);color:white;padding:0.3rem 0.75rem;border-radius:999px;font-size:0.82rem;font-weight:700}
+    .court-body{padding:1.25rem}
+    .court-body h3{color:var(--pb-text-heading);font-size:1.05rem;margin:0 0 0.5rem;font-weight:600}
+    .court-meta{display:flex;align-items:center;gap:0.5rem;color:var(--pb-text-muted);font-size:0.82rem;margin-bottom:0.35rem}
+    .court-meta .material-symbols-outlined{font-size:1rem;color:var(--pb-primary)}
+    .court-footer{display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem 1.25rem}
+    .court-rating{display:flex;align-items:center;gap:0.3rem;font-size:0.88rem}
+    .court-rating span.stars{color:#f59e0b}
+    .court-rating span.val{color:var(--pb-text);font-weight:600}
+    /* Map */
+    .map-wrap{border-radius:var(--pb-radius-xl);overflow:hidden;border:1px solid var(--pb-border);height:450px}
+    /* Footer */
+    .pb-footer{border-top:1px solid var(--pb-border);padding:2.5rem 0;text-align:center}
+    .pb-footer p{color:var(--pb-text-muted);font-size:0.82rem}
+    .pb-footer-links{display:flex;justify-content:center;gap:2rem;margin-bottom:0.75rem}
+    .pb-footer-links a{color:var(--pb-text-muted);text-decoration:none;font-size:0.85rem}
+    .pb-footer-links a:hover{color:var(--pb-primary)}
+    /* Auth UI */
+    #auth-links a{color:var(--pb-primary);text-decoration:none;font-weight:600;font-size:0.88rem}
+    #auth-links a:hover{text-decoration:underline}
+    .user-chip{display:flex;align-items:center;gap:0.5rem;background:var(--pb-surface-2);padding:0.35rem 0.75rem 0.35rem 0.5rem;border-radius:999px;border:1px solid var(--pb-border)}
+    .user-chip-avatar{width:28px;height:28px;border-radius:50%;background:var(--pb-primary);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white}
+  </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
-<div class="relative flex flex-col min-h-screen w-full overflow-x-hidden">
-<!-- Top Navigation Bar -->
-<header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-4">
-<div class="max-w-7xl mx-auto flex items-center justify-between">
-<div class="flex items-center gap-2 text-primary">
-<span class="material-symbols-outlined text-3xl font-bold">sports_tennis</span>
-<h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">BadmintonPro</h2>
-</div>
-<nav class="hidden md:flex items-center gap-10">
-<a class="text-sm font-medium hover:text-primary transition-colors" href="/">Courts</a>
-<a class="text-sm font-medium hover:text-primary transition-colors" href="/pages/my-bookings.html">Bookings</a>
-<a class="text-sm font-medium hover:text-primary transition-colors" href="/pages/waitlist.html">Waitlist</a>
-</nav>
-<div class="flex items-center gap-4" id="auth-container">
-<a href="/pages/login.html" id="nav-login" class="text-sm font-bold text-primary hover:underline">Login</a>
-<a href="/pages/register.html" id="nav-register" class="text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Register</a>
-<button id="logoutBtn" style="display: none;" class="text-sm font-bold text-red-500 hover:underline">Logout</button>
-<div id="welcome-section" style="display: none;" class="flex items-center gap-2">
-    <span class="text-sm text-slate-500 dark:text-slate-400">Hi, <span id="user-name" class="font-bold text-slate-900 dark:text-slate-100">User</span></span>
-    <button class="flex items-center justify-center rounded-full h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-        <span class="material-symbols-outlined">account_circle</span>
-    </button>
-</div>
-</div>
-</div>
-</header>
-<main class="flex-1">
-<!-- Hero Section -->
-<section class="relative px-6 lg:px-20 py-12 lg:py-20">
-<div class="max-w-7xl mx-auto">
-<div class="relative overflow-hidden rounded-xl bg-slate-900 dark:bg-slate-800/50 p-8 lg:p-16 flex flex-col items-center text-center gap-8 shadow-2xl">
-<!-- Abstract Background Decoration -->
-<div class="absolute inset-0 opacity-20 pointer-events-none bg-gradient-to-br from-primary via-transparent to-primary/30" data-alt="Abstract blue gradient pattern representing energy"></div>
-<div class="relative z-10 max-w-3xl flex flex-col gap-4">
-<h1 class="text-4xl lg:text-6xl font-black text-white leading-tight tracking-tight">
-                                Find &amp; Book Your <span class="text-primary">Perfect</span> Court
-                            </h1>
-<p class="text-slate-300 text-lg">
-                                Access professional-grade courts with instant confirmation and seamless scheduling.
-                            </p>
-</div>
-<!-- Search & Filter Bar -->
-<div class="relative z-10 w-full max-w-4xl bg-white dark:bg-slate-900 p-2 rounded-xl shadow-xl flex flex-col md:flex-row items-center gap-2">
-<div class="flex-1 flex items-center px-4 gap-3 w-full border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 h-14">
-<span class="material-symbols-outlined text-slate-400">search</span>
-<input id="main-search-name" class="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400" placeholder="Court name or club..." type="text"/>
-</div>
-<div onclick="globalThis.location.href='/pages/search.html'" class="flex-1 flex items-center px-4 gap-3 w-full border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 h-14 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-<span class="material-symbols-outlined text-slate-400">location_on</span>
-<input id="main-search-location" class="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 cursor-pointer" placeholder="Want to search by location?" type="text" readonly/>
-</div>
-<div class="flex-1 flex flex-col justify-center px-4 w-full h-14">
-<div class="flex justify-between mb-1">
-<span class="text-[10px] font-bold uppercase text-slate-500">Price Range</span>
-<span class="text-[10px] font-bold text-primary">฿15 - ฿45</span>
-</div>
-<div class="relative h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full">
-<div class="absolute left-1/4 right-1/4 h-full bg-primary rounded-full"></div>
-<div class="absolute left-1/4 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-pointer"></div>
-<div class="absolute right-1/4 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-pointer"></div>
-</div>
-</div>
-<button id="main-search-btn" class="w-full md:w-auto px-8 h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-sm">search</span>
-                                Search
-                            </button>
-</div>
-</div>
-</div>
-</section>
-<!-- Featured Courts Grid -->
-<section class="px-6 lg:px-20 pb-20">
-<div class="max-w-7xl mx-auto">
-<div class="flex items-center justify-between mb-8">
-<div>
-<h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Featured Courts</h2>
-<p class="text-slate-500 dark:text-slate-400 text-sm">Top-rated badminton facilities near you</p>
-</div>
-<button id="view-all-btn" class="text-primary font-semibold text-sm hover:underline flex items-center gap-1">
-                            View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
-</button>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="courts-grid">
-    <!-- Courts will be dynamically loaded here -->
-    <div class="col-span-full p-8 text-center text-slate-500 italic">Finding the best courts for you...</div>
-</div>
-</div>
-</section>
-<!-- Global Map View -->
-<section class="px-6 lg:px-20 pb-20">
-    <div class="max-w-7xl mx-auto">
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Explore on Map</h2>
-            <p class="text-slate-500 dark:text-slate-400 text-sm">Find courts in your area</p>
+<body class="pb-page">
+  <!-- Navbar -->
+  <nav class="pb-navbar">
+    <a href="/" class="pb-navbar-brand"><span>🏸</span> Pro Badminton</a>
+    <div style="display:flex;align-items:center;gap:1.5rem;">
+      <ul class="pb-nav-links">
+        <li><a href="/" class="active" data-i18n="nav.home">Home</a></li>
+        <li><a href="/pages/search.html" data-i18n="nav.search">Find Courts</a></li>
+        <li><a href="/pages/my-bookings.html" data-i18n="nav.my_bookings">My Bookings</a></li>
+        <li><a href="/pages/waitlist.html" data-i18n="nav.my_waitlist">Waitlists</a></li>
+        <li><a href="/pages/reviews.html">Reviews</a></li>
+      </ul>
+      <div class="pb-lang-picker">
+        <button class="lang-btn active" data-lang="en" onclick="I18n.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">TH</button>
+        <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">中文</button>
+      </div>
+      <div id="auth-links">
+        <a href="/pages/login.html" data-i18n="nav.login">Login</a>
+      </div>
+      <div id="user-section" style="display:none">
+        <div class="user-chip">
+          <div class="user-chip-avatar" id="hp-avatar">?</div>
+          <span id="hp-name" style="font-size:0.82rem;font-weight:600;color:var(--pb-text)"></span>
+          <button onclick="logout()" style="background:none;border:none;cursor:pointer;color:var(--pb-error);font-size:0.78rem;font-weight:700;font-family:var(--pb-font)">Logout</button>
         </div>
-        <div id="global-map" class="h-[500px] w-full rounded-xl shadow-xl overflow-hidden z-0"></div>
+      </div>
     </div>
-</section>
-</main>
-<!-- Footer -->
-<footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12 px-6 lg:px-20">
-<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-<div class="flex items-center gap-2 text-primary opacity-80">
-<span class="material-symbols-outlined text-2xl font-bold">sports_tennis</span>
-<h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">BadmintonPro</h2>
-</div>
-<div class="flex gap-8 text-sm text-slate-500 dark:text-slate-400">
-<a class="hover:text-primary cursor-pointer" onclick="alert('Privacy Policy coming soon!')">Privacy Policy</a>
-<a class="hover:text-primary cursor-pointer" onclick="alert('Terms of Service coming soon!')">Terms of Service</a>
-<a class="hover:text-primary cursor-pointer" onclick="alert('Help Center coming soon!')">Help Center</a>
-</div>
-<p class="text-xs text-slate-400 dark:text-slate-500">© 2024 BadmintonPro Management. All rights reserved.</p>
-</div>
-</footer>
-<script src="/js/app.js"></script>
-</body></html>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Find & Book Your <span>Perfect</span> Court</h1>
+    <p>Access professional-grade badminton courts across Bangkok with instant confirmation and seamless scheduling.</p>
+    <div class="hero-search">
+      <div class="hero-search-input">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" id="heroSearchInput" placeholder="Search by court name or club...">
+      </div>
+      <button onclick="heroSearch()">
+        <span class="material-symbols-outlined" style="font-size:1.2rem">search</span>
+        Search
+      </button>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats-strip">
+    <div class="stat-item"><div class="num" id="stat-courts">-</div><div class="label">Courts Available</div></div>
+    <div class="stat-item"><div class="num" id="stat-bookings">500+</div><div class="label">Bookings Made</div></div>
+    <div class="stat-item"><div class="num" id="stat-rating">4.8</div><div class="label">Avg Rating</div></div>
+  </div>
+
+  <!-- Featured Courts -->
+  <div class="pb-container">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <h2>Featured Courts</h2>
+          <p>Top-rated badminton facilities near you</p>
+        </div>
+        <a href="/pages/search.html" class="pb-btn pb-btn-secondary" style="font-size:0.82rem">
+          View All <span class="material-symbols-outlined" style="font-size:1rem">arrow_forward</span>
+        </a>
+      </div>
+      <div class="pb-grid-3" id="courts-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--pb-text-muted)">
+          <span class="material-symbols-outlined" style="font-size:2rem;display:block;margin-bottom:0.5rem">hourglass_top</span>
+          Finding the best courts for you...
+        </div>
+      </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <h2>Explore on Map</h2>
+          <p>Find courts near your location</p>
+        </div>
+      </div>
+      <div class="map-wrap" id="global-map"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="pb-footer pb-container">
+    <div class="pb-footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Help Center</a>
+    </div>
+    <p>© 2025 Pro Badminton. All rights reserved.</p>
+  </footer>
+
+  <script src="/js/i18n.js"></script>
+  <script>
+    const API_URL = '/api';
+    const token = localStorage.getItem('supabase_token');
+
+    // Auth UI
+    async function checkAuth() {
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_URL}/auth/profile`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        if (data.profile) {
+          document.getElementById('auth-links').style.display = 'none';
+          document.getElementById('user-section').style.display = 'block';
+          document.getElementById('hp-name').textContent = data.profile.full_name;
+          document.getElementById('hp-avatar').textContent = data.profile.full_name?.charAt(0)?.toUpperCase() || '?';
+        }
+      } catch(e) { /* not logged in */ }
+    }
+
+    function logout() {
+      localStorage.removeItem('supabase_token');
+      globalThis.location.reload();
+    }
+
+    function heroSearch() {
+      const q = document.getElementById('heroSearchInput').value.trim();
+      if (q) globalThis.location.href = `/pages/search.html?q=${encodeURIComponent(q)}`;
+      else globalThis.location.href = '/pages/search.html';
+    }
+    document.getElementById('heroSearchInput').addEventListener('keydown', e => { if (e.key === 'Enter') heroSearch(); });
+
+    // Stars
+    function starsHtml(r) {
+      const full = Math.round(Number.parseFloat(r) || 0);
+      return '★'.repeat(full) + '☆'.repeat(5 - full);
+    }
+
+    // Load Courts
+    async function loadFeaturedCourts() {
+      try {
+        const res = await fetch(`${API_URL}/courts`);
+        const courts = await res.json();
+        const grid = document.getElementById('courts-grid');
+
+        document.getElementById('stat-courts').textContent = courts.length;
+
+        if (courts.length === 0) {
+          grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--pb-text-muted)">No courts available yet.</div>';
+          return;
+        }
+
+        grid.innerHTML = courts.slice(0, 6).map(c => `
+          <a href="/pages/court-detail.html?id=${c.id}" class="court-card" style="text-decoration:none;color:inherit">
+            <div class="court-img">
+              ${c.image_url ? `<img src="${c.image_url}" alt="${c.name}" onerror="this.parentElement.innerHTML='<div class=court-img-fallback><span class=material-symbols-outlined>sports_tennis</span>${c.name}</div>'">` : `<div class="court-img-fallback"><span class="material-symbols-outlined">sports_tennis</span>${c.name}</div>`}
+              <span class="court-price-tag">฿${c.price_per_hour}/hr</span>
+            </div>
+            <div class="court-body">
+              <h3>${c.name}</h3>
+              <div class="court-meta"><span class="material-symbols-outlined">schedule</span> ${c.opening_time} – ${c.closing_time}</div>
+              <div class="court-meta"><span class="material-symbols-outlined">directions_run</span> Shoes: ${c.allowed_shoes || 'Any'}</div>
+            </div>
+            <div class="court-footer">
+              <div class="court-rating">
+                <span class="stars" style="color:#f59e0b">${starsHtml(c.avg_rating)}</span>
+                <span class="val">${Number.parseFloat(c.avg_rating || 0).toFixed(1)}</span>
+              </div>
+              <span class="pb-badge pb-badge-available">AVAILABLE</span>
+            </div>
+          </a>
+        `).join('');
+
+        // Init Map
+        initMap(courts);
+      } catch (err) {
+        document.getElementById('courts-grid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--pb-error)">${err.message}</div>`;
+      }
+    }
+
+    function initMap(courts) {
+      const map = L.map('global-map').setView([13.7563, 100.5018], 12);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors © CARTO',
+        maxZoom: 19
+      }).addTo(map);
+
+      courts.forEach(c => {
+        if (c.latitude && c.longitude) {
+          L.marker([c.latitude, c.longitude])
+            .addTo(map)
+            .bindPopup(`<b>${c.name}</b><br>฿${c.price_per_hour}/hr<br><a href="/pages/court-detail.html?id=${c.id}">View Details</a>`);
+        }
+      });
+    }
+
+    checkAuth();
+    loadFeaturedCourts();
+  </script>
+</body>
+</html>

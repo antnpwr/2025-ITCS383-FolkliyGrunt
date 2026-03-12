@@ -1,176 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Book a badminton court and rent equipment">
-    <title>Book a Court - Badminton Court Management</title>
-    <link rel="stylesheet" href="/css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Book a badminton court and rent equipment at Pro Badminton.">
+  <title>Book a Court - Pro Badminton</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <style>
+    body{margin:0}
+    .book-wrapper{max-width:720px;margin:0 auto;padding:2rem 1.5rem 3rem}
+    .book-header{text-align:center;margin-bottom:2rem}
+    .book-header h1{color:var(--pb-text-heading);font-size:1.8rem;margin:0 0 0.5rem}
+    .book-header p{color:var(--pb-text-muted);font-size:0.92rem}
+    .book-card{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-xl);padding:2rem;box-shadow:var(--pb-shadow)}
+    .eq-row{display:flex;gap:0.75rem;align-items:end;margin-bottom:0.75rem;padding:0.75rem;background:var(--pb-surface-2);border-radius:var(--pb-radius);border:1px solid var(--pb-border)}
+    .eq-row select,.eq-row input{background:var(--pb-bg);border:1px solid var(--pb-border);color:var(--pb-text);padding:0.5rem 0.75rem;border-radius:var(--pb-radius);font-family:var(--pb-font);font-size:0.88rem}
+    .eq-row select{flex:1}
+    .eq-row input{width:70px}
+    .eq-remove{background:none;border:none;color:var(--pb-error);cursor:pointer;font-size:1.2rem;padding:0.25rem}
+    .price-summary{background:var(--pb-surface-2);border:1px solid var(--pb-border);border-radius:var(--pb-radius-lg);padding:1.25rem;margin:1.5rem 0}
+    .price-line{display:flex;justify-content:space-between;font-size:0.88rem;padding:0.3rem 0;color:var(--pb-text-muted)}
+    .price-total{display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;padding:0.75rem 0 0;border-top:1px solid var(--pb-border);margin-top:0.5rem;color:var(--pb-text-heading)}
+    .msg{padding:0.75rem 1rem;border-radius:var(--pb-radius);font-size:0.88rem;margin-top:1rem;display:none}
+    .msg-success{background:rgba(34,197,94,0.1);color:var(--pb-success);border:1px solid rgba(34,197,94,0.2);display:block}
+    .msg-error{background:rgba(239,68,68,0.1);color:var(--pb-error);border:1px solid rgba(239,68,68,0.2);display:block}
+
+    /* Stripe Elements styling */
+    #stripe-card-element{
+      background:var(--pb-bg);border:1px solid var(--pb-border);border-radius:var(--pb-radius);
+      padding:0.75rem 0.85rem;transition:border-color 0.2s;
+    }
+    #stripe-card-element.StripeElement--focus{border-color:var(--pb-primary)}
+    #stripe-card-element.StripeElement--invalid{border-color:var(--pb-error)}
+    #card-errors{color:var(--pb-error);font-size:0.82rem;margin-top:0.35rem;min-height:1.2em}
+
+    /* Save card checkbox */
+    .save-card-row{display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;font-size:0.88rem;color:var(--pb-text-muted)}
+    .save-card-row input[type="checkbox"]{accent-color:var(--pb-primary);width:16px;height:16px}
+
+    /* Saved cards list */
+    .saved-cards-section{margin-bottom:1rem}
+    .saved-cards-section h4{color:var(--pb-text-heading);font-size:0.92rem;margin:0 0 0.5rem;display:flex;align-items:center;gap:0.35rem}
+    .saved-card{display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0.85rem;background:var(--pb-surface-2);border:2px solid var(--pb-border);border-radius:var(--pb-radius);cursor:pointer;transition:all 0.2s;margin-bottom:0.4rem}
+    .saved-card:hover{border-color:var(--pb-primary);background:rgba(16,185,129,0.05)}
+    .saved-card.selected{border-color:var(--pb-primary);background:rgba(16,185,129,0.08)}
+    .saved-card input[type="radio"]{accent-color:var(--pb-primary)}
+    .card-brand{font-weight:600;color:var(--pb-text-heading);text-transform:uppercase;font-size:0.82rem}
+    .card-last4{color:var(--pb-text);font-size:0.88rem}
+    .card-exp{color:var(--pb-text-muted);font-size:0.78rem;margin-left:auto}
+    .card-delete{background:none;border:none;color:var(--pb-error);cursor:pointer;font-size:0.92rem;padding:0.2rem;opacity:0.7;transition:opacity 0.2s}
+    .card-delete:hover{opacity:1}
+    .new-card-option{display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0.85rem;background:var(--pb-surface-2);border:2px solid var(--pb-border);border-radius:var(--pb-radius);cursor:pointer;transition:all 0.2s;margin-bottom:0.4rem}
+    .new-card-option:hover{border-color:var(--pb-primary)}
+    .new-card-option.selected{border-color:var(--pb-primary);background:rgba(16,185,129,0.08)}
+
+    /* Stripe badge */
+    .stripe-badge{display:flex;align-items:center;gap:0.4rem;justify-content:center;margin-top:0.75rem;font-size:0.78rem;color:var(--pb-text-muted)}
+    .stripe-badge svg{height:16px}
+  </style>
 </head>
+<body class="pb-page">
+  <!-- Navbar -->
+  <nav class="pb-navbar">
+    <a href="/" class="pb-navbar-brand"><span>🏸</span> Pro Badminton</a>
+    <div style="display:flex;align-items:center;gap:1.5rem;">
+      <ul class="pb-nav-links">
+        <li><a href="/" data-i18n="nav.home">Home</a></li>
+        <li><a href="/pages/search.html" data-i18n="nav.search">Find Courts</a></li>
+        <li><a href="/pages/my-bookings.html" data-i18n="nav.my_bookings">My Bookings</a></li>
+      </ul>
+      <div class="pb-lang-picker">
+        <button class="lang-btn active" data-lang="en" onclick="I18n.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">TH</button>
+        <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">中文</button>
+      </div>
+    </div>
+  </nav>
 
-<body>
-    <div class="container">
-        <h1>Book a Court</h1>
-
-        <form id="bookingForm">
-            <div class="form-group">
-                <label for="court_id">Court</label>
-                <select id="court_id" name="court_id" required>
-                    <option value="">Select a court...</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="start_time">Date &amp; Time</label>
-                <input type="datetime-local" id="start_time" name="start_time" required>
-            </div>
-
-            <div class="form-group">
-                <label for="duration_hours">Duration (hours)</label>
-                <select id="duration_hours" name="duration_hours" required>
-                    <option value="1">1 hour</option>
-                    <option value="2">2 hours</option>
-                    <option value="3">3 hours</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="payment_method">Payment Method</label>
-                <select id="payment_method" name="payment_method" required>
-                    <option value="CREDIT_CARD">Credit Card</option>
-                    <option value="PROMPTPAY">PromptPay</option>
-                    <option value="CASH">Cash</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="total_amount">Total Amount (THB)</label>
-                <input type="number" id="total_amount" name="total_amount" min="0" step="0.01" value="0" required>
-            </div>
-
-            <h2>Equipment Rental (Optional)</h2>
-            <div id="equipmentSection">
-                <div class="equipment-item">
-                    <select name="equipment_type">
-                        <option value="">None</option>
-                        <option value="RACKET">Racket (50 THB)</option>
-                        <option value="SHUTTLECOCK">Shuttlecock Pack (30 THB)</option>
-                        <option value="SHOES">Shoes (40 THB)</option>
-                    </select>
-                    <input type="number" name="quantity" min="1" value="1" placeholder="Qty">
-                </div>
-            </div>
-            <button type="button" id="addEquipmentBtn" class="btn-secondary">+ Add Equipment</button>
-
-            <br><br>
-            <button type="submit" class="btn btn-primary">Book Now</button>
-        </form>
-
-        <div id="message"></div>
-
-        <p><a href="/pages/my-bookings.html">View My Bookings</a></p>
+  <div class="book-wrapper">
+    <div class="book-header">
+      <h1 data-i18n="booking.title">Book a Court</h1>
+      <p>Select your court, choose a time, and add equipment rentals.</p>
     </div>
 
-    <script>
-        const API_BASE = '/api';
-        const token = localStorage.getItem('token');
+    <div class="book-card">
+      <form id="bookingForm">
+        <!-- Court -->
+        <div class="pb-form-group">
+          <label class="pb-label" for="court_id">Court</label>
+          <select class="pb-input" id="court_id" name="court_id" required>
+            <option value="">Select a court...</option>
+          </select>
+        </div>
 
-        if (!token) {
-            window.location.href = '/pages/login.html';
-        }
+        <!-- Date/Time -->
+        <div class="pb-form-group">
+          <label class="pb-label" for="start_time" data-i18n="booking.select_time">Date & Time</label>
+          <input class="pb-input" type="datetime-local" id="start_time" name="start_time" required>
+        </div>
 
-        // Load courts from Person 2's API (if available)
-        async function loadCourts() {
-            try {
-                const res = await fetch(`${API_BASE}/courts`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const courts = await res.json();
-                    const select = document.getElementById('court_id');
-                    courts.forEach(court => {
-                        const option = document.createElement('option');
-                        option.value = court.id;
-                        option.textContent = `${court.name} - ${court.hourly_rate} THB/hr`;
-                        select.appendChild(option);
-                    });
-                }
-            } catch (err) {
-                console.log('Courts API not available yet');
-            }
-        }
+        <!-- Duration -->
+        <div class="pb-form-group">
+          <label class="pb-label" for="duration_hours" data-i18n="booking.duration">Duration (hours)</label>
+          <select class="pb-input" id="duration_hours" name="duration_hours" required>
+            <option value="1">1 hour</option>
+            <option value="2">2 hours</option>
+            <option value="3">3 hours</option>
+          </select>
+        </div>
 
-        // Add equipment row
-        document.getElementById('addEquipmentBtn').addEventListener('click', () => {
-            const section = document.getElementById('equipmentSection');
-            const div = document.createElement('div');
-            div.className = 'equipment-item';
-            div.innerHTML = `
-        <select name="equipment_type">
+        <!-- Payment Method -->
+        <div class="pb-form-group">
+          <label class="pb-label" for="payment_method">Payment Method</label>
+          <select class="pb-input" id="payment_method" name="payment_method" required>
+            <option value="CREDIT_CARD">💳 Credit Card (Stripe)</option>
+            <option value="BANK_TRANSFER">🏦 Bank Transfer</option>
+            <option value="PROMPTPAY">📱 PromptPay</option>
+          </select>
+        </div>
+
+        <!-- Bank Transfer Reference -->
+        <div class="pb-form-group" id="transferRefGroup" style="display:none">
+          <label class="pb-label" for="transfer_ref">Transfer Reference</label>
+          <input class="pb-input" type="text" id="transfer_ref" placeholder="Enter transfer reference number">
+        </div>
+
+        <!-- Stripe Card Section (shown only for CREDIT_CARD) -->
+        <div id="stripeCardSection">
+          <div style="margin-top: 1rem; color: var(--pb-text-muted); font-size: 0.9rem; background: var(--pb-surface-2); padding: 1rem; border-radius: var(--pb-radius); border: 1px solid var(--pb-border);">
+            <span class="material-symbols-outlined" style="vertical-align: middle; color: var(--pb-primary); margin-right: 0.25rem;">open_in_new</span>
+            You will be redirected to securely complete your payment with Stripe (Google Pay, Apple Pay, saved cards, or add a new card).
+          </div>
+        </div>
+
+        <!-- Equipment -->
+        <h3 style="color:var(--pb-text-heading);font-size:1rem;margin:1.5rem 0 0.75rem" data-i18n="booking.equipment">🏓 Equipment Rental (Optional)</h3>
+        <div id="equipmentSection">
+          <div class="eq-row">
+            <select name="equipment_type">
+              <option value="">None</option>
+              <option value="RACKET">Racket (฿50)</option>
+              <option value="SHUTTLECOCK">Shuttlecock Pack (฿30)</option>
+              <option value="SHOES">Shoes (฿40)</option>
+            </select>
+            <input type="number" name="quantity" min="1" value="1" placeholder="Qty">
+          </div>
+        </div>
+        <button type="button" class="pb-btn pb-btn-secondary" style="font-size:0.82rem;margin-bottom:1rem" id="addEquipmentBtn">
+          <span class="material-symbols-outlined" style="font-size:1rem">add</span> Add Equipment
+        </button>
+
+        <!-- Price Summary -->
+        <div class="price-summary">
+          <div class="price-line"><span>Court Fee</span><span id="courtFee">฿0</span></div>
+          <div class="price-line"><span>Equipment</span><span id="eqFee">฿0</span></div>
+          <div class="price-total"><span data-i18n="booking.total">Total</span><span id="totalAmount">฿0</span></div>
+        </div>
+
+        <input type="hidden" id="total_amount" value="0">
+
+        <button type="submit" class="pb-btn pb-btn-primary pb-w-full" id="submitBtn" data-i18n="booking.pay_now">
+          <span class="material-symbols-outlined" style="font-size:1.1rem">shopping_cart</span> Pay & Book Now
+        </button>
+      </form>
+
+      <div id="message" class="msg"></div>
+      <div style="text-align:center;margin-top:1rem">
+        <a href="/pages/my-bookings.html" style="color:var(--pb-primary);font-size:0.88rem" data-i18n="nav.my_bookings">View My Bookings →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="/js/i18n.js"></script>
+  <script>
+    const API_BASE = '/api';
+    const token = localStorage.getItem('supabase_token');
+    if (!token) globalThis.location.href = '/pages/login.html';
+
+    const authHeaders = () => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    const EQUIPMENT_PRICES = { RACKET: 50, SHUTTLECOCK: 30, SHOES: 40 };
+    let courtPrice = 0;
+
+    // Pre-select court from URL
+    const urlParams = new URLSearchParams(globalThis.location.search);
+    const preselectedCourtId = urlParams.get('courtId');
+
+    // ─── Payment Method Toggle ────────────────────────────────────
+    document.getElementById('payment_method').addEventListener('change', (e) => {
+      const method = e.target.value;
+      document.getElementById('transferRefGroup').style.display = method === 'BANK_TRANSFER' ? 'block' : 'none';
+      document.getElementById('stripeCardSection').style.display = method === 'CREDIT_CARD' ? 'block' : 'none';
+    });
+
+    // ─── Load Courts ──────────────────────────────────────────────
+    async function loadCourts() {
+      try {
+        const res = await fetch(`${API_BASE}/courts`);
+        if (!res.ok) return;
+        const courts = await res.json();
+        const select = document.getElementById('court_id');
+        courts.forEach(court => {
+          const option = document.createElement('option');
+          option.value = court.id;
+          option.textContent = `${court.name} – ฿${court.price_per_hour}/hr`;
+          option.dataset.price = court.price_per_hour;
+          if (preselectedCourtId && court.id === preselectedCourtId) option.selected = true;
+          select.appendChild(option);
+        });
+        updatePriceSummary();
+      } catch (err) {
+        console.error('Failed to load courts:', err);
+      }
+    }
+
+    document.getElementById('court_id').addEventListener('change', updatePriceSummary);
+    document.getElementById('duration_hours').addEventListener('change', updatePriceSummary);
+
+    function updatePriceSummary() {
+      const select = document.getElementById('court_id');
+      const opt = select.options[select.selectedIndex];
+      courtPrice = Number.parseFloat(opt?.dataset?.price || 0);
+      const hours = Number.parseInt(document.getElementById('duration_hours').value || 1);
+      const fee = courtPrice * hours;
+      document.getElementById('courtFee').textContent = `฿${fee}`;
+
+      let eqTotal = 0;
+      document.querySelectorAll('.eq-row').forEach(row => {
+        const type = row.querySelector('[name="equipment_type"]').value;
+        const qty = Number.parseInt(row.querySelector('[name="quantity"]').value) || 1;
+        if (type) eqTotal += (EQUIPMENT_PRICES[type] || 0) * qty;
+      });
+      document.getElementById('eqFee').textContent = `฿${eqTotal}`;
+      const total = fee + eqTotal;
+      document.getElementById('totalAmount').textContent = `฿${total}`;
+      document.getElementById('total_amount').value = total;
+    }
+
+    // Add equipment row
+    document.getElementById('addEquipmentBtn').addEventListener('click', () => {
+      const section = document.getElementById('equipmentSection');
+      const div = document.createElement('div');
+      div.className = 'eq-row';
+      div.innerHTML = `
+        <select name="equipment_type" onchange="updatePriceSummary()">
           <option value="">None</option>
-          <option value="RACKET">Racket (50 THB)</option>
-          <option value="SHUTTLECOCK">Shuttlecock Pack (30 THB)</option>
-          <option value="SHOES">Shoes (40 THB)</option>
+          <option value="RACKET">Racket (฿50)</option>
+          <option value="SHUTTLECOCK">Shuttlecock Pack (฿30)</option>
+          <option value="SHOES">Shoes (฿40)</option>
         </select>
-        <input type="number" name="quantity" min="1" value="1" placeholder="Qty">
+        <input type="number" name="quantity" min="1" value="1" placeholder="Qty" onchange="updatePriceSummary()">
+        <button type="button" class="eq-remove" onclick="this.parentElement.remove();updatePriceSummary()">✕</button>
       `;
-            section.appendChild(div);
+      section.appendChild(div);
+    });
+
+    document.getElementById('equipmentSection').addEventListener('change', updatePriceSummary);
+
+    // ─── Submit Booking ───────────────────────────────────────────
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msgDiv = document.getElementById('message');
+      const submitBtn = document.getElementById('submitBtn');
+      msgDiv.className = 'msg';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
+
+      const equipmentItems = [];
+      document.querySelectorAll('.eq-row').forEach(item => {
+        const type = item.querySelector('[name="equipment_type"]').value;
+        const qty = Number.parseInt(item.querySelector('[name="quantity"]').value) || 1;
+        if (type) {
+          equipmentItems.push({
+            equipment_type: type,
+            quantity: qty,
+            unit_price: EQUIPMENT_PRICES[type] || 0
+          });
+        }
+      });
+
+      const paymentMethod = document.getElementById('payment_method').value;
+
+      const body = {
+        court_id: document.getElementById('court_id').value,
+        start_time: document.getElementById('start_time').value,
+        duration_hours: Number.parseInt(document.getElementById('duration_hours').value),
+        payment_method: paymentMethod,
+        total_amount: Number.parseFloat(document.getElementById('total_amount').value),
+        equipment: equipmentItems
+      };
+
+      // Bank Transfer reference
+      if (paymentMethod === 'BANK_TRANSFER') {
+        body.transfer_reference = document.getElementById('transfer_ref').value;
+      }
+
+      // Credit Card
+      if (paymentMethod === 'CREDIT_CARD') {
+         // The backend will handle returning the Checkout session URL.
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/bookings`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(body)
         });
+        const data = await res.json();
+        if (res.ok) {
+          if (data.checkout_url) {
+            msgDiv.className = 'msg msg-success';
+            msgDiv.textContent = 'Redirecting to secure payment page...';
+            window.location.href = data.checkout_url;
+            return;
+          }
+          msgDiv.className = 'msg msg-success';
+          msgDiv.textContent = `✅ Booking confirmed! Transaction: ${data.transaction_id}`;
+          document.getElementById('bookingForm').reset();
+        } else {
+          msgDiv.className = 'msg msg-error';
+          msgDiv.textContent = data.error || 'Booking failed';
+        }
+      } catch (err) {
+        msgDiv.className = 'msg msg-error';
+        msgDiv.textContent = err.message;
+      }
 
-        // Submit booking
-        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageDiv = document.getElementById('message');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Pay & Book Now';
+    });
 
-            // Collect equipment
-            const equipmentItems = [];
-            const prices = { RACKET: 50, SHUTTLECOCK: 30, SHOES: 40 };
-            document.querySelectorAll('.equipment-item').forEach(item => {
-                const type = item.querySelector('[name="equipment_type"]').value;
-                const qty = parseInt(item.querySelector('[name="quantity"]').value) || 1;
-                if (type) {
-                    equipmentItems.push({
-                        equipment_type: type,
-                        quantity: qty,
-                        unit_price: prices[type] || 0
-                    });
-                }
-            });
-
-            const body = {
-                court_id: document.getElementById('court_id').value,
-                start_time: document.getElementById('start_time').value,
-                duration_hours: parseInt(document.getElementById('duration_hours').value),
-                payment_method: document.getElementById('payment_method').value,
-                total_amount: parseFloat(document.getElementById('total_amount').value),
-                equipment: equipmentItems
-            };
-
-            try {
-                const res = await fetch(`${API_BASE}/bookings`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(body)
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    messageDiv.innerHTML = `<p style="color:green;">Booking confirmed! ID: ${data.id}</p>`;
-                    document.getElementById('bookingForm').reset();
-                } else {
-                    messageDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
-                }
-            } catch (err) {
-                messageDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
-            }
-        });
-
-        loadCourts();
-    </script>
+    // ─── Initialize ───────────────────────────────────────────────
+    loadCourts();
+  </script>
 </body>
-
 </html>

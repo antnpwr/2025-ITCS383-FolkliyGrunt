@@ -11,20 +11,28 @@ const notificationService = require('../services/notificationService');
 const bookingController = require('../controllers/bookingController');
 
 jest.mock('../services/paymentService', () => ({
-    processPayment: jest.fn().mockResolvedValue({ success: true }),
-    processRefund: jest.fn().mockResolvedValue({ success: true })
+    processPayment: jest.fn().mockResolvedValue({ success: true, transaction_id: 'PP_TEST123' }),
+    processRefund: jest.fn().mockResolvedValue({ success: true }),
+    getOrCreateCustomer: jest.fn().mockResolvedValue('cus_test_123'),
+    createCheckoutSession: jest.fn().mockResolvedValue({ id: 'cs_test_123', url: 'https://checkout.stripe.com/test' }),
+    createPaymentIntent: jest.fn().mockResolvedValue({ payment_intent_id: 'pi_test', client_secret: 'cs_secret' }),
+    getSavedCards: jest.fn().mockResolvedValue([]),
+    createSetupIntent: jest.fn().mockResolvedValue({ client_secret: 'seti_secret' }),
+    deletePaymentMethod: jest.fn().mockResolvedValue({ success: true })
 }));
 
 jest.mock('../services/notificationService', () => ({
-    notifyWaitlist: jest.fn().mockResolvedValue({ notified: true })
+    notifyWaitlist: jest.fn().mockResolvedValue({ notified: true }),
+    sendNotification: jest.fn().mockResolvedValue(true)
 }));
 
 // Helper to create mock req/res
 function mockReqRes(overrides = {}) {
     const req = {
-        user: { id: 'user-1' },
+        user: { id: 'user-1', email: 'test@example.com' },
         params: {},
         body: {},
+        headers: { origin: 'http://localhost:8080' },
         ...overrides
     };
     const res = {
@@ -39,17 +47,41 @@ describe('bookingController', () => {
 
     // ── create ───────────────────────────────────────────
     describe('create', () => {
-        test('creates booking without equipment and returns 201', async () => {
-            const booking = { id: 'b1', court_id: 'c1' };
+        test('creates booking with CREDIT_CARD and returns checkout_url', async () => {
+            const booking = { id: 'b1', court_id: 'c1', start_time: new Date(), end_time: new Date() };
             Booking.create.mockResolvedValue(booking);
-            Court.findById.mockResolvedValue({ id: 'c1', price_per_hour: '100' });
+            Booking.updateTransactionId.mockResolvedValue(booking);
+            Court.findById.mockResolvedValue({ id: 'c1', name: 'Court A', price_per_hour: '200' });
+
+            const { req, res } = mockReqRes({
+                body: {
+                    court_id: 'c1',
+                    start_time: '2025-06-01T10:00:00',
+                    duration_hours: 1,
+                    payment_method: 'CREDIT_CARD'
+                }
+            });
+
+            await bookingController.create(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({ checkout_url: 'https://checkout.stripe.com/test' });
+            expect(paymentService.getOrCreateCustomer).toHaveBeenCalledWith('user-1', 'test@example.com');
+            expect(paymentService.createCheckoutSession).toHaveBeenCalled();
+        });
+
+        test('creates booking with PROMPTPAY (simulated) and returns booking', async () => {
+            const booking = { id: 'b2', court_id: 'c1', start_time: new Date(), end_time: new Date() };
+            Booking.create.mockResolvedValue(booking);
+            Booking.updateTransactionId.mockResolvedValue(booking);
+            Court.findById.mockResolvedValue({ id: 'c1', name: 'Court B', price_per_hour: '100' });
 
             const { req, res } = mockReqRes({
                 body: {
                     court_id: 'c1',
                     start_time: '2025-06-01T10:00:00',
                     duration_hours: 2,
-                    payment_method: 'CASH',
+                    payment_method: 'PROMPTPAY',
                     total_amount: 200
                 }
             });
@@ -57,14 +89,16 @@ describe('bookingController', () => {
             await bookingController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.json).toHaveBeenCalledWith(booking);
-            expect(EquipmentRental.addToBooking).not.toHaveBeenCalled();
+            expect(paymentService.processPayment).toHaveBeenCalled();
+            // Should NOT call Stripe checkout for PromptPay
+            expect(paymentService.createCheckoutSession).not.toHaveBeenCalled();
         });
 
-        test('creates booking with equipment and returns 201', async () => {
-            const booking = { id: 'b2', court_id: 'c1' };
+        test('creates booking with equipment', async () => {
+            const booking = { id: 'b3', court_id: 'c1', start_time: new Date(), end_time: new Date() };
             Booking.create.mockResolvedValue(booking);
-            Court.findById.mockResolvedValue({ id: 'c1', price_per_hour: '200' });
+            Booking.updateTransactionId.mockResolvedValue(booking);
+            Court.findById.mockResolvedValue({ id: 'c1', name: 'Court C', price_per_hour: '200' });
             EquipmentRental.addToBooking.mockResolvedValue([]);
 
             const equipment = [{ equipment_type: 'RACKET', quantity: 1, unit_price: 50 }];
@@ -73,7 +107,7 @@ describe('bookingController', () => {
                     court_id: 'c1',
                     start_time: '2025-06-01T10:00:00',
                     duration_hours: 1,
-                    payment_method: 'PROMPTPAY',
+                    payment_method: 'BANK_TRANSFER',
                     total_amount: 250,
                     equipment
                 }
@@ -82,19 +116,19 @@ describe('bookingController', () => {
             await bookingController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(201);
-            expect(EquipmentRental.addToBooking).toHaveBeenCalledWith('b2', equipment);
+            expect(EquipmentRental.addToBooking).toHaveBeenCalledWith('b3', equipment);
         });
 
         test('returns 409 when timeslot is already booked', async () => {
             Booking.create.mockRejectedValue(new Error('Time slot is already booked'));
-            Court.findById.mockResolvedValue({ id: 'c1', price_per_hour: '100' });
+            Court.findById.mockResolvedValue({ id: 'c1', name: 'Court A', price_per_hour: '100' });
 
             const { req, res } = mockReqRes({
                 body: {
                     court_id: 'c1',
                     start_time: '2025-06-01T10:00:00',
                     duration_hours: 1,
-                    payment_method: 'CASH',
+                    payment_method: 'PROMPTPAY',
                     total_amount: 100
                 }
             });
@@ -107,14 +141,14 @@ describe('bookingController', () => {
 
         test('returns 500 on unexpected error', async () => {
             Booking.create.mockRejectedValue(new Error('Unexpected'));
-            Court.findById.mockResolvedValue({ id: 'c1', price_per_hour: '100' });
+            Court.findById.mockResolvedValue({ id: 'c1', name: 'Court A', price_per_hour: '100' });
 
             const { req, res } = mockReqRes({
                 body: {
                     court_id: 'c1',
                     start_time: '2025-06-01T10:00:00',
                     duration_hours: 1,
-                    payment_method: 'CASH'
+                    payment_method: 'PROMPTPAY'
                 }
             });
 
@@ -128,7 +162,7 @@ describe('bookingController', () => {
     // ── cancel ───────────────────────────────────────────
     describe('cancel', () => {
         test('cancels booking and returns success message', async () => {
-            const booking = { id: 'b1', booking_status: 'CANCELLED' };
+            const booking = { id: 'b1', booking_status: 'CANCELLED', transaction_id: 'PP_TEST', court_id: 'c1', start_time: new Date(), end_time: new Date() };
             Booking.cancel.mockResolvedValue(booking);
 
             const { req, res } = mockReqRes({ params: { id: 'b1' } });
@@ -138,6 +172,8 @@ describe('bookingController', () => {
                 message: 'Booking cancelled, refund processed',
                 booking
             });
+            expect(paymentService.processRefund).toHaveBeenCalledWith('PP_TEST');
+            expect(notificationService.notifyWaitlist).toHaveBeenCalled();
         });
 
         test('returns 400 when booking cannot be cancelled', async () => {
@@ -203,6 +239,33 @@ describe('bookingController', () => {
             await bookingController.getEquipment(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
+        });
+    });
+
+    // ── rentEquipment ────────────────────────────────────
+    describe('rentEquipment', () => {
+        test('rents equipment and returns 201', async () => {
+            EquipmentRental.addToBooking.mockResolvedValue([{ id: 'e1' }]);
+
+            const { req, res } = mockReqRes({
+                params: { id: 'b1' },
+                body: [{ equipment_type: 'RACKET', quantity: 2 }]
+            });
+
+            await bookingController.rentEquipment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(201);
+        });
+
+        test('returns 400 for invalid rental data', async () => {
+            const { req, res } = mockReqRes({
+                params: { id: 'b1' },
+                body: []
+            });
+
+            await bookingController.rentEquipment(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
         });
     });
 });
