@@ -26,13 +26,18 @@ class Waitlist {
     return result.rows[0]; // null if no one is waiting
   }
 
-  // Mark waitlist entry as notified
-  static async markNotified(waitlistId) {
+  // Update status
+  static async updateStatus(id, status) {
     const result = await pool.query(
-      `UPDATE waitlist SET status = 'NOTIFIED' WHERE id = $1 RETURNING *`,
-      [waitlistId]
+      `UPDATE waitlist SET status = $1 WHERE id = $2 RETURNING *`,
+      [status, id]
     );
     return result.rows[0];
+  }
+
+  // Mark waitlist entry as notified
+  static async markNotified(waitlistId) {
+    return this.updateStatus(waitlistId, 'NOTIFIED');
   }
 
   // Get waitlist entries for a user
@@ -57,6 +62,14 @@ class Waitlist {
     );
     return result.rows;
   }
+    // Remove from waitlist
+    static async remove(id, userId) {
+        const result = await pool.query(
+            'DELETE FROM waitlist WHERE id = $1 AND user_id = $2 RETURNING *',
+            [id, userId]
+        );
+        return result.rows[0];
+    }
 }
 
 module.exports = Waitlist;

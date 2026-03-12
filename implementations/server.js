@@ -9,14 +9,26 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(helmet({ 
-  contentSecurityPolicy: false,
-  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "script-src": ["'self'", "'unsafe-inline'", "unpkg.com", "js.stripe.com"],
+      "style-src": ["'self'", "'unsafe-inline'", "fonts.googleapis.com", "unpkg.com"],
+      "img-src": ["'self'", "data:", "https:", "*.basemaps.cartocdn.com"],
+      "connect-src": ["'self'", "https://*.supabase.co", "https://api.stripe.com"],
+      "font-src": ["'self'", "fonts.gstatic.com"],
+      "frame-src": ["'self'", "js.stripe.com", "hooks.stripe.com"]
+    },
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginEmbedderPolicy: false,
   crossOriginOpenerPolicy: false
 }));
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/locales', express.static(path.join(__dirname, 'locales')));
 
 // Routes — each person registers their own route file here
 app.use('/api/auth', require('./routes/auth'));
@@ -26,6 +38,7 @@ app.use('/api/courts', require('./routes/courts'));     // Person 2
 app.use('/api/bookings', require('./routes/bookings')); // Person 3
 app.use('/api/waitlist', require('./routes/waitlist')); // Person 4
 app.use('/api/reviews', require('./routes/reviews'));   // Person 5
+app.use('/api/payments', require('./routes/payments')); // Stripe payments & saved cards
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -40,3 +53,4 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 module.exports = app;
+

@@ -11,7 +11,7 @@ class Booking {
             const conflict = await client.query(
                 `SELECT id FROM bookings
          WHERE court_id = $1
-           AND booking_status = 'CONFIRMED'
+           AND (booking_status = 'CONFIRMED' OR booking_status = 'PENDING')
            AND start_time < $3
            AND end_time > $2
          FOR UPDATE`,
@@ -24,9 +24,9 @@ class Booking {
             }
 
             const result = await client.query(
-                `INSERT INTO bookings (user_id, court_id, start_time, end_time, total_amount, payment_method)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-                [user_id, court_id, start_time, end_time, total_amount, payment_method]
+                `INSERT INTO bookings (user_id, court_id, start_time, end_time, total_amount, payment_method, transaction_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+                [user_id, court_id, start_time, end_time, total_amount, payment_method, null]
             );
 
             await client.query('COMMIT');
@@ -40,10 +40,12 @@ class Booking {
     }
 
     // Cancel booking (only if play time hasn't started)
+    // Now allowing 'PENDING' status (e.g., bank transfer pending confirmation)
     static async cancel(bookingId, userId) {
         const result = await pool.query(
             `UPDATE bookings SET booking_status = 'CANCELLED'
-       WHERE id = $1 AND user_id = $2 AND start_time > NOW() AND booking_status = 'CONFIRMED'
+       WHERE id = $1 AND user_id = $2 AND start_time > NOW() 
+         AND (booking_status = 'CONFIRMED' OR booking_status = 'PENDING')
        RETURNING *`,
             [bookingId, userId]
         );
@@ -67,11 +69,30 @@ class Booking {
     static async checkAvailability(courtId, startTime, endTime) {
         const result = await pool.query(
             `SELECT id FROM bookings
-       WHERE court_id = $1 AND booking_status = 'CONFIRMED'
+       WHERE court_id = $1 AND (booking_status = 'CONFIRMED' OR booking_status = 'PENDING')
          AND start_time < $3 AND end_time > $2`,
             [courtId, startTime, endTime]
         );
         return result.rows.length === 0; // true = available
+    }
+    // Update transaction ID
+    static async updateTransactionId(bookingId, transactionId) {
+        const result = await pool.query(
+            `UPDATE bookings SET transaction_id = $1 WHERE id = $2 RETURNING *`,
+            [transactionId, bookingId]
+        );
+        return result.rows[0];
+    }
+
+    // Find bookings by court and date
+    static async findByCourtAndDate(courtId, date) {
+        const result = await pool.query(
+            `SELECT start_time FROM bookings 
+             WHERE court_id = $1 AND (booking_status = 'CONFIRMED' OR booking_status = 'PENDING')
+             AND date_trunc('day', start_time) = $2::date`,
+            [courtId, date]
+        );
+        return result.rows.map(r => r.start_time);
     }
 }
 

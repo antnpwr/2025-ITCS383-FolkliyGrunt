@@ -24,8 +24,8 @@ const reviewController = {
 
   getByCourtId: async (req, res) => {
     try {
-      const reviews = await Review.findByCourtId(req.params.courtId);
-      res.json(reviews);
+      const data = await Review.findByCourtId(req.params.courtId);
+      res.json(data);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

@@ -1,16 +1,23 @@
 const { supabase, supabaseAdmin } = require('../config/supabase');
-const pool = require('../config/db');
 const Profile = require('../models/Profile');
 
 exports.register = async (req, res) => {
-  const { email, password, full_name, address } = req.body;
+  const { email, password, full_name, address, role } = req.body;
+  const userRole = role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER';
 
   try {
-    // 1. Create user in Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    // 1. Create user in Supabase Auth (using Admin Auth to bypass rate limits)
+    let authData, authError;
+
+    // Use admin client to skip email confirmation and rate limits for quick testing
+    const result = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
+      email_confirm: true 
     });
+    
+    authData = result.data;
+    authError = result.error;
 
     if (authError) {
       return res.status(400).json({ error: authError.message });
@@ -19,14 +26,15 @@ exports.register = async (req, res) => {
     const { user } = authData;
 
     if (!user) {
-         return res.status(400).json({ error: 'User creation failed. Check if email confirmation is required by Supabase.' });
+         return res.status(400).json({ error: 'User creation failed.' });
     }
 
     // 2. Create user profile in our database
     const rows = await Profile.create({
         auth_id: user.id,
         full_name,
-        address
+        address,
+        role: userRole
     });
 
     res.status(201).json({
@@ -108,5 +116,15 @@ exports.disableUser = async (req, res) => {
   } catch(error) {
       console.error('Disable user error', error);
       res.status(500).json({ error: 'Internal server error disabling user' });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await Profile.findAll();
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({ error: 'Internal server error fetching users' });
   }
 };

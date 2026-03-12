@@ -1,14 +1,15 @@
 const Booking = require('../models/Booking');
 const EquipmentRental = require('../models/EquipmentRental');
-
-// IMPORTANT: Import services from Person 4 when they are ready
 const paymentService = require('../services/paymentService');
 const notificationService = require('../services/notificationService');
 
 const bookingController = {
     create: async (req, res) => {
         try {
-            const { court_id, start_time, duration_hours, equipment, payment_method } = req.body;
+            const {
+                court_id, start_time, duration_hours, equipment,
+                payment_method, transfer_reference
+            } = req.body;
             const user_id = req.user.id;
 
             // Calculate end time
@@ -19,12 +20,12 @@ const bookingController = {
             const Court = require('../models/Court');
             const court = await Court.findById(court_id);
             if (!court) throw new Error('Court not found');
-            const courtPrice = parseFloat(court.price_per_hour);
+            const courtPrice = Number.parseFloat(court.price_per_hour);
 
             let total_amount = courtPrice * duration_hours;
 
             // Equipment fixed prices
-            const EQUIPMENT_PRICES = { RACKET: 50, SHUTTLECOCK: 20 };
+            const EQUIPMENT_PRICES = { RACKET: 50, SHUTTLECOCK: 20, BALL: 30, BAG: 20 };
             
             if (equipment && equipment.length > 0) {
                for (const item of equipment) {
@@ -44,8 +45,40 @@ const bookingController = {
                 await EquipmentRental.addToBooking(booking.id, equipment);
             }
 
-            // Process payment via Person 4's payment service
-            await paymentService.processPayment({ booking_id: booking.id, amount: total_amount, method: payment_method });
+            // ─── Payment Processing ───
+            if (payment_method === 'CREDIT_CARD') {
+                // Get or create customer for Stripe
+                const customer_id = await paymentService.getOrCreateCustomer(
+                    req.user.id,
+                    req.user.email
+                );
+
+                const origin = req.headers.origin || 'http://localhost:8080';
+                const session = await paymentService.createCheckoutSession({
+                    customerId: customer_id,
+                    amount: total_amount,
+                    booking_id: booking.id,
+                    court_name: court.name,
+                    success_url: `${origin}/pages/my-bookings.html?payment=success`,
+                    cancel_url: `${origin}/pages/my-bookings.html?payment=cancelled`
+                });
+
+                await Booking.updateTransactionId(booking.id, session.id);
+                
+                // Return URL so frontend can redirect
+                return res.status(201).json({ checkout_url: session.url });
+            }
+
+            // For PROMPTPAY and BANK_TRANSFER, process simulated payment
+            const paymentResult = await paymentService.processPayment({ 
+                booking_id: booking.id, 
+                amount: total_amount, 
+                method: payment_method,
+                transfer_reference
+            });
+
+            // Update booking with transaction ID
+            await Booking.updateTransactionId(booking.id, paymentResult.transaction_id);
 
             // Send booking confirmation notification
             const startTimeFormatted = new Date(booking.start_time).toLocaleString();
@@ -58,16 +91,18 @@ const bookingController = {
                 <h2>Booking Confirmed!</h2>
                 <p>Your reservation for <strong>${court.name}</strong> is confirmed.</p>
                 <p><strong>Time:</strong> ${startTimeFormatted} - ${endTimeFormatted}</p>
-                <p><strong>Total Amount:</strong> $${total_amount.toFixed(2)}</p>
+                <p><strong>Total Amount:</strong> ฿${total_amount.toFixed(2)}</p>
+                <p><strong>Transaction ID:</strong> ${paymentResult.transaction_id}</p>
                 <p>Thank you for choosing Pro Badminton!</p>
                 `
             );
 
-            res.status(201).json(booking);
+            res.status(201).json({ ...booking, transaction_id: paymentResult.transaction_id });
         } catch (error) {
             if (error.message === 'Time slot is already booked') {
                 return res.status(409).json({ error: error.message });
             }
+            console.error('[BOOKING] Create error:', error.message);
             res.status(500).json({ error: error.message });
         }
     },
@@ -79,10 +114,12 @@ const bookingController = {
                 return res.status(400).json({ error: 'Cannot cancel - booking not found or play time already started' });
             }
 
-            // Process refund via Person 4's payment service
-            await paymentService.processRefund(booking.id);
+            // Process refund via payment service
+            if (booking.transaction_id) {
+                await paymentService.processRefund(booking.transaction_id);
+            }
 
-            // Check waitlist and notify via Person 4's notification service
+            // Check waitlist and notify
             await notificationService.notifyWaitlist(booking.court_id, booking.start_time, booking.end_time);
 
             res.json({ message: 'Booking cancelled, refund processed', booking });
@@ -108,6 +145,24 @@ const bookingController = {
             res.status(500).json({ error: error.message });
         }
     },
+
+    rentEquipment: async (req, res) => {
+        try {
+            const bookingId = req.params.id;
+            const items = req.body;
+
+            if (!Array.isArray(items) || items.length === 0) {
+                 return res.status(400).json({ error: 'Missing or invalid rental data. Expecting an array of items.' });
+            }
+
+            const data = await EquipmentRental.addToBooking(bookingId, items);
+                
+            res.status(201).json({ message: 'Equipment rented successfully', equipment: data });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to rent equipment.' });
+        }
+    }
 };
 
 module.exports = bookingController;

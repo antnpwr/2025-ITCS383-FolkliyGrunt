@@ -83,4 +83,23 @@ describe('Waitlist Model', () => {
     expect(result).toHaveLength(1);
     expect(result[0].status).toBe('EXPIRED');
   });
+
+  test('remove() deletes a waitlist entry if user owns it', async () => {
+    const mockEntry = { id: 'w1', user_id: 'u1' };
+    pool.query.mockResolvedValue({ rows: [mockEntry] });
+
+    const result = await Waitlist.remove('w1', 'u1');
+    expect(pool.query).toHaveBeenCalledWith(
+      expect.stringContaining('DELETE FROM waitlist'),
+      ['w1', 'u1']
+    );
+    expect(result).toEqual(mockEntry);
+  });
+
+  test('remove() returns undefined if entry not found or not owned', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+
+    const result = await Waitlist.remove('nonexistent', 'u1');
+    expect(result).toBeUndefined();
+  });
 });

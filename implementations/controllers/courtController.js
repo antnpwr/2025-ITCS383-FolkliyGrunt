@@ -14,7 +14,8 @@ const courtController = {
       } else if (maxPrice) {
         courts = await Court.searchByPrice(parseFloat(maxPrice));
       } else {
-        courts = await Court.findAll();
+        // No filters — return all courts (admin needs to see all statuses)
+        courts = await Court.findAllIncludingInactive();
       }
 
       res.json(courts);
@@ -49,7 +50,7 @@ const courtController = {
   // POST /api/courts  (Admin only)
   create: async (req, res) => {
     try {
-      const { name, address, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time } = req.body;
+      const { name, address, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time, image_url } = req.body;
 
       let finalLat = location_lat;
       let finalLng = location_lng;
@@ -78,7 +79,8 @@ const courtController = {
         price_per_hour,
         allowed_shoes,
         opening_time,
-        closing_time
+        closing_time,
+        image_url: image_url || null
       });
 
       res.status(201).json({ message: 'Court created successfully', court });
@@ -90,7 +92,7 @@ const courtController = {
   // PUT /api/courts/:id  (Admin only)
   update: async (req, res) => {
     try {
-      const { name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time } = req.body;
+      const { name, location_lat, location_lng, price_per_hour, allowed_shoes, opening_time, closing_time, image_url } = req.body;
 
       const court = await Court.update(req.params.id, {
         name,
@@ -99,7 +101,8 @@ const courtController = {
         price_per_hour,
         allowed_shoes,
         opening_time,
-        closing_time
+        closing_time,
+        image_url
       });
 
       if (!court) {
@@ -129,6 +132,19 @@ const courtController = {
       }
 
       res.json({ message: 'Court status updated successfully', court });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  
+  // GET /api/courts/:id/availability?date=YYYY-MM-DD
+  getAvailability: async (req, res) => {
+    try {
+      const { date } = req.query;
+      if (!date) return res.status(400).json({ error: 'Date is required' });
+      
+      const bookedSlots = await require('../models/Booking').findByCourtAndDate(req.params.id, date);
+      res.json(bookedSlots);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

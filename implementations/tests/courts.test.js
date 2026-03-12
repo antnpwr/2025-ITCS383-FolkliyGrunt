@@ -75,6 +75,20 @@ describe('Court Model', () => {
     expect(result).toHaveLength(2);
   });
 
+  test('findAllIncludingInactive should return all courts', async () => {
+    pool.query.mockResolvedValue({
+      rows: [
+        { id: '1', name: 'Court A', current_status: 'AVAILABLE' },
+        { id: '2', name: 'Court B', current_status: 'RENOVATE' }
+      ]
+    });
+    const result = await Court.findAllIncludingInactive();
+    expect(pool.query).toHaveBeenCalledWith(
+      expect.stringContaining("SELECT") // Just an unrestricted select
+    );
+    expect(result).toHaveLength(2);
+  });
+
   test('create should insert a new court and return it', async () => {
     const newCourt = {
       id: 'new-uuid',
