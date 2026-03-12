@@ -99,11 +99,12 @@ C4Component
         Component(router, "Express Router", "Middleware", "Routes incoming HTTP requests to the appropriate controller based on URL path.")
         Component(auth_controller, "Auth Controller", "Controller", "Handles user registration and login via Supabase Auth SDK. Manages admin user blocking/disabling.")
         Component(court_controller, "Court & Search Controller", "Controller", "Manages court CRUD for admins. Handles search by name, distance, and price for customers.")
-        Component(booking_controller, "Booking Controller", "Controller", "Manages reservations, cancellations, equipment rentals, and waitlist logic.")
+        Component(booking_controller, "Booking Controller", "Controller", "Manages reservations, cancellations, and equipment rentals.")
+        Component(waitlist_controller, "Waitlist Controller", "Controller", "Manages waitlist entries, notifications, and confirming waitlist bookings with payment.")
         Component(review_controller, "Review Controller", "Controller", "Handles star ratings (1-5) and comment submissions. Computes average ratings.")
-        Component(payment_service, "Payment Service", "Stripe SDK", "Processes credit card/bank payments via Stripe Charges API and handles full refund requests via Stripe Refunds API.")
+        Component(payment_service, "Payment Service", "Stripe SDK", "Processes credit card Checkout Sessions, Intents, and refunds. Simulates bank transfers.")
         Component(notification_service, "Notification Service", "Nodemailer", "Triggers email alerts via SMTP when a waitlisted court becomes available.")
-        Component(data_access, "Data Access Layer", "Prisma / pg", "Centralized database interaction. Enforces encryption for sensitive fields (passwords, credit card tokens).")
+        Component(data_access, "Data Access Layer", "pg", "Centralized database interaction using the pg package.")
     }
 
     ContainerDb(db, "PostgreSQL Database", "Persistent storage for all entities")
@@ -115,6 +116,7 @@ C4Component
     Rel(router, auth_controller, "/api/auth/*")
     Rel(router, court_controller, "/api/courts/*")
     Rel(router, booking_controller, "/api/bookings/*")
+    Rel(router, waitlist_controller, "/api/waitlist/*")
     Rel(router, review_controller, "/api/reviews/*")
 
     Rel(auth_controller, auth_ext, "supabase.auth.signUp() / signInWithPassword()")
@@ -265,16 +267,17 @@ sequenceDiagram
     API-->>UI: JSON response (court list + ratings)
     UI-->>User: Displays courts with ratings and distances (< 2s)
 
-    User->>UI: Selects court, picks 2h slot, adds shuttlecocks → Clicks "Book & Pay"
-    UI->>API: POST /api/bookings {court_id, start, duration: 2h, equipment: ["shuttlecock"]}
-    API->>DB: Check slot availability (SELECT FOR UPDATE — prevents double booking)
-    DB-->>API: Slot is available
-    API->>Pay: stripe.charges.create({ amount, currency: 'thb', source: token })
-    Pay-->>API: Charge succeeded (ch_xxx)
-    API->>DB: INSERT booking + equipment rental (atomic transaction)
-    DB-->>API: Saved
-    API-->>UI: 201 Created — Booking confirmed
-    UI-->>User: Shows confirmation with booking details
+    User->>UI: Selects court, picks 2h slot, adds equipment → Clicks "Book & Pay"
+    UI->>API: POST /api/bookings {court_id, start, duration: 2h, payment_method: "CREDIT_CARD"}
+    API->>DB: Check slot availability and create booking
+    DB-->>API: Booking created
+    API->>Pay: stripe.checkout.sessions.create({ amount, customerId, success_url })
+    Pay-->>API: Checkout Session URL
+    API->>DB: UPDATE bookings SET transaction_id = session.id
+    API-->>UI: 201 Created — checkout_url
+    UI-->>User: Redirects user to Stripe Checkout Page
+    User->>Pay: Completes payment securely on Stripe
+    Pay-->>User: Redirects to my-bookings.html?payment=success
 ```
 
 ### 2.2 Cancellation and Waitlist Notification Flow
@@ -329,17 +332,22 @@ The database schema design for the Badminton Court Management System using a Rel
 
 ```mermaid
 erDiagram
-    USERS {
+    PROFILES {
         UUID id PK
+        UUID auth_id FK
         string full_name
-        string email "Unique login identifier"
         string address
-        string encrypted_password "Security: bcrypt hash"
         string role "CUSTOMER / ADMIN"
         boolean is_disabled "Admin can block accounts"
-        string credit_card_token "Tokenized by Payment Gateway"
+        string stripe_customer_id "Stripe Customer ID"
         string language_preference "TH / EN / ZH"
         datetime created_at
+    }
+
+    AUTH_USERS {
+        UUID id PK
+        string email "Unique login identifier"
+        string encrypted_password "Security: bcrypt hash via Supabase"
     }
 
     COURTS {
@@ -364,6 +372,7 @@ erDiagram
         decimal total_amount "Court + equipment total"
         string booking_status "CONFIRMED / CANCELLED / WAITLIST"
         string payment_method "CREDIT_CARD / BANK_TRANSFER"
+        string transaction_id "Stripe Session/Intent ID or Bank Ref"
         datetime created_at
     }
 
@@ -390,13 +399,14 @@ erDiagram
         UUID court_id FK
         datetime requested_date "Desired play date"
         string preferred_time_slot "e.g. 18:00-20:00"
-        string status "PENDING / NOTIFIED / EXPIRED"
+        string status "PENDING / NOTIFIED / EXPIRED / CONFIRMED"
         datetime created_at
     }
 
-    USERS ||--o{ BOOKINGS : "makes"
-    USERS ||--o{ REVIEWS : "writes"
-    USERS ||--o{ WAITLIST : "joins"
+    AUTH_USERS ||--o| PROFILES : "has"
+    AUTH_USERS ||--o{ BOOKINGS : "makes"
+    AUTH_USERS ||--o{ REVIEWS : "writes"
+    AUTH_USERS ||--o{ WAITLIST : "joins"
     COURTS ||--o{ BOOKINGS : "is booked for"
     COURTS ||--o{ REVIEWS : "receives"
     COURTS ||--o{ WAITLIST : "is waited for"
@@ -404,12 +414,13 @@ erDiagram
 ```
 
 **Design Rationale:**
-*   **`is_disabled` in USERS:** Fulfills the requirement giving Administrators the authority to block inappropriate customers from logging into the platform.
+*   **Split Auth and Profiles:** The `AUTH_USERS` table represents the Supabase managed identity, while `PROFILES` holds the application-specific data. This separates concerns and ensures secure identity management.
+*   **`is_disabled` in PROFILES:** Fulfills the requirement giving Administrators the authority to block inappropriate customers from logging into the platform (handled in middleware).
 *   **`current_status` in COURTS:** Meets the requirement for real-time status updates (e.g., renovations or equipment damage) by admins. This status is actively read by the search service to prevent users from booking unavailable courts.
 *   **`opening_time` / `closing_time` in COURTS:** Required by the admin court registration feature to specify operating hours.
-*   **`language_preference` in USERS:** Persists the user's chosen language (TH/EN/ZH) for the localization requirement.
+*   **`language_preference` in PROFILES:** Persists the user's chosen language (TH/EN/ZH) for the localization requirement.
 *   **`payment_method` in BOOKINGS:** Tracks whether payment was via credit card or bank transfer, as both methods are required.
-*   **Dedicated WAITLIST table:** Separated from BOOKINGS to allow independent lifecycle management (PENDING → NOTIFIED → EXPIRED), enabling the notification system to efficiently query and alert waitlisted users.
-*   **Normalized EQUIPMENT_RENTAL & REVIEWS tables:** Decoupling optional information keeps the core `BOOKINGS` table as small and performant as possible, benefiting read queries under 1,000 concurrent users.
+*   **`transaction_id` in BOOKINGS:** Maps local booking records securely to Stripe Sessions/Payment Intents for reliable refund processing and payment confirmation webhooks.
+*   **Dedicated WAITLIST table:** Separated from BOOKINGS to allow independent lifecycle management (PENDING → NOTIFIED → EXPIRED → CONFIRMED), enabling the notification system to efficiently query and alert waitlisted users.
 *   **Database Indexes:** Fields marked "indexed" (court name, coordinates, price) are optimized for the < 2s search performance requirement.
 

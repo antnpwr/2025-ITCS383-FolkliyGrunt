@@ -156,6 +156,18 @@ const setAuthStateUI = (isAuthenticated, profile = null) => {
     if (isAuthenticated && profile) {
         if (nameEl) nameEl.textContent = profile.full_name;
         if (emailEl) emailEl.textContent = profile.email;
+        
+        if (profile.role === 'ADMIN') {
+            const userChip = nameEl ? nameEl.closest('.user-chip') : null;
+            if (userChip && !document.getElementById('nav-admin-link')) {
+                const adminLink = document.createElement('a');
+                adminLink.id = 'nav-admin-link';
+                adminLink.href = '/pages/admin.html';
+                adminLink.textContent = 'Admin Dash';
+                adminLink.style.cssText = 'color:var(--pb-primary);font-size:0.75rem;font-weight:700;text-decoration:none;margin-right:0.5rem;padding:0.2rem 0.5rem;background:#dbeafe;border-radius:999px;';
+                userChip.insertBefore(adminLink, nameEl);
+            }
+        }
     }
 };
 

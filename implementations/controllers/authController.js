@@ -1,5 +1,4 @@
 const { supabase, supabaseAdmin } = require('../config/supabase');
-const pool = require('../config/db');
 const Profile = require('../models/Profile');
 
 exports.register = async (req, res) => {

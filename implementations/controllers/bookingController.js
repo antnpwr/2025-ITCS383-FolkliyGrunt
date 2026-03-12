@@ -8,8 +8,7 @@ const bookingController = {
         try {
             const {
                 court_id, start_time, duration_hours, equipment,
-                payment_method, credit_card_token, transfer_reference,
-                payment_method_id, save_card
+                payment_method, transfer_reference
             } = req.body;
             const user_id = req.user.id;
 

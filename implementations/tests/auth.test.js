@@ -288,5 +288,64 @@ describe('Auth API Endpoints', () => {
         expect(response.status).toBe(404);
         expect(response.body.error).toBe('User not found');
     });
+
+    it('should return 500 on unexpected disable user error', async () => {
+        // Mock middleware auth
+        supabase.auth.getUser.mockResolvedValue({
+            data: { user: { id: 'admin-uuid', email: 'admin@test.com' } },
+            error: null
+        });
+        Profile.findByAuthId.mockResolvedValue({ role: 'ADMIN' });
+        
+        Profile.updateDisabledStatus.mockRejectedValue(new Error('DB failure'));
+
+        const response = await request(app)
+            .put('/api/auth/users/user-id/disable')
+            .set('Authorization', 'Bearer admin-token');
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe('Internal server error disabling user');
+    });
+  });
+
+  // ── Get All Users (Admin Only) ────────────────────────
+  describe('GET /api/auth/users (Admin Only)', () => {
+    it('should get all users if requester is admin', async () => {
+        supabase.auth.getUser.mockResolvedValue({
+            data: { user: { id: 'admin-uuid', email: 'admin@test.com' } },
+            error: null
+        });
+        Profile.findByAuthId.mockResolvedValue({ role: 'ADMIN' });
+
+        Profile.findAll.mockResolvedValue([
+            { id: 1, full_name: 'Alice' },
+            { id: 2, full_name: 'Bob' }
+        ]);
+
+        const response = await request(app)
+            .get('/api/auth/users')
+            .set('Authorization', 'Bearer admin-token');
+
+        expect(response.status).toBe(200);
+        expect(response.body.users).toHaveLength(2);
+        expect(response.body.users[0].full_name).toBe('Alice');
+    });
+
+    it('should return 500 on unexpected Get All Users error', async () => {
+        supabase.auth.getUser.mockResolvedValue({
+            data: { user: { id: 'admin-uuid', email: 'admin@test.com' } },
+            error: null
+        });
+        Profile.findByAuthId.mockResolvedValue({ role: 'ADMIN' });
+
+        Profile.findAll.mockRejectedValue(new Error('DB connection failed'));
+
+        const response = await request(app)
+            .get('/api/auth/users')
+            .set('Authorization', 'Bearer admin-token');
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe('Internal server error fetching users');
+    });
   });
 });

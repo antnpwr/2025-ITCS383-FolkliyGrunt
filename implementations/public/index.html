@@ -181,6 +181,18 @@
           document.getElementById('user-section').style.display = 'block';
           document.getElementById('hp-name').textContent = data.profile.full_name;
           document.getElementById('hp-avatar').textContent = data.profile.full_name?.charAt(0)?.toUpperCase() || '?';
+          
+          if (data.profile.role === 'ADMIN') {
+              if (!document.getElementById('hp-admin-link')) {
+                  const adminLink = document.createElement('a');
+                  adminLink.id = 'hp-admin-link';
+                  adminLink.href = '/pages/admin.html';
+                  adminLink.textContent = 'Admin Dash';
+                  adminLink.style.cssText = 'color:var(--pb-primary);font-size:0.75rem;font-weight:700;text-decoration:none;margin-right:0.5rem;padding:0.2rem 0.5rem;background:#dbeafe;border-radius:999px;';
+                  const nameEl = document.getElementById('hp-name');
+                  nameEl.parentNode.insertBefore(adminLink, nameEl);
+              }
+          }
         }
       } catch(e) { /* not logged in */ }
     }
