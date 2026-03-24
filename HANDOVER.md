@@ -84,11 +84,14 @@ classDiagram
         +String credit_card_token
         +String language_preference
         +DateTime created_at
+
         +register(data) User
         +login(email, password) Token
         +getProfile(authId) User
         +updateDisabledStatus(authId, isDisabled) User
         +findAll() User[]
+
+        -validateUserData(data)
     }
 
     class CourtModel {
@@ -104,6 +107,7 @@ classDiagram
         +Decimal average_rating
         +Int total_reviews
         +DateTime created_at
+
         +create(data) Court
         +findAll() Court[]
         +findAllIncludingInactive() Court[]
@@ -113,6 +117,9 @@ classDiagram
         +searchByPrice(maxPrice) Court[]
         +update(courtId, data) Court
         +updateStatus(courtId, status) Court
+
+        -validateCourtData(data)
+        -calculateDistance(lat, lng)
     }
 
     class BookingModel {
@@ -126,12 +133,16 @@ classDiagram
         +String payment_method
         +String transaction_id
         +DateTime created_at
+
         +create(data) Booking
         +cancel(bookingId, userId) Booking
         +findByUser(userId) Booking[]
         +checkAvailability(courtId, startTime, endTime) Boolean
         +updateTransactionId(bookingId, transactionId) Booking
         +findByCourtAndDate(courtId, date) DateTime[]
+
+        -lockTimeslot()
+        -validateTimeRange(start_time, end_time)
     }
 
     class EquipmentRentalModel {
@@ -140,8 +151,12 @@ classDiagram
         +String equipment_type
         +Int quantity
         +Decimal unit_price
+
         +addToBooking(bookingId, items) EquipmentRental[]
         +findByBooking(bookingId) EquipmentRental[]
+
+        -validateItems(items)
+        -calculateTotal(items)
     }
 
     class ReviewModel {
@@ -151,10 +166,15 @@ classDiagram
         +Int rating
         +String comment_text
         +DateTime created_at
+
         +create(data) Review
         +findByCourtId(courtId) Review[]
         +getAverageRating(courtId) Object
         +findByUser(userId) Review[]
+
+        -validateRating(rating)
+        -checkDuplicateReview(user_id, court_id)
+        -checkUserEligibility(user_id, court_id)
     }
 
     class WaitlistModel {
@@ -165,6 +185,7 @@ classDiagram
         +String preferred_time_slot
         +String status
         +DateTime created_at
+
         +add(data) Waitlist
         +getNextInQueue(courtId) Waitlist
         +updateStatus(id, status) Waitlist
@@ -172,6 +193,9 @@ classDiagram
         +findByUser(userId) Waitlist[]
         +expireOldEntries() Waitlist[]
         +remove(id, userId) Waitlist
+
+        -validateWaitlistData(data)
+        -parseTimeSlot(slot)
     }
 
     UserModel "1" --> "*" BookingModel : places
