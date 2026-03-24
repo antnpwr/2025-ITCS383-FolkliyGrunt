@@ -49,7 +49,7 @@ jobs:
           projectBaseDir: implementations
           args: >
             -Dsonar.projectKey=FolkliyGrunt2
-            -Dsonar.organization=FolkliyGrunt2
+            -Dsonar.organization=antnpwr
         env:
           SONAR_TOKEN: sqp_bed6c6505ba8422e8df15742012e00d4ed25e2eb
 
