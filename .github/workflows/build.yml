@@ -44,7 +44,7 @@ jobs:
           fetch-depth: 0
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
+        uses: SonarSource/sonarqube-quality-gate-action@master
         with:
           projectBaseDir: implementations
           args: >
