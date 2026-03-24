@@ -67,7 +67,121 @@
 
 
 # Design Verification Results  
-*(To be completed)*  
+### Level 4: Code Diagram (Data Access Layer)
+The code-level view zooms into the **Data Access Layer** component from Level 3, showing the class structure and relationships between data models that map directly to the database tables.
+
+```mermaid
+classDiagram
+    direction LR
+
+    class UserModel {
+        +UUID id
+        +UUID auth_id
+        +String full_name
+        +String address
+        +String role
+        +Boolean is_disabled
+        +String credit_card_token
+        +String language_preference
+        +DateTime created_at
+        +register(data) User
+        +login(email, password) Token
+        +getProfile(authId) User
+        +updateDisabledStatus(authId, isDisabled) User
+        +findAll() User[]
+    }
+
+    class CourtModel {
+        +UUID id
+        +String name
+        +Decimal location_lat
+        +Decimal location_lng
+        +Decimal price_per_hour
+        +String allowed_shoes
+        +String current_status
+        +Time opening_time
+        +Time closing_time
+        +Decimal average_rating
+        +Int total_reviews
+        +DateTime created_at
+        +create(data) Court
+        +findAll() Court[]
+        +findAllIncludingInactive() Court[]
+        +findById(courtId) Court
+        +searchByName(name) Court[]
+        +searchByDistance(lat, lng, radiusKm) Court[]
+        +searchByPrice(maxPrice) Court[]
+        +update(courtId, data) Court
+        +updateStatus(courtId, status) Court
+    }
+
+    class BookingModel {
+        +UUID id
+        +UUID user_id
+        +UUID court_id
+        +DateTime start_time
+        +DateTime end_time
+        +Decimal total_amount
+        +String booking_status
+        +String payment_method
+        +String transaction_id
+        +DateTime created_at
+        +create(data) Booking
+        +cancel(bookingId, userId) Booking
+        +findByUser(userId) Booking[]
+        +checkAvailability(courtId, startTime, endTime) Boolean
+        +updateTransactionId(bookingId, transactionId) Booking
+        +findByCourtAndDate(courtId, date) DateTime[]
+    }
+
+    class EquipmentRentalModel {
+        +UUID id
+        +UUID booking_id
+        +String equipment_type
+        +Int quantity
+        +Decimal unit_price
+        +addToBooking(bookingId, items) EquipmentRental[]
+        +findByBooking(bookingId) EquipmentRental[]
+    }
+
+    class ReviewModel {
+        +UUID id
+        +UUID user_id
+        +UUID court_id
+        +Int rating
+        +String comment_text
+        +DateTime created_at
+        +create(data) Review
+        +findByCourtId(courtId) Review[]
+        +getAverageRating(courtId) Object
+        +findByUser(userId) Review[]
+    }
+
+    class WaitlistModel {
+        +UUID id
+        +UUID user_id
+        +UUID court_id
+        +Date requested_date
+        +String preferred_time_slot
+        +String status
+        +DateTime created_at
+        +add(data) Waitlist
+        +getNextInQueue(courtId) Waitlist
+        +updateStatus(id, status) Waitlist
+        +markNotified(waitlistId) Waitlist
+        +findByUser(userId) Waitlist[]
+        +expireOldEntries() Waitlist[]
+        +remove(id, userId) Waitlist
+    }
+
+    UserModel "1" --> "*" BookingModel : places
+    UserModel "1" --> "*" ReviewModel : writes
+    UserModel "1" --> "*" WaitlistModel : joins
+    CourtModel "1" --> "*" BookingModel : booked_for
+    CourtModel "1" --> "*" ReviewModel : receives
+    CourtModel "1" --> "*" WaitlistModel : waited_for
+    BookingModel "1" --> "*" EquipmentRentalModel : includes
+```
 
 ---
 
