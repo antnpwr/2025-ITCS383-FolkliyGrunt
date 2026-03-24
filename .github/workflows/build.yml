@@ -44,7 +44,7 @@ jobs:
           fetch-depth: 0
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-quality-gate-action@master
+        uses: SonarSource/sonarcloud-github-action@v2
         with:
           projectBaseDir: implementations
           args: >
@@ -54,7 +54,7 @@ jobs:
           SONAR_TOKEN: sqp_bed6c6505ba8422e8df15742012e00d4ed25e2eb
 
       - name: SonarCloud Quality Gate
-        uses: SonarSource/sonarcloud-quality-gate-action@v1
+        uses: SonarSource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
         env:
           SONAR_TOKEN: sqp_bed6c6505ba8422e8df15742012e00d4ed25e2eb
