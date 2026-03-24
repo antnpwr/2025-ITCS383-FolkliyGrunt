@@ -7,7 +7,8 @@
 - After completing the required fields, users can choose their account type (customer or staff).  
 - For login, users must enter a valid email and password.  
 
-## Search 
+
+## Search  
 - Dynamic search functionality based on **court name**, **distance** (using Haversine formula and OpenStreetMap Geocoding), and **maximum price**.  
 - It provide a **Explore on Map** that allow users to find courts near their location.
 - Search results display a list of available badminton courts, along with a **“Show All”** option.  
@@ -22,7 +23,8 @@
   - User reviews  
   - A **“Book This Court”** button  
 
-## Court Booking   
+
+## Court Booking  
 - Supports secure and concurrent time-slot reservations with optional equipment rentals (rackets, shuttlecocks, shoes).  
 - Users can:
   - Select a court  
@@ -41,18 +43,22 @@
 - Users can proceed with **“Pay Now”** to confirm the booking.  
 - Users can access their reservations via the **“My Bookings”** page.  
 
+
 ## Equipment Rentals
 - User can rent for badminton equipments such as racket (฿50), shuttlecock pack (฿30), and shoes (฿40) in advanced.
 - User can aslo put in the amount for each equipment.
 - There is a "Add Equipment" button to add more than one equipment rental.
 
+
 ## Waitlists  
 - Automated FIFO (First-In, First-Out) waitlist system.  
 - Email notifications (via Nodemailer) are sent when a slot becomes available due to cancellations.  
 
+
 ## Reviews  
 - Verified review system to ensure authenticity.  
 - Court ratings are dynamically recalculated upon new review submissions.  
+
 
 ## Language Support
 - The system support multiple langauges, inlcuding Thai, English, and Chinese language.
@@ -60,6 +66,8 @@
 ---  
 
 # Design Verification Results  
+
+## Updated C4 Diagram  
 
 ### Level 4: Code Diagram (Data Access Layer)
 The code-level view zooms into the **Data Access Layer** component from Level 3, showing the class structure and relationships between data models that map directly to the database tables.
@@ -78,11 +86,14 @@ classDiagram
         +String credit_card_token
         +String language_preference
         +DateTime created_at
+
         +register(data) User
         +login(email, password) Token
         +getProfile(authId) User
         +updateDisabledStatus(authId, isDisabled) User
         +findAll() User[]
+
+        -validateUserData(data)
     }
 
     class CourtModel {
@@ -98,6 +109,7 @@ classDiagram
         +Decimal average_rating
         +Int total_reviews
         +DateTime created_at
+
         +create(data) Court
         +findAll() Court[]
         +findAllIncludingInactive() Court[]
@@ -107,6 +119,9 @@ classDiagram
         +searchByPrice(maxPrice) Court[]
         +update(courtId, data) Court
         +updateStatus(courtId, status) Court
+
+        -validateCourtData(data)
+        -calculateDistance(lat, lng)
     }
 
     class BookingModel {
@@ -120,12 +135,16 @@ classDiagram
         +String payment_method
         +String transaction_id
         +DateTime created_at
+
         +create(data) Booking
         +cancel(bookingId, userId) Booking
         +findByUser(userId) Booking[]
         +checkAvailability(courtId, startTime, endTime) Boolean
         +updateTransactionId(bookingId, transactionId) Booking
         +findByCourtAndDate(courtId, date) DateTime[]
+
+        -lockTimeslot()
+        -validateTimeRange(start_time, end_time)
     }
 
     class EquipmentRentalModel {
@@ -134,8 +153,12 @@ classDiagram
         +String equipment_type
         +Int quantity
         +Decimal unit_price
+
         +addToBooking(bookingId, items) EquipmentRental[]
         +findByBooking(bookingId) EquipmentRental[]
+
+        -validateItems(items)
+        -calculateTotal(items)
     }
 
     class ReviewModel {
@@ -145,10 +168,15 @@ classDiagram
         +Int rating
         +String comment_text
         +DateTime created_at
+
         +create(data) Review
         +findByCourtId(courtId) Review[]
         +getAverageRating(courtId) Object
         +findByUser(userId) Review[]
+
+        -validateRating(rating)
+        -checkDuplicateReview(user_id, court_id)
+        -checkUserEligibility(user_id, court_id)
     }
 
     class WaitlistModel {
@@ -159,6 +187,7 @@ classDiagram
         +String preferred_time_slot
         +String status
         +DateTime created_at
+
         +add(data) Waitlist
         +getNextInQueue(courtId) Waitlist
         +updateStatus(id, status) Waitlist
@@ -166,6 +195,9 @@ classDiagram
         +findByUser(userId) Waitlist[]
         +expireOldEntries() Waitlist[]
         +remove(id, userId) Waitlist
+
+        -validateWaitlistData(data)
+        -parseTimeSlot(slot)
     }
 
     UserModel "1" --> "*" BookingModel : places
@@ -179,7 +211,7 @@ classDiagram
 
 ---
 
-# Reflections  
+# Reflection Report  
 
 ## Technologies Used  
 
