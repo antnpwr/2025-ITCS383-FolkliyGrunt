@@ -1,0 +1,6 @@
+projectKey=FolkliyGrunt
+serverUrl=http://localhost:9000
+serverVersion=26.3.0.120487
+dashboardUrl=http://localhost:9000/dashboard?id=FolkliyGrunt
+ceTaskId=159d0d8d-ca4d-4985-bf23-fcd1789467b3
+ceTaskUrl=http://localhost:9000/api/ce/task?id=159d0d8d-ca4d-4985-bf23-fcd1789467b3

@@ -149,4 +149,6 @@ npm test
 ---
 
 ## Code Quality  
-*(To be completed)*  
+![alt text](picture/image.png)
+
+### code q
