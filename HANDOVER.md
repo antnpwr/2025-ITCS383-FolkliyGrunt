@@ -9,8 +9,9 @@
 
 ---
 
-## Court Discovery  
+## Search  
 - Dynamic search functionality based on **court name**, **distance** (using Haversine formula and OpenStreetMap Geocoding), and **maximum price**.  
+- It provide a **Explore on Map** that allow users to find courts near their location.
 - Search results display a list of available badminton courts, along with a **“Show All”** option.  
 - Each court listing includes:
   - Court name  
@@ -47,18 +48,23 @@
 ---
 
 ## Waitlists  
-*(To be completed)* 
 - Automated FIFO (First-In, First-Out) waitlist system.  
 - Email notifications (via Nodemailer) are sent when a slot becomes available due to cancellations.  
 
 ---
 
 ## Reviews  
-*(To be completed)* 
 - Verified review system to ensure authenticity.  
 - Court ratings are dynamically recalculated upon new review submissions.  
 
 ---
+
+## Language Support
+- The system support Thai, English, and Chinese language.
+
+---  
+
+
 
 # Design Verification Results  
 *(To be completed)*  
@@ -150,5 +156,22 @@ npm test
 
 ## Code Quality  
 ![alt text](picture/image.png)
+![alt text](picture/image2.png)
 
-### code q
+### Code quality analysis 
+The project has no blocker issues, but there are a few high severity issues.  
+The analysis shows the distribution of issues based on severity levels:
+- Blocker: 0
+- High: 14
+- Medium: 61
+- Low: 53
+- Info: 0  
+  
+The overall code have:
+- Security issues: 0
+- Reliability issues: 50
+- Maintainability issues: 81
+- Accepted issues: 0
+- Coverage: 56.6%
+- Duplication: 0.9%
+- Security hotspots: 32
