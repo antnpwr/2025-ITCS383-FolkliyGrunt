@@ -7,9 +7,7 @@
 - After completing the required fields, users can choose their account type (customer or staff).  
 - For login, users must enter a valid email and password.  
 
----
-
-## Search  
+## Search 
 - Dynamic search functionality based on **court name**, **distance** (using Haversine formula and OpenStreetMap Geocoding), and **maximum price**.  
 - It provide a **Explore on Map** that allow users to find courts near their location.
 - Search results display a list of available badminton courts, along with a **“Show All”** option.  
@@ -24,9 +22,7 @@
   - User reviews  
   - A **“Book This Court”** button  
 
----
-
-## Booking & Rentals  
+## Court Booking   
 - Supports secure and concurrent time-slot reservations with optional equipment rentals (rackets, shuttlecocks, shoes).  
 - Users can:
   - Select a court  
@@ -45,28 +41,26 @@
 - Users can proceed with **“Pay Now”** to confirm the booking.  
 - Users can access their reservations via the **“My Bookings”** page.  
 
----
+## Equipment Rentals
+- User can rent for badminton equipments such as racket (฿50), shuttlecock pack (฿30), and shoes (฿40) in advanced.
+- User can aslo put in the amount for each equipment.
+- There is a "Add Equipment" button to add more than one equipment rental.
 
 ## Waitlists  
 - Automated FIFO (First-In, First-Out) waitlist system.  
 - Email notifications (via Nodemailer) are sent when a slot becomes available due to cancellations.  
 
----
-
 ## Reviews  
 - Verified review system to ensure authenticity.  
 - Court ratings are dynamically recalculated upon new review submissions.  
 
----
-
 ## Language Support
-- The system support Thai, English, and Chinese language.
+- The system support multiple langauges, inlcuding Thai, English, and Chinese language.
 
 ---  
 
-
-
 # Design Verification Results  
+
 ### Level 4: Code Diagram (Data Access Layer)
 The code-level view zooms into the **Data Access Layer** component from Level 3, showing the class structure and relationships between data models that map directly to the database tables.
 
