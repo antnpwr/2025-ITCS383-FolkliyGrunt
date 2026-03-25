@@ -398,19 +398,25 @@ npm test
 ---
 
 ## Code Quality  
+
+### Code quality analysis 
+Unfortunately, the original group only attatched a new code analysis, there are no overall code analysis and severity issues. Therefore, we run SonarQube analysis, the result show the following:  
+
 ![alt text](picture/image.png)
 ![alt text](picture/image2.png)
 
-### Code quality analysis 
-Comparing our new SonarQube analysis, we noticed that the project has no blocker issues but there are a few high severity issues.  
-The analysis shows the distribution of issues based on severity levels:
+### Severity issues  
+
+After we run SonarQube locally to compared, we noticed that the project has no blocker issues but there are still several issues across other severity levels:
 - Blocker: 0
 - High: 14
 - Medium: 61
 - Low: 53
 - Info: 0  
   
-The overall code have:
+### Overall code quality metrics  
+The overall code analysis shows the following:  
+
 - Security issues: 0
 - Reliability issues: 50
 - Maintainability issues: 81
