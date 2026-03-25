@@ -217,7 +217,7 @@ classDiagram
 
 | Layer              | Technology                                                        |
 |--------------------|-------------------------------------------------------------------|
-| Frontend           | Vanilla HTML, CSS, JavaScript (served via Express)               |
+| Frontend           | HTML, CSS, JavaScript (served via Express)               |
 | Backend            | Node.js with Express.js (Monolithic Architecture)                |
 | Database           | PostgreSQL (hosted on Supabase) with `pg`                        |
 | Authentication     | Supabase Auth                                                    |
@@ -299,7 +299,7 @@ npm test
 ![alt text](picture/image2.png)
 
 ### Code quality analysis 
-The project has no blocker issues, but there are a few high severity issues.  
+Comparing our new SonarQube analysis, we noticed that the project has no blocker issues but there are a few high severity issues.  
 The analysis shows the distribution of issues based on severity levels:
 - Blocker: 0
 - High: 14
