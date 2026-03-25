@@ -69,6 +69,65 @@
 
 ## Updated C4 Diagram  
 
+### Level 1: System Context Diagram
+An overview showing the relationship between the main system, the two types of users (Customer & Administrator), and the external third-party systems required to fulfill all functional and non-functional requirements.
+
+```mermaid
+C4Context
+    title Level 1: System Context Diagram — Badminton Court Management System
+
+    Person(customer, "Customer", "Registers, searches for courts (by name/distance/price), books timeslots, rents equipment, pays via credit card or bank transfer, joins waitlists, and writes reviews (1-5 stars).")
+    Person(admin, "Court Administrator", "Registers court details (location, hours, pricing, shoe rules), updates court status (e.g. renovation), and manages user accounts (block/disable).")
+
+    System(bms, "Badminton Court Management System", "A responsive web application for booking and managing badminton courts. Supports 1,000 concurrent users, localized in TH/EN/ZH, with encrypted personal data storage.")
+
+    System_Ext(payment_sys, "Stripe", "Processes credit card payments (Stripe Charges API) and bank transfers. Handles full refund requests via Stripe Refunds API.")
+    System_Ext(notification_sys, "Nodemailer (SMTP)", "Sends email notifications to users when a waitlisted court becomes available. Uses Gmail SMTP or Mailtrap for dev.")
+    System_Ext(map_sys, "OpenStreetMap (Nominatim)", "Provides free geocoding and reverse geocoding via Nominatim API. Distance calculations use the Haversine formula in PostgreSQL.")
+    System_Ext(auth_sys, "Supabase Auth", "Managed authentication service. Handles user registration, login, password hashing, and JWT session tokens via @supabase/supabase-js SDK.")
+
+    Rel(customer, bms, "Searches, books, pays, cancels, rents equipment, reviews", "HTTPS / Web Browser")
+    Rel(admin, bms, "Manages courts, statuses, and user accounts", "HTTPS / Web Browser")
+
+    Rel(bms, payment_sys, "Processes payments and refund requests", "Stripe Node.js SDK")
+    Rel(bms, notification_sys, "Sends waitlist availability alerts", "SMTP")
+    Rel(bms, map_sys, "Geocodes addresses to GPS coordinates", "Nominatim REST API (HTTPS)")
+    Rel(bms, auth_sys, "Authenticates users (signup, login, session)", "Supabase JS SDK")
+```
+
+### Level 2: Container Diagram
+The container-level view shows the simplified, monolithic technology stack designed for easy local deployment and high performance.
+
+```mermaid
+C4Container
+    title Level 2: Container Diagram — Badminton Court Management System
+
+    Person(customer, "Customer", "Books courts, pays, reviews")
+    Person(admin, "Court Administrator", "Manages courts and users")
+
+    System_Boundary(bms, "Badminton Court Management System") {
+        Container(web_app, "Responsive Web UI", "HTML/CSS/JS", "Single web application for both customers and admins. Supports TH, EN, ZH localization.")
+        Container(api_server, "API Server", "Node.js / Express", "Monolith backend handling all business logic: auth, search, booking, payment, and reviews.")
+        ContainerDb(db, "Database", "PostgreSQL", "Stores Users, Courts, Bookings, Equipment Rentals, and Reviews. Runs via Docker locally or Supabase in cloud.")
+    }
+
+    System_Ext(payment_sys, "Stripe", "Processes credit card and bank transfer payments via Stripe SDK. Handles refunds.")
+    System_Ext(map_sys, "OpenStreetMap (Nominatim)", "Free geocoding API for address-to-GPS conversion. No API key required.")
+    System_Ext(notification_sys, "Nodemailer (SMTP)", "Sends email alerts for waitlist availability via Gmail/Mailtrap SMTP.")
+    System_Ext(auth_sys, "Supabase Auth", "Managed auth (signup, login, JWT sessions)")
+
+    Rel(customer, web_app, "Searches, books, pays, reviews", "HTTPS")
+    Rel(admin, web_app, "Manages courts, statuses, users", "HTTPS")
+    
+    Rel(web_app, api_server, "Makes API calls", "REST/JSON")
+    
+    Rel(api_server, db, "Reads/Writes data", "SQL/TCP")
+    Rel(api_server, payment_sys, "Processes payments and refunds", "Stripe Node.js SDK")
+    Rel(api_server, map_sys, "Geocodes addresses", "Nominatim REST API")
+    Rel(api_server, notification_sys, "Sends waitlist alerts", "SMTP")
+    Rel(api_server, auth_sys, "Authenticates users", "Supabase JS SDK")
+```
+
 ### Level 3: Component Diagram (API Server)
 The internal component structure of the monolith API Server, showing how business logic is organized into focused modules.
 
