@@ -69,6 +69,50 @@
 
 ## Updated C4 Diagram  
 
+### Level 3: Component Diagram (API Server)
+The internal component structure of the monolith API Server, showing how business logic is organized into focused modules.
+
+```mermaid
+C4Component
+    title Level 3: Component Diagram — API Server (Node.js/Express)
+
+    Container_Boundary(api_container, "API Server") {
+        Component(router, "Express Router", "Middleware", "Routes incoming HTTP requests to the appropriate controller based on URL path.")
+        Component(auth_controller, "Auth Controller", "Controller", "Handles user registration and login via Supabase Auth SDK. Manages admin user blocking/disabling.")
+        Component(court_controller, "Court & Search Controller", "Controller", "Manages court CRUD for admins. Handles search by name, distance, and price for customers.")
+        Component(booking_controller, "Booking Controller", "Controller", "Manages reservations, cancellations, and equipment rentals.")
+        Component(waitlist_controller, "Waitlist Controller", "Controller", "Manages waitlist entries, notifications, and confirming waitlist bookings with payment.")
+        Component(review_controller, "Review Controller", "Controller", "Handles star ratings (1-5) and comment submissions. Computes average ratings.")
+        Component(payment_service, "Payment Service", "Stripe SDK", "Processes credit card Checkout Sessions, Intents, and refunds. Simulates bank transfers.")
+        Component(notification_service, "Notification Service", "Nodemailer", "Triggers email alerts via SMTP when a waitlisted court becomes available.")
+        Component(data_access, "Data Access Layer", "pg", "Centralized database interaction using the pg package.")
+    }
+
+    ContainerDb(db, "PostgreSQL Database", "Persistent storage for all entities")
+    System_Ext(payment_ext, "Stripe API", "stripe.com")
+    System_Ext(notification_ext, "SMTP Server", "Gmail / Mailtrap")
+    System_Ext(map_ext, "OpenStreetMap Nominatim", "nominatim.openstreetmap.org")
+    System_Ext(auth_ext, "Supabase Auth", "supabase.co/auth")
+
+    Rel(router, auth_controller, "Routes authentication requests")
+    Rel(router, court_controller, "Routes court search and management requests")
+    Rel(router, booking_controller, "Routes booking operations")
+    Rel(router, waitlist_controller, "Routes waitlist operations")
+    Rel(router, review_controller, "Routes review operations")
+
+    Rel(auth_controller, auth_ext, "supabase.auth.signUp() / signInWithPassword()")
+    Rel(auth_controller, data_access, "User profile CRUD (address, language, credit card)")
+    Rel(court_controller, data_access, "Court CRUD + indexed search")
+    Rel(court_controller, map_ext, "Nominatim geocoding API call")
+    Rel(booking_controller, data_access, "Booking + waitlist + equipment")
+    Rel(booking_controller, payment_service, "Payment/refund flow")
+    Rel(booking_controller, notification_service, "Waitlist alerts")
+    Rel(review_controller, data_access, "Review CRUD")
+    Rel(payment_service, payment_ext, "stripe.charges.create() / stripe.refunds.create()")
+    Rel(notification_service, notification_ext, "nodemailer.sendMail()")
+    Rel(data_access, db, "SQL queries")
+```
+
 ### Level 4: Code Diagram (Data Access Layer)
 The code-level view zooms into the **Data Access Layer** component from Level 3, showing the class structure and relationships between data models that map directly to the database tables.
 
