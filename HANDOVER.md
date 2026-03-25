@@ -408,25 +408,26 @@ npm test
 ### Code quality analysis 
 Unfortunately, the original group only attatched a new code analysis, there are no overall code analysis and severity issues. Therefore, we run SonarQube analysis, the result show the following:  
 
-![alt text](picture/image.png)
-![alt text](picture/image2.png)
+![alt text](/picture/image.png)  
+
+![alt text](/picture/image-1.png)
 
 ### Severity issues  
 
 After we run SonarQube locally to compared, we noticed that the project has no blocker issues but there are still several issues across other severity levels:
 - Blocker: 0
-- High: 14
-- Medium: 61
-- Low: 53
+- High: 0
+- Medium: 10
+- Low: 9
 - Info: 0  
   
 ### Overall code quality metrics  
 The overall code analysis shows the following:  
 
 - Security issues: 0
-- Reliability issues: 50
-- Maintainability issues: 81
+- Reliability issues: 8
+- Maintainability issues: 20
 - Accepted issues: 0
-- Coverage: 56.6%
-- Duplication: 0.9%
-- Security hotspots: 32
+- Coverage: 95.9%
+- Duplication: 0.0%
+- Security hotspots: 1
