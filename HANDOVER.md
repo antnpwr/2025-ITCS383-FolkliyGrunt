@@ -50,14 +50,20 @@
 - There is a "Add Equipment" button to add more than one equipment rental.
 
 
+## My Bookings
+- The feature include 4 status, total bookings, confirmed, pending, cancelled.
+- There is also an "Active & Past Bookings" if user booked courts.
+
+
 ## Waitlists  
-- Automated FIFO (First-In, First-Out) waitlist system.  
-- Email notifications (via Nodemailer) are sent when a slot becomes available due to cancellations.  
+- The waitlist feature have 4 status,  total entries, pending, notified, and confirmed.
+- There is also an "Active Waitlist Entries" that user can join when no slots are available. 
+- It will also notifies users when canceling slots are opened.
 
 
 ## Reviews  
-- Verified review system to ensure authenticity.  
-- Court ratings are dynamically recalculated upon new review submissions.  
+- User can write reviews and give stars rating (1-5) for the court.
+- User can also view other users reviews of the court.
 
 
 ## Language Support
