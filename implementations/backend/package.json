@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "frontend": "node ../frontend/server.js",
     "test": "jest --forceExit --detectOpenHandles"
   },
   "dependencies": {
