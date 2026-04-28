@@ -62,3 +62,10 @@ This report summarizes how AI coding assistance was used during the FolkliyGrunt
 
 - AI was used as a development assistant, not as an autonomous decision-maker.
 - Final implementation decisions and acceptance remained with the project team.
+
+## Additional Activity: Community Matchmaking Documentation
+
+- Activity: Prepared the D3 change request analysis, D4 impact analysis, and updated the AI usage record for the Community Matchmaking feature request.
+- AI Help: Mapped the feature to the current backend/frontend modules, drafted eight change requests across corrective, adaptive, perfective, and preventive maintenance, and built the traceability and SLO graphs used in the impact report.
+- Output Files: D3_CHANGE_REQUESTS.md, D4_IMPACT_ANALYSIS.md, D5_AI-USAGE.md.
+- Verification: Cross-checked the analysis against the existing route, controller, model, service, and frontend files in `implementations/backend` and `implementations/frontend`.

@@ -1,198 +1,330 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Login to your Pro Badminton account to book courts across Bangkok.">
-  <title>Login - Pro Badminton</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
-  <link rel="stylesheet" href="/css/theme.css">
-  <style>
-    body { margin: 0; }
-    .auth-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: calc(100vh - 64px);
-      padding: 2rem;
-    }
-    .auth-card {
-      background: var(--pb-surface);
-      border: 1px solid var(--pb-border);
-      border-radius: var(--pb-radius-xl);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      max-width: 860px;
-      width: 100%;
-      overflow: hidden;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
-    }
-    .auth-panel {
-      padding: 2.5rem;
-    }
-    .auth-panel-right {
-      background: var(--pb-surface-2);
-      border-left: 1px solid var(--pb-border);
-    }
-    .auth-panel h2 {
-      color: var(--pb-text-heading);
-      font-size: 1.5rem;
-      margin: 0 0 0.5rem;
-    }
-    .auth-panel p.subtitle {
-      color: var(--pb-text-muted);
-      font-size: 0.88rem;
-      margin: 0 0 1.5rem;
-    }
-    .auth-divider {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: var(--pb-text-muted);
-      font-size: 0.8rem;
-      margin: 1rem 0;
-    }
-    .auth-divider::before, .auth-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--pb-border);
-    }
-    .auth-links {
-      text-align: center;
-      margin-top: 1rem;
-      color: var(--pb-text-muted);
-      font-size: 0.85rem;
-    }
-    .auth-links a { color: var(--pb-primary); text-decoration: none; }
-    .auth-links a:hover { text-decoration: underline; }
-    .pw-requirements {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-top: 0.5rem;
-    }
-    .pw-req {
-      font-size: 0.72rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 999px;
-      background: rgba(37,123,244,0.1);
-      color: var(--pb-primary);
-    }
-    .alert-msg {
-      padding: 0.7rem 1rem;
-      border-radius: var(--pb-radius);
-      font-size: 0.85rem;
-      display: none;
-      margin-bottom: 1rem;
-    }
-    .alert-error { background: rgba(239,68,68,0.1); color: var(--pb-error); border: 1px solid rgba(239,68,68,0.2); }
-    .alert-success { background: rgba(34,197,94,0.1); color: var(--pb-success); border: 1px solid rgba(34,197,94,0.2); }
-    @media (max-width: 768px) {
-      .auth-card { grid-template-columns: 1fr; }
-      .auth-panel-right { border-left: none; border-top: 1px solid var(--pb-border); }
-    }
-  </style>
-</head>
-<body class="pb-page">
-  <!-- Navbar -->
-  <nav class="pb-navbar">
-    <a href="/" class="pb-navbar-brand">
-      <span>🏸</span> Pro Badminton
-    </a>
-    <div style="display:flex;align-items:center;gap:1.5rem;">
-      <ul class="pb-nav-links">
-        <li><a href="/" data-i18n="nav.home">Home</a></li>
-        <li><a href="/pages/search.html" data-i18n="nav.search">Find Courts</a></li>
-      </ul>
-      <div class="pb-lang-picker">
-        <button class="lang-btn active" data-lang="en" onclick="I18n.setLang('en')">EN</button>
-        <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">TH</button>
-        <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">中文</button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Auth Split Card -->
-  <div class="auth-wrapper">
-    <div class="auth-card">
-      <!-- Login Panel -->
-      <div class="auth-panel">
-        <h2 data-i18n="auth.login_title">Welcome Back</h2>
-        <p class="subtitle">Log in to your Pro Badminton account to book courts.</p>
-        <div id="login-error" class="alert-msg alert-error"></div>
-
-        <form id="loginForm">
-          <div class="pb-form-group">
-            <label class="pb-label" for="email" data-i18n="auth.email">Email</label>
-            <input class="pb-input" type="email" id="email" name="email" required placeholder="you@example.com">
-          </div>
-          <div class="pb-form-group">
-            <label class="pb-label" for="password" data-i18n="auth.password">Password</label>
-            <input class="pb-input" type="password" id="password" name="password" required placeholder="••••••••">
-          </div>
-          <button type="submit" class="pb-btn pb-btn-primary pb-w-full pb-mb-1" onclick="document.getElementById('loginMode').value='CUSTOMER'" data-i18n="auth.login_button">Log In</button>
-          <button type="submit" class="pb-btn pb-btn-secondary pb-w-full" onclick="document.getElementById('loginMode').value='ADMIN'">
-            <span class="material-symbols-outlined" style="font-size:1.1rem">admin_panel_settings</span>
-            Staff / Admin Login
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Login to your Pro Badminton account to book courts across Bangkok."
+    />
+    <title>Login - Pro Badminton</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <style>
+      body {
+        margin: 0;
+      }
+      .auth-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 64px);
+        padding: 2rem;
+      }
+      .auth-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-xl);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 860px;
+        width: 100%;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+      }
+      .auth-panel {
+        padding: 2.5rem;
+      }
+      .auth-panel-right {
+        background: var(--pb-surface-2);
+        border-left: 1px solid var(--pb-border);
+      }
+      .auth-panel h2 {
+        color: var(--pb-text-heading);
+        font-size: 1.5rem;
+        margin: 0 0 0.5rem;
+      }
+      .auth-panel p.subtitle {
+        color: var(--pb-text-muted);
+        font-size: 0.88rem;
+        margin: 0 0 1.5rem;
+      }
+      .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--pb-text-muted);
+        font-size: 0.8rem;
+        margin: 1rem 0;
+      }
+      .auth-divider::before,
+      .auth-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--pb-border);
+      }
+      .auth-links {
+        text-align: center;
+        margin-top: 1rem;
+        color: var(--pb-text-muted);
+        font-size: 0.85rem;
+      }
+      .auth-links a {
+        color: var(--pb-primary);
+        text-decoration: none;
+      }
+      .auth-links a:hover {
+        text-decoration: underline;
+      }
+      .pw-requirements {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 0.5rem;
+      }
+      .pw-req {
+        font-size: 0.72rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        background: rgba(37, 123, 244, 0.1);
+        color: var(--pb-primary);
+      }
+      .alert-msg {
+        padding: 0.7rem 1rem;
+        border-radius: var(--pb-radius);
+        font-size: 0.85rem;
+        display: none;
+        margin-bottom: 1rem;
+      }
+      .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--pb-error);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--pb-success);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+      @media (max-width: 768px) {
+        .auth-card {
+          grid-template-columns: 1fr;
+        }
+        .auth-panel-right {
+          border-left: none;
+          border-top: 1px solid var(--pb-border);
+        }
+      }
+    </style>
+  </head>
+  <body class="pb-page">
+    <!-- Navbar -->
+    <nav class="pb-navbar">
+      <a href="/" class="pb-navbar-brand"> <span>🏸</span> Pro Badminton </a>
+      <div style="display: flex; align-items: center; gap: 1.5rem">
+        <ul class="pb-nav-links">
+          <li><a href="/" data-i18n="nav.home">Home</a></li>
+          <li>
+            <a href="/pages/search.html" data-i18n="nav.search">Find Courts</a>
+          </li>
+          <li><a href="/pages/community.html">Community</a></li>
+        </ul>
+        <div class="pb-lang-picker">
+          <button
+            class="lang-btn active"
+            data-lang="en"
+            onclick="I18n.setLang('en')"
+          >
+            EN
           </button>
-          <input type="hidden" id="loginMode" value="CUSTOMER">
-        </form>
-
-        <div class="auth-links">
-          Don't have an account? <a href="register.html" data-i18n="nav.register">Register here</a>
+          <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">
+            TH
+          </button>
+          <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">
+            中文
+          </button>
         </div>
       </div>
+    </nav>
 
-      <!-- Register Panel -->
-      <div class="auth-panel auth-panel-right">
-        <h2 data-i18n="auth.register_title">Create an Account</h2>
-        <p class="subtitle">Join Pro Badminton to access premium court bookings.</p>
-        <div id="register-error" class="alert-msg alert-error"></div>
-        <div id="register-success" class="alert-msg alert-success"></div>
+    <!-- Auth Split Card -->
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <!-- Login Panel -->
+        <div class="auth-panel">
+          <h2 data-i18n="auth.login_title">Welcome Back</h2>
+          <p class="subtitle">
+            Log in to your Pro Badminton account to book courts.
+          </p>
+          <div id="login-error" class="alert-msg alert-error"></div>
 
-        <form id="registerForm">
-          <div class="pb-form-group">
-            <label class="pb-label" for="regFullName" data-i18n="auth.name">Full Name</label>
-            <input class="pb-input" type="text" id="fullName" name="fullName" required placeholder="John Doe">
-          </div>
-          <div class="pb-form-group">
-            <label class="pb-label" for="regEmail" data-i18n="auth.email">Email</label>
-            <input class="pb-input" type="email" id="regEmail" name="email" required placeholder="you@example.com">
-          </div>
-          <div class="pb-form-group">
-            <label class="pb-label" for="regPassword" data-i18n="auth.password">Password</label>
-            <input class="pb-input" type="password" id="regPassword" name="password" required placeholder="Min 8 chars, mixed case + special">
-            <div class="pw-requirements">
-              <span class="pw-req">8+ chars</span>
-              <span class="pw-req">A-Z</span>
-              <span class="pw-req">a-z</span>
-              <span class="pw-req">0-9</span>
-              <span class="pw-req">!@#$</span>
+          <form id="loginForm">
+            <div class="pb-form-group">
+              <label class="pb-label" for="email" data-i18n="auth.email"
+                >Email</label
+              >
+              <input
+                class="pb-input"
+                type="email"
+                id="email"
+                name="email"
+                required
+                placeholder="you@example.com"
+              />
             </div>
-          </div>
-          <div class="pb-form-group">
-            <label class="pb-label" for="regAddress" data-i18n="auth.address">Address</label>
-            <textarea class="pb-input" id="address" name="address" rows="2" placeholder="Your address" style="resize:vertical"></textarea>
-          </div>
-          <input type="hidden" id="registerMode" value="CUSTOMER">
-          <button type="submit" class="pb-btn pb-btn-primary pb-w-full pb-mb-1" onclick="document.getElementById('registerMode').value='CUSTOMER'" data-i18n="auth.register_button">Register as User</button>
-          <button type="submit" class="pb-btn pb-btn-secondary pb-w-full" onclick="document.getElementById('registerMode').value='STAFF'">
-            <span class="material-symbols-outlined" style="font-size:1.1rem">badge</span>
-            Register as Staff
-          </button>
-        </form>
+            <div class="pb-form-group">
+              <label class="pb-label" for="password" data-i18n="auth.password"
+                >Password</label
+              >
+              <input
+                class="pb-input"
+                type="password"
+                id="password"
+                name="password"
+                required
+                placeholder="••••••••"
+              />
+            </div>
+            <button
+              type="submit"
+              class="pb-btn pb-btn-primary pb-w-full pb-mb-1"
+              onclick="document.getElementById('loginMode').value = 'CUSTOMER'"
+              data-i18n="auth.login_button"
+            >
+              Log In
+            </button>
+            <button
+              type="submit"
+              class="pb-btn pb-btn-secondary pb-w-full"
+              onclick="document.getElementById('loginMode').value = 'ADMIN'"
+            >
+              <span class="material-symbols-outlined" style="font-size: 1.1rem"
+                >admin_panel_settings</span
+              >
+              Staff / Admin Login
+            </button>
+            <input type="hidden" id="loginMode" value="CUSTOMER" />
+          </form>
 
-        <div class="auth-links" style="margin-top:0.75rem">
-          Already have an account? <a href="login.html" data-i18n="nav.login">Log in</a>
+          <div class="auth-links">
+            Don't have an account?
+            <a href="register.html" data-i18n="nav.register">Register here</a>
+          </div>
+        </div>
+
+        <!-- Register Panel -->
+        <div class="auth-panel auth-panel-right">
+          <h2 data-i18n="auth.register_title">Create an Account</h2>
+          <p class="subtitle">
+            Join Pro Badminton to access premium court bookings.
+          </p>
+          <div id="register-error" class="alert-msg alert-error"></div>
+          <div id="register-success" class="alert-msg alert-success"></div>
+
+          <form id="registerForm">
+            <div class="pb-form-group">
+              <label class="pb-label" for="regFullName" data-i18n="auth.name"
+                >Full Name</label
+              >
+              <input
+                class="pb-input"
+                type="text"
+                id="fullName"
+                name="fullName"
+                required
+                placeholder="John Doe"
+              />
+            </div>
+            <div class="pb-form-group">
+              <label class="pb-label" for="regEmail" data-i18n="auth.email"
+                >Email</label
+              >
+              <input
+                class="pb-input"
+                type="email"
+                id="regEmail"
+                name="email"
+                required
+                placeholder="you@example.com"
+              />
+            </div>
+            <div class="pb-form-group">
+              <label
+                class="pb-label"
+                for="regPassword"
+                data-i18n="auth.password"
+                >Password</label
+              >
+              <input
+                class="pb-input"
+                type="password"
+                id="regPassword"
+                name="password"
+                required
+                placeholder="Min 8 chars, mixed case + special"
+              />
+              <div class="pw-requirements">
+                <span class="pw-req">8+ chars</span>
+                <span class="pw-req">A-Z</span>
+                <span class="pw-req">a-z</span>
+                <span class="pw-req">0-9</span>
+                <span class="pw-req">!@#$</span>
+              </div>
+            </div>
+            <div class="pb-form-group">
+              <label class="pb-label" for="regAddress" data-i18n="auth.address"
+                >Address</label
+              >
+              <textarea
+                class="pb-input"
+                id="address"
+                name="address"
+                rows="2"
+                placeholder="Your address"
+                style="resize: vertical"
+              ></textarea>
+            </div>
+            <input type="hidden" id="registerMode" value="CUSTOMER" />
+            <button
+              type="submit"
+              class="pb-btn pb-btn-primary pb-w-full pb-mb-1"
+              onclick="
+                document.getElementById('registerMode').value = 'CUSTOMER'
+              "
+              data-i18n="auth.register_button"
+            >
+              Register as User
+            </button>
+            <button
+              type="submit"
+              class="pb-btn pb-btn-secondary pb-w-full"
+              onclick="document.getElementById('registerMode').value = 'STAFF'"
+            >
+              <span class="material-symbols-outlined" style="font-size: 1.1rem"
+                >badge</span
+              >
+              Register as Staff
+            </button>
+          </form>
+
+          <div class="auth-links" style="margin-top: 0.75rem">
+            Already have an account?
+            <a href="login.html" data-i18n="nav.login">Log in</a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script src="/js/i18n.js"></script>
-  <script src="/js/app.js"></script>
-</body>
+    <script src="/js/i18n.js"></script>
+    <script src="/js/app.js"></script>
+  </body>
 </html>
