@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Manage your Pro Badminton membership – unlock discounted court rates and exclusive benefits."
+    />
+    <title>Membership - Pro Badminton</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <style>
+      body {
+        margin: 0;
+      }
+
+      /* ── Page Header ─────────────────────────── */
+      .membership-hero {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1a2332 40%,
+          #1e3a5f 100%
+        );
+        padding: 3rem 2rem 2.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .membership-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            circle at 70% 30%,
+            rgba(37, 123, 244, 0.12),
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 30% 70%,
+            rgba(124, 58, 237, 0.08),
+            transparent 50%
+          );
+        pointer-events: none;
+      }
+      .membership-hero h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--pb-text-heading);
+        margin: 0 0 0.5rem;
+        position: relative;
+      }
+      .membership-hero p {
+        color: var(--pb-text-muted);
+        font-size: 0.95rem;
+        margin: 0;
+        position: relative;
+      }
+
+      /* ── Layout ──────────────────────────────── */
+      .membership-container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 3rem;
+      }
+
+      /* ── Status Card ─────────────────────────── */
+      .status-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-xl);
+        padding: 1.75rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--pb-shadow);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+      .status-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        flex-shrink: 0;
+      }
+      .status-icon.active {
+        background: rgba(34, 197, 94, 0.12);
+        border: 2px solid rgba(34, 197, 94, 0.35);
+      }
+      .status-icon.inactive {
+        background: rgba(245, 158, 11, 0.12);
+        border: 2px solid rgba(245, 158, 11, 0.35);
+      }
+      .status-details {
+        flex: 1;
+        min-width: 200px;
+      }
+      .status-details h2 {
+        color: var(--pb-text-heading);
+        font-size: 1.2rem;
+        margin: 0 0 0.25rem;
+      }
+      .status-details p {
+        color: var(--pb-text-muted);
+        font-size: 0.85rem;
+        margin: 0;
+      }
+      .status-badge {
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .status-badge.active {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--pb-success);
+        border: 1px solid rgba(34, 197, 94, 0.35);
+      }
+      .status-badge.inactive {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--pb-warning);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+      }
+
+      /* ── Pricing Cards ───────────────────────── */
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      @media (max-width: 640px) {
+        .pricing-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .pricing-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-xl);
+        padding: 2rem;
+        position: relative;
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s;
+      }
+      .pricing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      }
+      .pricing-card.featured {
+        border-color: var(--pb-primary);
+        box-shadow:
+          0 0 0 1px var(--pb-primary),
+          0 8px 32px rgba(37, 123, 244, 0.15);
+      }
+      .pricing-card.featured::before {
+        content: "RECOMMENDED";
+        position: absolute;
+        top: -1px;
+        right: 1.5rem;
+        background: var(--pb-primary);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0 0 var(--pb-radius) var(--pb-radius);
+        letter-spacing: 0.06em;
+      }
+      .pricing-card h3 {
+        color: var(--pb-text-heading);
+        font-size: 1.1rem;
+        margin: 0 0 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .pricing-card .price {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--pb-text-heading);
+        margin: 0.75rem 0 0.25rem;
+      }
+      .pricing-card .price span {
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: var(--pb-text-muted);
+      }
+      .pricing-card .price-desc {
+        color: var(--pb-text-muted);
+        font-size: 0.82rem;
+        margin: 0 0 1.25rem;
+      }
+      .pricing-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem;
+      }
+      .pricing-features li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.88rem;
+        color: var(--pb-text);
+        padding: 0.4rem 0;
+      }
+      .pricing-features li .material-symbols-outlined {
+        font-size: 1.1rem;
+      }
+      .pricing-features li .check {
+        color: var(--pb-success);
+      }
+      .pricing-features li .cross {
+        color: var(--pb-text-muted);
+        opacity: 0.5;
+      }
+
+      /* ── Subscribe Section ───────────────────── */
+      .subscribe-section {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-xl);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--pb-shadow);
+      }
+      .subscribe-section h3 {
+        color: var(--pb-text-heading);
+        font-size: 1.15rem;
+        margin: 0 0 0.35rem;
+      }
+      .subscribe-section .subtitle {
+        color: var(--pb-text-muted);
+        font-size: 0.88rem;
+        margin: 0 0 1.5rem;
+      }
+      .payment-options {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+      }
+      .payment-option {
+        flex: 1;
+        min-width: 180px;
+        padding: 1rem 1.25rem;
+        background: var(--pb-surface-2);
+        border: 2px solid var(--pb-border);
+        border-radius: var(--pb-radius-lg);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .payment-option:hover {
+        border-color: var(--pb-primary);
+        background: rgba(37, 123, 244, 0.05);
+      }
+      .payment-option.selected {
+        border-color: var(--pb-primary);
+        background: rgba(37, 123, 244, 0.08);
+      }
+      .payment-option input[type="radio"] {
+        accent-color: var(--pb-primary);
+        width: 16px;
+        height: 16px;
+      }
+      .payment-option-info {
+        display: flex;
+        flex-direction: column;
+      }
+      .payment-option-name {
+        font-weight: 600;
+        color: var(--pb-text-heading);
+        font-size: 0.9rem;
+      }
+      .payment-option-desc {
+        color: var(--pb-text-muted);
+        font-size: 0.78rem;
+      }
+
+      .transfer-ref-group {
+        display: none;
+        margin-bottom: 1rem;
+      }
+      .transfer-ref-group.visible {
+        display: block;
+      }
+
+      /* ── Benefits Section ────────────────────── */
+      .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .benefit-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-lg);
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.2s;
+      }
+      .benefit-card:hover {
+        transform: translateY(-2px);
+      }
+      .benefit-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(37, 123, 244, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+      }
+      .benefit-icon .material-symbols-outlined {
+        color: var(--pb-primary);
+        font-size: 1.4rem;
+      }
+      .benefit-card h4 {
+        color: var(--pb-text-heading);
+        font-size: 0.95rem;
+        margin: 0 0 0.35rem;
+      }
+      .benefit-card p {
+        color: var(--pb-text-muted);
+        font-size: 0.8rem;
+        margin: 0;
+      }
+
+      /* ── Message ─────────────────────────────── */
+      .msg {
+        padding: 0.75rem 1rem;
+        border-radius: var(--pb-radius);
+        font-size: 0.88rem;
+        margin-top: 1rem;
+        display: none;
+      }
+      .msg-success {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--pb-success);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        display: block;
+      }
+      .msg-error {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--pb-error);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        display: block;
+      }
+
+      /* ── Savings Calculator ──────────────────── */
+      .savings-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-xl);
+        padding: 1.75rem;
+        margin-bottom: 2rem;
+      }
+      .savings-card h3 {
+        color: var(--pb-text-heading);
+        font-size: 1.05rem;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .savings-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+      .savings-row label {
+        color: var(--pb-text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        min-width: 80px;
+      }
+      .savings-row select {
+        background: var(--pb-surface-2);
+        border: 1px solid var(--pb-border);
+        color: var(--pb-text);
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--pb-radius);
+        font-family: var(--pb-font);
+        font-size: 0.88rem;
+      }
+      .savings-comparison {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 1rem;
+        align-items: center;
+        margin-top: 1rem;
+      }
+      @media (max-width: 500px) {
+        .savings-comparison {
+          grid-template-columns: 1fr;
+        }
+      }
+      .savings-price-box {
+        background: var(--pb-surface-2);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-lg);
+        padding: 1.25rem;
+        text-align: center;
+      }
+      .savings-price-box.member-box {
+        border-color: var(--pb-primary);
+        background: rgba(37, 123, 244, 0.08);
+      }
+      .savings-price-box .label {
+        font-size: 0.75rem;
+        color: var(--pb-text-muted);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+      }
+      .savings-price-box .amount {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0.35rem 0;
+      }
+      .savings-price-box .amount.standard {
+        color: var(--pb-text-muted);
+      }
+      .savings-price-box .amount.member {
+        color: var(--pb-primary);
+      }
+      .savings-price-box .note {
+        font-size: 0.75rem;
+        color: var(--pb-text-muted);
+      }
+      .savings-arrow {
+        text-align: center;
+        color: var(--pb-success);
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+      .savings-result {
+        text-align: center;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: var(--pb-radius);
+        color: var(--pb-success);
+        font-weight: 600;
+        font-size: 0.92rem;
+      }
+    </style>
+  </head>
+  <body class="pb-page">
+    <!-- Navbar -->
+    <nav class="pb-navbar">
+      <a href="/" class="pb-navbar-brand"><span>🏸</span> Pro Badminton</a>
+      <div style="display: flex; align-items: center; gap: 1.5rem">
+        <ul class="pb-nav-links">
+          <li><a href="/" data-i18n="nav.home">Home</a></li>
+          <li>
+            <a href="/pages/search.html" data-i18n="nav.search">Find Courts</a>
+          </li>
+          <li>
+            <a href="/pages/my-bookings.html" data-i18n="nav.my_bookings"
+              >My Bookings</a
+            >
+          </li>
+          <li>
+            <a href="/pages/membership.html" class="active">Membership</a>
+          </li>
+          <li><a href="/pages/reviews.html">Reviews</a></li>
+        </ul>
+        <div class="pb-lang-picker">
+          <button
+            class="lang-btn active"
+            data-lang="en"
+            onclick="I18n.setLang('en')"
+          >
+            EN
+          </button>
+          <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">
+            TH
+          </button>
+          <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">
+            中文
+          </button>
+        </div>
+        <div id="user-section" style="display: none">
+          <div class="user-chip">
+            <div class="user-chip-avatar" id="hp-avatar">?</div>
+            <span
+              id="hp-name"
+              style="
+                font-size: 0.82rem;
+                font-weight: 600;
+                color: var(--pb-text);
+              "
+            ></span>
+            <button
+              onclick="logout()"
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: var(--pb-error);
+                font-size: 0.78rem;
+                font-weight: 700;
+                font-family: var(--pb-font);
+              "
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+        <div id="auth-links">
+          <a
+            href="/pages/login.html"
+            style="
+              color: var(--pb-primary);
+              text-decoration: none;
+              font-weight: 600;
+              font-size: 0.88rem;
+            "
+            >Login</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="membership-hero">
+      <h1>⭐ Membership Discount Program</h1>
+      <p>Unlock exclusive member rates and save on every booking</p>
+    </section>
+
+    <div class="membership-container">
+      <!-- Status Card -->
+      <div class="status-card" id="statusCard">
+        <div class="status-icon inactive" id="statusIcon">
+          <span class="material-symbols-outlined">card_membership</span>
+        </div>
+        <div class="status-details">
+          <h2 id="statusTitle">Checking membership...</h2>
+          <p id="statusText">
+            Please wait while we check your membership status.
+          </p>
+        </div>
+        <span class="status-badge inactive" id="statusBadge">STANDARD</span>
+      </div>
+
+      <!-- Pricing Comparison -->
+      <div class="pricing-grid">
+        <!-- Standard -->
+        <div class="pricing-card">
+          <h3>
+            <span
+              class="material-symbols-outlined"
+              style="color: var(--pb-text-muted)"
+              >person</span
+            >
+            Standard
+          </h3>
+          <div class="price">฿200 <span>/ hour</span></div>
+          <p class="price-desc">Pay-as-you-go court booking</p>
+          <ul class="pricing-features">
+            <li>
+              <span class="material-symbols-outlined check">check_circle</span>
+              Access to all courts
+            </li>
+            <li>
+              <span class="material-symbols-outlined check">check_circle</span>
+              Equipment rental available
+            </li>
+            <li>
+              <span class="material-symbols-outlined check">check_circle</span>
+              Online booking & cancellation
+            </li>
+            <li>
+              <span class="material-symbols-outlined cross">cancel</span>
+              <span style="color: var(--pb-text-muted)"
+                >Discounted hourly rate</span
+              >
+            </li>
+            <li>
+              <span class="material-symbols-outlined cross">cancel</span>
+              <span style="color: var(--pb-text-muted)"
+                >Priority booking access</span
+              >
+            </li>
+          </ul>
+          <a
+            href="/pages/search.html"
+            class="pb-btn pb-btn-secondary pb-w-full"
+            style="text-align: center"
+          >
+            Book a Court
+          </a>
+        </div>
+
+        <!-- Member -->
+        <div class="pricing-card featured">
+          <h3>
+            <span
+              class="material-symbols-outlined"
+              style="color: var(--pb-primary)"
+              >star</span
+            >
+            Member
+          </h3>
+          <div class="price" style="color: var(--pb-primary)">
+            ฿150 <span>/ hour</span>
+          </div>
+          <p class="price-desc">Save 25% on every booking for ฿199/month</p>
+          <ul class="pricing-features">
+            <li>
+              <span class="material-symbols-outlined check">check_circle</span>
+              Access to all courts
+            </li>
+            <li>
+              <span class="material-symbols-outlined check">check_circle</span>
+              Equipment rental available
+            </li>
+            <li>
+              <span class="material-symbols-outlined check">check_circle</span>
+              Online booking & cancellation
+            </li>
+            <li>
+              <span
+                class="material-symbols-outlined check"
+                style="color: var(--pb-primary)"
+                >check_circle</span
+              >
+              <strong style="color: var(--pb-primary)"
+                >฿150/hr member rate</strong
+              >
+            </li>
+            <li>
+              <span
+                class="material-symbols-outlined check"
+                style="color: var(--pb-primary)"
+                >check_circle</span
+              >
+              <strong style="color: var(--pb-primary)"
+                >Save ฿50/hr on every booking</strong
+              >
+            </li>
+          </ul>
+          <button
+            class="pb-btn pb-btn-primary pb-w-full"
+            id="heroSubscribeBtn"
+            onclick="
+              document
+                .getElementById('subscribeSection')
+                .scrollIntoView({ behavior: 'smooth' })
+            "
+          >
+            Subscribe Now — ฿199/month
+          </button>
+        </div>
+      </div>
+
+      <!-- Benefits -->
+      <div style="margin-bottom: 2rem">
+        <h2
+          style="
+            color: var(--pb-text-heading);
+            font-size: 1.3rem;
+            margin: 0 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          "
+        >
+          <span
+            class="material-symbols-outlined"
+            style="color: var(--pb-primary)"
+            >diamond</span
+          >
+          Member Benefits
+        </h2>
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <span class="material-symbols-outlined">savings</span>
+            </div>
+            <h4>25% Off Courts</h4>
+            <p>฿150/hr instead of ฿200/hr on all court bookings</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <span class="material-symbols-outlined">calendar_month</span>
+            </div>
+            <h4>Monthly Billing</h4>
+            <p>Simple ฿199/month subscription, cancel anytime</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <span class="material-symbols-outlined">bolt</span>
+            </div>
+            <h4>Instant Activation</h4>
+            <p>Member rate applied immediately after payment</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <span class="material-symbols-outlined">autorenew</span>
+            </div>
+            <h4>Stackable Months</h4>
+            <p>Renew early to extend your active membership period</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Savings Calculator -->
+      <div class="savings-card">
+        <h3>
+          <span
+            class="material-symbols-outlined"
+            style="color: var(--pb-success)"
+            >calculate</span
+          >
+          Savings Calculator
+        </h3>
+        <div class="savings-row">
+          <label for="calcHours">Hours per week:</label>
+          <select id="calcHours" onchange="updateCalculator()">
+            <option value="1">1 hour</option>
+            <option value="2" selected>2 hours</option>
+            <option value="3">3 hours</option>
+            <option value="4">4 hours</option>
+            <option value="5">5 hours</option>
+            <option value="6">6 hours</option>
+            <option value="7">7 hours</option>
+          </select>
+        </div>
+        <div class="savings-comparison">
+          <div class="savings-price-box">
+            <div class="label">Standard Monthly</div>
+            <div class="amount standard" id="calcStandard">฿1,600</div>
+            <div class="note">฿200/hr × hours</div>
+          </div>
+          <div class="savings-arrow">→</div>
+          <div class="savings-price-box member-box">
+            <div class="label">Member Monthly</div>
+            <div class="amount member" id="calcMember">฿1,399</div>
+            <div class="note">฿150/hr × hours + ฿199 fee</div>
+          </div>
+        </div>
+        <div class="savings-result" id="calcSavings">
+          You save ฿201 per month!
+        </div>
+      </div>
+
+      <!-- Subscribe Section -->
+      <div class="subscribe-section" id="subscribeSection">
+        <h3>
+          <span
+            class="material-symbols-outlined"
+            style="color: var(--pb-primary)"
+            >credit_card</span
+          >
+          <span id="subscribeTitle">Subscribe to Membership</span>
+        </h3>
+        <p class="subtitle" id="subscribeSubtitle">
+          Choose your payment method and start saving today.
+        </p>
+
+        <div class="payment-options" id="paymentOptions">
+          <label
+            class="payment-option selected"
+            onclick="selectPayment('PROMPTPAY')"
+          >
+            <input type="radio" name="payMethod" value="PROMPTPAY" checked />
+            <div class="payment-option-info">
+              <span class="payment-option-name">📱 PromptPay</span>
+              <span class="payment-option-desc">Pay via PromptPay QR</span>
+            </div>
+          </label>
+          <label
+            class="payment-option"
+            onclick="selectPayment('BANK_TRANSFER')"
+          >
+            <input type="radio" name="payMethod" value="BANK_TRANSFER" />
+            <div class="payment-option-info">
+              <span class="payment-option-name">🏦 Bank Transfer</span>
+              <span class="payment-option-desc">Manual bank transfer</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="transfer-ref-group" id="transferRefGroup">
+          <label class="pb-label" for="transferRef"
+            >Transfer Reference Number</label
+          >
+          <input
+            class="pb-input"
+            type="text"
+            id="transferRef"
+            placeholder="Enter your transfer reference"
+          />
+        </div>
+
+        <button
+          class="pb-btn pb-btn-primary pb-w-full"
+          id="subscribeBtn"
+          style="font-size: 1rem; padding: 0.75rem"
+          onclick="subscribeMembership()"
+        >
+          <span class="material-symbols-outlined" style="font-size: 1.1rem"
+            >card_membership</span
+          >
+          <span id="subscribeBtnText">Subscribe — ฿199/month</span>
+        </button>
+
+        <div id="message" class="msg"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer
+      style="
+        border-top: 1px solid var(--pb-border);
+        padding: 2rem 0;
+        text-align: center;
+      "
+    >
+      <p style="color: var(--pb-text-muted); font-size: 0.82rem; margin: 0">
+        © 2025 Pro Badminton. All rights reserved.
+      </p>
+    </footer>
+
+    <script src="/js/i18n.js"></script>
+    <script>
+      const API_BASE = "/api";
+      const token = localStorage.getItem("supabase_token");
+
+      if (!token) {
+        globalThis.location.href = "/pages/login.html";
+      }
+
+      const authHeaders = () => ({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      });
+
+      let membershipActive = false;
+      let membershipExpiresAt = null;
+      let selectedPaymentMethod = "PROMPTPAY";
+
+      // ─── Auth Check ─────────────────────────────
+      async function checkAuth() {
+        if (!token) return;
+        try {
+          const res = await fetch(`${API_BASE}/auth/profile`, {
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          if (data.profile) {
+            document.getElementById("auth-links").style.display = "none";
+            document.getElementById("user-section").style.display = "block";
+            document.getElementById("hp-name").textContent =
+              data.profile.full_name;
+            document.getElementById("hp-avatar").textContent =
+              data.profile.full_name?.charAt(0)?.toUpperCase() || "?";
+          }
+        } catch (e) {
+          /* not logged in */
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("supabase_token");
+        globalThis.location.href = "/pages/login.html";
+      }
+
+      // ─── Membership Status ──────────────────────
+      async function loadMembershipStatus() {
+        const statusIcon = document.getElementById("statusIcon");
+        const statusTitle = document.getElementById("statusTitle");
+        const statusText = document.getElementById("statusText");
+        const statusBadge = document.getElementById("statusBadge");
+        const subscribeTitle = document.getElementById("subscribeTitle");
+        const subscribeSubtitle = document.getElementById("subscribeSubtitle");
+        const subscribeBtnText = document.getElementById("subscribeBtnText");
+
+        try {
+          const res = await fetch(`${API_BASE}/auth/membership/status`, {
+            headers: authHeaders(),
+          });
+          if (!res.ok) throw new Error("Failed to load");
+
+          const data = await res.json();
+          membershipActive = Boolean(data?.membership?.is_active);
+          membershipExpiresAt = data?.membership?.membership_expires_at || null;
+
+          if (membershipActive) {
+            const expires = membershipExpiresAt
+              ? new Date(membershipExpiresAt).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+              : "N/A";
+            statusIcon.className = "status-icon active";
+            statusIcon.innerHTML =
+              '<span class="material-symbols-outlined" style="color:var(--pb-success)">verified</span>';
+            statusTitle.textContent = "Active Member";
+            statusText.textContent = `Your membership is active until ${expires}. Enjoy ฿150/hr on all bookings!`;
+            statusBadge.textContent = "ACTIVE MEMBER";
+            statusBadge.className = "status-badge active";
+
+            subscribeTitle.textContent = "Renew Your Membership";
+            subscribeSubtitle.textContent =
+              "Extend your membership period by another month.";
+            subscribeBtnText.textContent = "Renew — ฿199/month";
+
+            document.getElementById("heroSubscribeBtn").textContent =
+              "Renew Membership";
+          } else {
+            const wasMember = data?.membership?.is_member;
+            statusIcon.className = "status-icon inactive";
+            statusIcon.innerHTML =
+              '<span class="material-symbols-outlined" style="color:var(--pb-warning)">card_membership</span>';
+
+            if (wasMember) {
+              statusTitle.textContent = "Membership Expired";
+              statusText.textContent =
+                "Your membership has expired. Renew now to get back your ฿150/hr rate!";
+            } else {
+              statusTitle.textContent = "Not a Member Yet";
+              statusText.textContent =
+                "Subscribe today and unlock ฿150/hr court rates, saving ฿50 on every hour!";
+            }
+            statusBadge.textContent = "STANDARD";
+            statusBadge.className = "status-badge inactive";
+          }
+        } catch (err) {
+          statusIcon.className = "status-icon inactive";
+          statusIcon.innerHTML =
+            '<span class="material-symbols-outlined" style="color:var(--pb-text-muted)">error</span>';
+          statusTitle.textContent = "Could not load status";
+          statusText.textContent = "Please try refreshing the page.";
+          statusBadge.textContent = "UNKNOWN";
+          statusBadge.className = "status-badge inactive";
+        }
+      }
+
+      // ─── Payment Selection ──────────────────────
+      function selectPayment(method) {
+        selectedPaymentMethod = method;
+        document
+          .querySelectorAll(".payment-option")
+          .forEach((opt) => opt.classList.remove("selected"));
+        event.currentTarget.classList.add("selected");
+
+        const refGroup = document.getElementById("transferRefGroup");
+        if (method === "BANK_TRANSFER") {
+          refGroup.classList.add("visible");
+        } else {
+          refGroup.classList.remove("visible");
+        }
+      }
+
+      // ─── Subscribe ─────────────────────────────
+      async function subscribeMembership() {
+        const subscribeBtn = document.getElementById("subscribeBtn");
+        const msgDiv = document.getElementById("message");
+
+        msgDiv.className = "msg";
+        subscribeBtn.disabled = true;
+
+        const btnText = document.getElementById("subscribeBtnText");
+        const originalText = btnText.textContent;
+        btnText.textContent = "Processing...";
+
+        const body = { payment_method: selectedPaymentMethod };
+        if (selectedPaymentMethod === "BANK_TRANSFER") {
+          const ref = document.getElementById("transferRef").value.trim();
+          if (ref) body.transfer_reference = ref;
+        }
+
+        try {
+          const res = await fetch(`${API_BASE}/auth/membership/subscribe`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "Subscription failed");
+          }
+
+          msgDiv.className = "msg msg-success";
+          msgDiv.textContent = `✅ Membership activated! Charged ฿${data.charged_amount_thb}. Your member rate (฿150/hr) is now active. Expires: ${new Date(data.membership.membership_expires_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}`;
+
+          // Reload status
+          await loadMembershipStatus();
+        } catch (err) {
+          msgDiv.className = "msg msg-error";
+          msgDiv.textContent = `❌ ${err.message}`;
+        } finally {
+          subscribeBtn.disabled = false;
+          btnText.textContent = originalText;
+        }
+      }
+
+      // ─── Savings Calculator ─────────────────────
+      function updateCalculator() {
+        const hoursPerWeek = parseInt(
+          document.getElementById("calcHours").value,
+        );
+        const hoursPerMonth = hoursPerWeek * 4;
+
+        const standardMonthly = 200 * hoursPerMonth;
+        const memberMonthly = 150 * hoursPerMonth + 199;
+        const savings = standardMonthly - memberMonthly;
+
+        document.getElementById("calcStandard").textContent =
+          `฿${standardMonthly.toLocaleString()}`;
+        document.getElementById("calcMember").textContent =
+          `฿${memberMonthly.toLocaleString()}`;
+
+        const savingsEl = document.getElementById("calcSavings");
+        if (savings > 0) {
+          savingsEl.textContent = `You save ฿${savings.toLocaleString()} per month!`;
+          savingsEl.style.display = "block";
+        } else {
+          savingsEl.textContent = `Membership pays for itself at ${Math.ceil(199 / 50)}+ hours/week. You still get the exclusive member experience!`;
+          savingsEl.style.display = "block";
+        }
+      }
+
+      // ─── Initialize ─────────────────────────────
+      checkAuth();
+      loadMembershipStatus();
+      updateCalculator();
+    </script>
+  </body>
+</html>
