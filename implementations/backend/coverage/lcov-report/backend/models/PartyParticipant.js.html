@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for backend/middleware/i18n.js</title>
+    <title>Code coverage report for backend/models/PartyParticipant.js</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">backend/middleware</a> i18n.js</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">backend/models</a> PartyParticipant.js</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>8/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">20% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>1/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>3/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>8/10</span>
             </div>
         
             
@@ -100,23 +100,17 @@
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
 <a name='L37'></a><a href='#L37'>37</a>
-<a name='L38'></a><a href='#L38'>38</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -124,56 +118,80 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const fs = require('fs');
-const path = require('path');
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const pool = require("../config/db");
 &nbsp;
-// Load all translation files at startup
-const locales = {};
-['en', 'th', 'zh'].forEach(lang =&gt; {
-  const filePath = path.join(__dirname, '..', 'locales', `${lang}.json`);
-  locales[lang] = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-});
+class PartyParticipant {
+  static async add({ party_id, user_id }, dbClient = <span class="branch-0 cbranch-no" title="branch not covered" >pool)</span> {
+    const result = await dbClient.query(
+      `INSERT INTO party_participants (party_id, user_id)
+       VALUES ($1, $2)
+       RETURNING *`,
+      [party_id, user_id],
+    );
+    return result.rows[0];
+  }
 &nbsp;
-/**
- * i18n Middleware
- * Detects language from:
- * 1. Query param: ?lang=th
- * 2. Header: Accept-Language
- * 3. Default: 'en'
- *
- * Attaches `req.t` (translations) and `req.lang` to the request.
- *
- * Usage in controller:
- *   res.json({ message: req.t.common.success });
- */
-const i18n = (req, res, next) =&gt; {
-  // Priority: query param &gt; header &gt; default
-  let lang = req.query.lang
-    || req.headers['accept-language']?.split(',')[0]?.split('-')[0]
-    || 'en';
+  static async exists(partyId, userId, dbClient = <span class="branch-0 cbranch-no" title="branch not covered" >pool)</span> {
+    const result = await dbClient.query(
+      `SELECT id FROM party_participants WHERE party_id = $1 AND user_id = $2`,
+      [partyId, userId],
+    );
+    return result.rows[0];
+  }
 &nbsp;
-  // Validate language
-  if (!locales[lang]) lang = 'en';
+  static async countByParty(partyId, dbClient = <span class="branch-0 cbranch-no" title="branch not covered" >pool)</span> {
+    const result = await dbClient.query(
+      `SELECT COUNT(*)::int AS count FROM party_participants WHERE party_id = $1`,
+      [partyId],
+    );
+    return result.rows[0]?.count || <span class="branch-1 cbranch-no" title="branch not covered" >0;</span>
+  }
 &nbsp;
-  req.lang = lang;
-  req.t = locales[lang];
-  next();
-};
+<span class="fstat-no" title="function not covered" >  st</span>atic async findByUser(userId) {
+    const result = <span class="cstat-no" title="statement not covered" >await pool.query(</span>
+      `SELECT pp.*, p.title, p.game_name, p.game_date_time, p.location, p.capacity, p.status
+       FROM party_participants pp
+       JOIN parties p ON pp.party_id = p.id
+       WHERE pp.user_id = $1
+       ORDER BY p.game_date_time DESC`,
+      [userId],
+    );
+<span class="cstat-no" title="statement not covered" >    return result.rows;</span>
+  }
+}
 &nbsp;
-module.exports = i18n;
+module.exports = PartyParticipant;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
