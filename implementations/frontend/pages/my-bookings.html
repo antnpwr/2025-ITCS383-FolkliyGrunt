@@ -1,182 +1,381 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Manage your badminton court bookings, view active waitlists, and check reviews.">
-  <title>My Bookings - Pro Badminton</title>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
-  <link rel="stylesheet" href="/css/theme.css">
-  <style>
-    body{margin:0}
-    .dash-header{padding:1.5rem 2rem;border-bottom:1px solid var(--pb-border);display:flex;align-items:center;justify-content:space-between}
-    .dash-header h2{color:var(--pb-text-heading);font-size:1.3rem;margin:0}
-    .stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;padding:2rem}
-    .stat-card{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-lg);padding:1.25rem;text-align:center}
-    .stat-card .num{font-size:1.8rem;font-weight:700;color:var(--pb-primary)}
-    .stat-card .label{font-size:0.8rem;color:var(--pb-text-muted);margin-top:0.25rem}
-    .dash-section{padding:0 2rem 2rem}
-    .dash-section h3{color:var(--pb-text-heading);font-size:1.1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem}
-    .booking-card{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-lg);padding:1.25rem;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:border-color 0.2s}
-    .booking-card:hover{border-color:var(--pb-primary)}
-    .booking-info h4{color:var(--pb-text-heading);margin:0 0 0.3rem;font-size:0.95rem}
-    .booking-info p{color:var(--pb-text-muted);font-size:0.82rem;margin:0.15rem 0}
-    .booking-actions{display:flex;gap:0.5rem;align-items:center;flex-shrink:0}
-    .empty-state{text-align:center;padding:2.5rem;color:var(--pb-text-muted)}
-    .empty-state .material-symbols-outlined{font-size:2.5rem;color:var(--pb-border);display:block;margin-bottom:0.5rem}
-  </style>
-</head>
-<body class="pb-page">
-  <div class="pb-layout-sidebar">
-    <!-- Sidebar -->
-    <aside class="pb-sidebar">
-      <div class="pb-sidebar-brand">
-        <div class="pb-sidebar-brand-icon">🏸</div>
-        <div>
-          <h1>Pro Badminton</h1>
-          <p>User Dashboard</p>
-        </div>
-      </div>
-      <nav class="pb-sidebar-nav">
-        <a href="/"><span class="material-symbols-outlined">home</span> <span data-i18n="nav.home">Home</span></a>
-        <a href="/pages/search.html"><span class="material-symbols-outlined">search</span> <span data-i18n="nav.search">Find Courts</span></a>
-        <a href="/pages/my-bookings.html" class="active"><span class="material-symbols-outlined">calendar_month</span> <span data-i18n="nav.my_bookings">My Bookings</span></a>
-        <a href="/pages/waitlist.html"><span class="material-symbols-outlined">hourglass_top</span> <span data-i18n="nav.my_waitlist">Waitlists</span></a>
-        <a href="/pages/reviews.html"><span class="material-symbols-outlined">reviews</span> Reviews</a>
-      </nav>
-      <div class="pb-sidebar-user" id="sidebarUser">
-        <div class="pb-sidebar-user-avatar" id="userAvatar">?</div>
-        <div>
-          <div style="color:var(--pb-text-heading);font-weight:600;font-size:0.88rem" id="userName">Loading...</div>
-          <div style="color:var(--pb-text-muted);font-size:0.75rem" id="userRole">Customer</div>
-        </div>
-        <button class="pb-btn pb-btn-ghost" style="margin-left:auto" onclick="logout()" title="Logout">
-          <span class="material-symbols-outlined">logout</span>
-        </button>
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="pb-main-content">
-      <div class="dash-header">
-        <h2 data-i18n="nav.my_bookings">My Bookings</h2>
-        <div class="pb-lang-picker">
-          <button class="lang-btn active" data-lang="en" onclick="I18n.setLang('en')">EN</button>
-          <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">TH</button>
-          <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">中文</button>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="stat-cards" id="statsRow">
-        <div class="stat-card"><div class="num" id="statTotal">-</div><div class="label">Total Bookings</div></div>
-        <div class="stat-card"><div class="num" id="statConfirmed" style="color:var(--pb-success)">-</div><div class="label">Confirmed</div></div>
-        <div class="stat-card"><div class="num" id="statPending" style="color:var(--pb-warning)">-</div><div class="label">Pending</div></div>
-        <div class="stat-card"><div class="num" id="statCancelled" style="color:var(--pb-error)">-</div><div class="label">Cancelled</div></div>
-      </div>
-
-      <!-- Bookings List -->
-      <div class="dash-section">
-        <h3><span class="material-symbols-outlined">calendar_today</span> Active & Past Bookings</h3>
-        <div id="bookingsList">
-          <div class="empty-state">
-            <span class="material-symbols-outlined">hourglass_top</span>
-            <span data-i18n="common.loading">Loading...</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Manage your badminton court bookings, view active waitlists, and check reviews."
+    />
+    <title>My Bookings - Pro Badminton</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <style>
+      body {
+        margin: 0;
+      }
+      .dash-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--pb-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .dash-header h2 {
+        color: var(--pb-text-heading);
+        font-size: 1.3rem;
+        margin: 0;
+      }
+      .stat-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        padding: 2rem;
+      }
+      .stat-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-lg);
+        padding: 1.25rem;
+        text-align: center;
+      }
+      .stat-card .num {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--pb-primary);
+      }
+      .stat-card .label {
+        font-size: 0.8rem;
+        color: var(--pb-text-muted);
+        margin-top: 0.25rem;
+      }
+      .dash-section {
+        padding: 0 2rem 2rem;
+      }
+      .dash-section h3 {
+        color: var(--pb-text-heading);
+        font-size: 1.1rem;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .booking-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        transition: border-color 0.2s;
+      }
+      .booking-card:hover {
+        border-color: var(--pb-primary);
+      }
+      .booking-info h4 {
+        color: var(--pb-text-heading);
+        margin: 0 0 0.3rem;
+        font-size: 0.95rem;
+      }
+      .booking-info p {
+        color: var(--pb-text-muted);
+        font-size: 0.82rem;
+        margin: 0.15rem 0;
+      }
+      .booking-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 2.5rem;
+        color: var(--pb-text-muted);
+      }
+      .empty-state .material-symbols-outlined {
+        font-size: 2.5rem;
+        color: var(--pb-border);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body class="pb-page">
+    <div class="pb-layout-sidebar">
+      <!-- Sidebar -->
+      <aside class="pb-sidebar">
+        <div class="pb-sidebar-brand">
+          <div class="pb-sidebar-brand-icon">🏸</div>
+          <div>
+            <h1>Pro Badminton</h1>
+            <p>User Dashboard</p>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
+        <nav class="pb-sidebar-nav">
+          <a href="/"
+            ><span class="material-symbols-outlined">home</span>
+            <span data-i18n="nav.home">Home</span></a
+          >
+          <a href="/pages/search.html"
+            ><span class="material-symbols-outlined">search</span>
+            <span data-i18n="nav.search">Find Courts</span></a
+          >
+          <a href="/pages/my-bookings.html" class="active"
+            ><span class="material-symbols-outlined">calendar_month</span>
+            <span data-i18n="nav.my_bookings">My Bookings</span></a
+          >
+          <a href="/pages/membership.html"
+            ><span class="material-symbols-outlined">card_membership</span>
+            Membership</a
+          >
+          <a href="/pages/waitlist.html"
+            ><span class="material-symbols-outlined">hourglass_top</span>
+            <span data-i18n="nav.my_waitlist">Waitlists</span></a
+          >
+          <a href="/pages/reviews.html"
+            ><span class="material-symbols-outlined">reviews</span> Reviews</a
+          >
+        </nav>
+        <div class="pb-sidebar-user" id="sidebarUser">
+          <div class="pb-sidebar-user-avatar" id="userAvatar">?</div>
+          <div>
+            <div
+              style="
+                color: var(--pb-text-heading);
+                font-weight: 600;
+                font-size: 0.88rem;
+              "
+              id="userName"
+            >
+              Loading...
+            </div>
+            <div
+              style="color: var(--pb-text-muted); font-size: 0.75rem"
+              id="userRole"
+            >
+              Customer
+            </div>
+          </div>
+          <button
+            class="pb-btn pb-btn-ghost"
+            style="margin-left: auto"
+            onclick="logout()"
+            title="Logout"
+          >
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </aside>
 
-  <script src="/js/i18n.js"></script>
-  <script>
-    const API_URL = '/api';
-    const token = localStorage.getItem('supabase_token');
-    if (!token) globalThis.location.href = '/pages/login.html';
+      <!-- Main Content -->
+      <main class="pb-main-content">
+        <div class="dash-header">
+          <h2 data-i18n="nav.my_bookings">My Bookings</h2>
+          <div class="pb-lang-picker">
+            <button
+              class="lang-btn active"
+              data-lang="en"
+              onclick="I18n.setLang('en')"
+            >
+              EN
+            </button>
+            <button
+              class="lang-btn"
+              data-lang="th"
+              onclick="I18n.setLang('th')"
+            >
+              TH
+            </button>
+            <button
+              class="lang-btn"
+              data-lang="zh"
+              onclick="I18n.setLang('zh')"
+            >
+              中文
+            </button>
+          </div>
+        </div>
 
-    const authHeaders = () => ({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
+        <!-- Stats -->
+        <div class="stat-cards" id="statsRow">
+          <div class="stat-card">
+            <div class="num" id="statTotal">-</div>
+            <div class="label">Total Bookings</div>
+          </div>
+          <div class="stat-card">
+            <div
+              class="num"
+              id="statConfirmed"
+              style="color: var(--pb-success)"
+            >
+              -
+            </div>
+            <div class="label">Confirmed</div>
+          </div>
+          <div class="stat-card">
+            <div class="num" id="statPending" style="color: var(--pb-warning)">
+              -
+            </div>
+            <div class="label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="num" id="statCancelled" style="color: var(--pb-error)">
+              -
+            </div>
+            <div class="label">Cancelled</div>
+          </div>
+        </div>
 
-    function statusBadgeClass(s) {
-      if (s === 'CONFIRMED') return 'pb-badge-confirmed';
-      if (s === 'PENDING') return 'pb-badge-pending';
-      if (s === 'CANCELLED') return 'pb-badge-cancelled';
-      return 'pb-badge-notified';
-    }
+        <!-- Bookings List -->
+        <div class="dash-section">
+          <h3>
+            <span class="material-symbols-outlined">calendar_today</span> Active
+            & Past Bookings
+          </h3>
+          <div id="bookingsList">
+            <div class="empty-state">
+              <span class="material-symbols-outlined">hourglass_top</span>
+              <span data-i18n="common.loading">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
 
-    async function loadProfile() {
-      try {
-        const res = await fetch(`${API_URL}/auth/profile`, { headers: authHeaders() });
-        const data = await res.json();
-        if (data.profile) {
-          document.getElementById('userName').textContent = data.profile.full_name;
-          document.getElementById('userRole').textContent = data.profile.role;
-          document.getElementById('userAvatar').textContent = data.profile.full_name?.charAt(0)?.toUpperCase() || '?';
+    <script src="/js/i18n.js"></script>
+    <script>
+      const API_URL = "/api";
+      const token = localStorage.getItem("supabase_token");
+      if (!token) globalThis.location.href = "/pages/login.html";
+
+      const authHeaders = () => ({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      });
+
+      function statusBadgeClass(s) {
+        if (s === "CONFIRMED") return "pb-badge-confirmed";
+        if (s === "PENDING") return "pb-badge-pending";
+        if (s === "CANCELLED") return "pb-badge-cancelled";
+        return "pb-badge-notified";
+      }
+
+      async function loadProfile() {
+        try {
+          const res = await fetch(`${API_URL}/auth/profile`, {
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          if (data.profile) {
+            document.getElementById("userName").textContent =
+              data.profile.full_name;
+            document.getElementById("userRole").textContent = data.profile.role;
+            document.getElementById("userAvatar").textContent =
+              data.profile.full_name?.charAt(0)?.toUpperCase() || "?";
+          }
+        } catch (e) {
+          /* silent */
         }
-      } catch(e) { /* silent */ }
-    }
+      }
 
-    async function loadBookings() {
-      const list = document.getElementById('bookingsList');
-      try {
-        const res = await fetch(`${API_URL}/bookings/my`, { headers: authHeaders() });
-        const bookings = await res.json();
-        if (!res.ok) throw new Error(bookings.error);
+      async function loadBookings() {
+        const list = document.getElementById("bookingsList");
+        try {
+          const res = await fetch(`${API_URL}/bookings/my`, {
+            headers: authHeaders(),
+          });
+          const bookings = await res.json();
+          if (!res.ok) throw new Error(bookings.error);
 
-        // Stats
-        document.getElementById('statTotal').textContent = bookings.length;
-        document.getElementById('statConfirmed').textContent = bookings.filter(b => b.booking_status === 'CONFIRMED').length;
-        document.getElementById('statPending').textContent = bookings.filter(b => b.booking_status === 'PENDING').length;
-        document.getElementById('statCancelled').textContent = bookings.filter(b => b.booking_status === 'CANCELLED').length;
+          // Stats
+          document.getElementById("statTotal").textContent = bookings.length;
+          document.getElementById("statConfirmed").textContent =
+            bookings.filter((b) => b.booking_status === "CONFIRMED").length;
+          document.getElementById("statPending").textContent = bookings.filter(
+            (b) => b.booking_status === "PENDING",
+          ).length;
+          document.getElementById("statCancelled").textContent =
+            bookings.filter((b) => b.booking_status === "CANCELLED").length;
 
-        if (bookings.length === 0) {
-          list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">event_busy</span><p>No bookings yet. <a href="/pages/search.html" style="color:var(--pb-primary)">Find a court</a> to get started!</p></div>`;
-          return;
-        }
+          if (bookings.length === 0) {
+            list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">event_busy</span><p>No bookings yet. <a href="/pages/search.html" style="color:var(--pb-primary)">Find a court</a> to get started!</p></div>`;
+            return;
+          }
 
-        list.innerHTML = bookings.map(b => {
-          const start = new Date(b.start_time);
-          const end = new Date(b.end_time);
-          const dateStr = start.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-          const timeStr = `${start.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})} – ${end.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`;
-          const canCancel = (b.booking_status === 'CONFIRMED' || b.booking_status === 'PENDING') && start > new Date();
-          return `
+          list.innerHTML = bookings
+            .map((b) => {
+              const start = new Date(b.start_time);
+              const end = new Date(b.end_time);
+              const dateStr = start.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              });
+              const timeStr = `${start.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} – ${end.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+              const canCancel =
+                (b.booking_status === "CONFIRMED" ||
+                  b.booking_status === "PENDING") &&
+                start > new Date();
+              return `
             <div class="booking-card">
               <div class="booking-info">
-                <h4>${b.court_name || 'Court'}</h4>
+                <h4>${b.court_name || "Court"}</h4>
                 <p>📅 ${dateStr} &nbsp; 🕐 ${timeStr}</p>
-                <p>💰 ฿${b.total_amount} &nbsp; 💳 ${b.payment_method || 'N/A'}</p>
+                <p>💰 ฿${b.total_amount} &nbsp; 💳 ${b.payment_method || "N/A"}</p>
               </div>
               <div class="booking-actions">
                 <span class="pb-badge ${statusBadgeClass(b.booking_status)}">${b.booking_status}</span>
-                ${canCancel ? `<button class="pb-btn pb-btn-danger" style="font-size:0.78rem;padding:0.4rem 0.8rem" onclick="cancelBooking('${b.id}')" data-i18n="booking.cancel">Cancel</button>` : ''}
+                ${canCancel ? `<button class="pb-btn pb-btn-danger" style="font-size:0.78rem;padding:0.4rem 0.8rem" onclick="cancelBooking('${b.id}')" data-i18n="booking.cancel">Cancel</button>` : ""}
               </div>
             </div>`;
-        }).join('');
-      } catch (err) {
-        list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">error</span><p>${err.message}</p></div>`;
+            })
+            .join("");
+        } catch (err) {
+          list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">error</span><p>${err.message}</p></div>`;
+        }
       }
-    }
 
-    async function cancelBooking(id) {
-      if (!confirm(I18n.t('booking.cancel_confirm') || 'Cancel this booking? You will receive a full refund.')) return;
-      try {
-        const res = await fetch(`${API_URL}/bookings/${id}`, { method: 'DELETE', headers: authHeaders() });
-        if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
-        loadBookings();
-      } catch (err) { alert(err.message); }
-    }
+      async function cancelBooking(id) {
+        if (
+          !confirm(
+            I18n.t("booking.cancel_confirm") ||
+              "Cancel this booking? You will receive a full refund.",
+          )
+        )
+          return;
+        try {
+          const res = await fetch(`${API_URL}/bookings/${id}`, {
+            method: "DELETE",
+            headers: authHeaders(),
+          });
+          if (!res.ok) {
+            const d = await res.json();
+            throw new Error(d.error);
+          }
+          loadBookings();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
 
-    function logout() {
-      localStorage.removeItem('supabase_token');
-      globalThis.location.href = '/pages/login.html';
-    }
+      function logout() {
+        localStorage.removeItem("supabase_token");
+        globalThis.location.href = "/pages/login.html";
+      }
 
-    loadProfile();
-    loadBookings();
-  </script>
-</body>
+      loadProfile();
+      loadBookings();
+    </script>
+  </body>
 </html>

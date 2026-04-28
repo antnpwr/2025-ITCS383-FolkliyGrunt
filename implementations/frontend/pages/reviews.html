@@ -1,260 +1,524 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Read and write reviews for badminton courts you have played at.">
-  <title>Reviews - Pro Badminton</title>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" rel="stylesheet">
-  <link rel="stylesheet" href="/css/theme.css">
-  <style>
-    body{margin:0}
-    .dash-header{padding:1.5rem 2rem;border-bottom:1px solid var(--pb-border);display:flex;align-items:center;justify-content:space-between}
-    .dash-header h2{color:var(--pb-text-heading);font-size:1.3rem;margin:0}
-    .dash-section{padding:2rem}
-    .tab-bar{display:flex;gap:0;margin-bottom:1.5rem;background:var(--pb-surface);border-radius:var(--pb-radius-lg);overflow:hidden;border:1px solid var(--pb-border)}
-    .tab-btn{flex:1;padding:0.75rem;border:none;background:transparent;color:var(--pb-text-muted);font-family:var(--pb-font);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s}
-    .tab-btn.active{background:var(--pb-primary);color:white}
-    .tab-content{display:none}
-    .tab-content.active{display:block}
-    .review-card{background:var(--pb-surface);border:1px solid var(--pb-border);border-radius:var(--pb-radius-lg);padding:1.25rem;margin-bottom:0.75rem}
-    .review-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem}
-    .review-card-header h4{color:var(--pb-text-heading);margin:0;font-size:0.95rem}
-    .review-card-header .date{color:var(--pb-text-muted);font-size:0.78rem}
-    .review-stars{color:#f59e0b;font-size:1.1rem;letter-spacing:0.05em;margin-bottom:0.5rem}
-    .review-comment{color:var(--pb-text);font-size:0.88rem;line-height:1.5}
-    .empty-state{text-align:center;padding:2.5rem;color:var(--pb-text-muted)}
-    .empty-state .material-symbols-outlined{font-size:2.5rem;color:var(--pb-border);display:block;margin-bottom:0.5rem}
-    /* Star Picker */
-    .star-picker{display:flex;gap:0.3rem;margin-bottom:0.5rem}
-    .star-picker span{font-size:2rem;cursor:pointer;color:var(--pb-border);transition:color 0.15s}
-    .star-picker span.lit{color:#f59e0b}
-    .star-picker span:hover,.star-picker span:hover~span{color:var(--pb-border)}
-    .alert-msg{padding:0.7rem 1rem;border-radius:var(--pb-radius);font-size:0.85rem;display:none;margin-bottom:1rem}
-    .alert-error{background:rgba(239,68,68,0.1);color:var(--pb-error);border:1px solid rgba(239,68,68,0.2)}
-    .alert-success{background:rgba(34,197,94,0.1);color:var(--pb-success);border:1px solid rgba(34,197,94,0.2)}
-  </style>
-</head>
-<body class="pb-page">
-  <div class="pb-layout-sidebar">
-    <aside class="pb-sidebar">
-      <div class="pb-sidebar-brand">
-        <div class="pb-sidebar-brand-icon">🏸</div>
-        <div><h1>Pro Badminton</h1><p>User Dashboard</p></div>
-      </div>
-      <nav class="pb-sidebar-nav">
-        <a href="/"><span class="material-symbols-outlined">home</span> <span data-i18n="nav.home">Home</span></a>
-        <a href="/pages/search.html"><span class="material-symbols-outlined">search</span> <span data-i18n="nav.search">Find Courts</span></a>
-        <a href="/pages/my-bookings.html"><span class="material-symbols-outlined">calendar_month</span> <span data-i18n="nav.my_bookings">My Bookings</span></a>
-        <a href="/pages/waitlist.html"><span class="material-symbols-outlined">hourglass_top</span> <span data-i18n="nav.my_waitlist">Waitlists</span></a>
-        <a href="/pages/reviews.html" class="active"><span class="material-symbols-outlined">reviews</span> Reviews</a>
-      </nav>
-      <div class="pb-sidebar-user">
-        <div class="pb-sidebar-user-avatar" id="userAvatar">?</div>
-        <div>
-          <div style="color:var(--pb-text-heading);font-weight:600;font-size:0.88rem" id="userName">Loading...</div>
-          <div style="color:var(--pb-text-muted);font-size:0.75rem" id="userRole">Customer</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Read and write reviews for badminton courts you have played at."
+    />
+    <title>Reviews - Pro Badminton</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <style>
+      body {
+        margin: 0;
+      }
+      .dash-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--pb-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .dash-header h2 {
+        color: var(--pb-text-heading);
+        font-size: 1.3rem;
+        margin: 0;
+      }
+      .dash-section {
+        padding: 2rem;
+      }
+      .tab-bar {
+        display: flex;
+        gap: 0;
+        margin-bottom: 1.5rem;
+        background: var(--pb-surface);
+        border-radius: var(--pb-radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--pb-border);
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        background: transparent;
+        color: var(--pb-text-muted);
+        font-family: var(--pb-font);
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .tab-btn.active {
+        background: var(--pb-primary);
+        color: white;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .review-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+      .review-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+      .review-card-header h4 {
+        color: var(--pb-text-heading);
+        margin: 0;
+        font-size: 0.95rem;
+      }
+      .review-card-header .date {
+        color: var(--pb-text-muted);
+        font-size: 0.78rem;
+      }
+      .review-stars {
+        color: #f59e0b;
+        font-size: 1.1rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+      }
+      .review-comment {
+        color: var(--pb-text);
+        font-size: 0.88rem;
+        line-height: 1.5;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 2.5rem;
+        color: var(--pb-text-muted);
+      }
+      .empty-state .material-symbols-outlined {
+        font-size: 2.5rem;
+        color: var(--pb-border);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      /* Star Picker */
+      .star-picker {
+        display: flex;
+        gap: 0.3rem;
+        margin-bottom: 0.5rem;
+      }
+      .star-picker span {
+        font-size: 2rem;
+        cursor: pointer;
+        color: var(--pb-border);
+        transition: color 0.15s;
+      }
+      .star-picker span.lit {
+        color: #f59e0b;
+      }
+      .star-picker span:hover,
+      .star-picker span:hover ~ span {
+        color: var(--pb-border);
+      }
+      .alert-msg {
+        padding: 0.7rem 1rem;
+        border-radius: var(--pb-radius);
+        font-size: 0.85rem;
+        display: none;
+        margin-bottom: 1rem;
+      }
+      .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--pb-error);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--pb-success);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+    </style>
+  </head>
+  <body class="pb-page">
+    <div class="pb-layout-sidebar">
+      <aside class="pb-sidebar">
+        <div class="pb-sidebar-brand">
+          <div class="pb-sidebar-brand-icon">🏸</div>
+          <div>
+            <h1>Pro Badminton</h1>
+            <p>User Dashboard</p>
+          </div>
         </div>
-        <button class="pb-btn pb-btn-ghost" style="margin-left:auto" onclick="logout()"><span class="material-symbols-outlined">logout</span></button>
-      </div>
-    </aside>
-
-    <main class="pb-main-content">
-      <div class="dash-header">
-        <h2 data-i18n="review.title">Reviews</h2>
-        <div class="pb-lang-picker">
-          <button class="lang-btn active" data-lang="en" onclick="I18n.setLang('en')">EN</button>
-          <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">TH</button>
-          <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">中文</button>
-        </div>
-      </div>
-
-      <div class="dash-section">
-        <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchTab('my', this)" data-i18n="review.title">My Reviews</button>
-          <button class="tab-btn" onclick="switchTab('write', this)" data-i18n="review.write_review">Write a Review</button>
-        </div>
-
-        <!-- My Reviews Tab -->
-        <div class="tab-content active" id="tab-my">
-          <div id="myReviewsList">
-            <div class="empty-state">
-              <span class="material-symbols-outlined">hourglass_top</span>
-              <span data-i18n="common.loading">Loading...</span>
+        <nav class="pb-sidebar-nav">
+          <a href="/"
+            ><span class="material-symbols-outlined">home</span>
+            <span data-i18n="nav.home">Home</span></a
+          >
+          <a href="/pages/search.html"
+            ><span class="material-symbols-outlined">search</span>
+            <span data-i18n="nav.search">Find Courts</span></a
+          >
+          <a href="/pages/my-bookings.html"
+            ><span class="material-symbols-outlined">calendar_month</span>
+            <span data-i18n="nav.my_bookings">My Bookings</span></a
+          >
+          <a href="/pages/membership.html"
+            ><span class="material-symbols-outlined">card_membership</span>
+            Membership</a
+          >
+          <a href="/pages/waitlist.html"
+            ><span class="material-symbols-outlined">hourglass_top</span>
+            <span data-i18n="nav.my_waitlist">Waitlists</span></a
+          >
+          <a href="/pages/reviews.html" class="active"
+            ><span class="material-symbols-outlined">reviews</span> Reviews</a
+          >
+        </nav>
+        <div class="pb-sidebar-user">
+          <div class="pb-sidebar-user-avatar" id="userAvatar">?</div>
+          <div>
+            <div
+              style="
+                color: var(--pb-text-heading);
+                font-weight: 600;
+                font-size: 0.88rem;
+              "
+              id="userName"
+            >
+              Loading...
             </div>
+            <div
+              style="color: var(--pb-text-muted); font-size: 0.75rem"
+              id="userRole"
+            >
+              Customer
+            </div>
+          </div>
+          <button
+            class="pb-btn pb-btn-ghost"
+            style="margin-left: auto"
+            onclick="logout()"
+          >
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="pb-main-content">
+        <div class="dash-header">
+          <h2 data-i18n="review.title">Reviews</h2>
+          <div class="pb-lang-picker">
+            <button
+              class="lang-btn active"
+              data-lang="en"
+              onclick="I18n.setLang('en')"
+            >
+              EN
+            </button>
+            <button
+              class="lang-btn"
+              data-lang="th"
+              onclick="I18n.setLang('th')"
+            >
+              TH
+            </button>
+            <button
+              class="lang-btn"
+              data-lang="zh"
+              onclick="I18n.setLang('zh')"
+            >
+              中文
+            </button>
           </div>
         </div>
 
-        <!-- Write Review Tab -->
-        <div class="tab-content" id="tab-write">
-          <div class="pb-card" style="max-width:560px">
-            <h3 style="color:var(--pb-text-heading);margin:0 0 0.5rem" data-i18n="review.write_review">Write a Review</h3>
-            <p style="color:var(--pb-text-muted);font-size:0.82rem;margin:0 0 1.5rem">You can only review courts where you have a completed booking.</p>
+        <div class="dash-section">
+          <div class="tab-bar">
+            <button
+              class="tab-btn active"
+              onclick="switchTab('my', this)"
+              data-i18n="review.title"
+            >
+              My Reviews
+            </button>
+            <button
+              class="tab-btn"
+              onclick="switchTab('write', this)"
+              data-i18n="review.write_review"
+            >
+              Write a Review
+            </button>
+          </div>
 
-            <div id="reviewError" class="alert-msg alert-error"></div>
-            <div id="reviewSuccess" class="alert-msg alert-success"></div>
-
-            <div class="pb-form-group">
-              <label class="pb-label">Select Court</label>
-              <select class="pb-input" id="reviewCourt">
-                <option value="">-- Select a court --</option>
-              </select>
-            </div>
-
-            <div class="pb-form-group">
-              <label class="pb-label" data-i18n="review.rating">Rating</label>
-              <div class="star-picker" id="starPicker">
-                <span data-val="1" onclick="setRating(1)">★</span>
-                <span data-val="2" onclick="setRating(2)">★</span>
-                <span data-val="3" onclick="setRating(3)">★</span>
-                <span data-val="4" onclick="setRating(4)">★</span>
-                <span data-val="5" onclick="setRating(5)">★</span>
+          <!-- My Reviews Tab -->
+          <div class="tab-content active" id="tab-my">
+            <div id="myReviewsList">
+              <div class="empty-state">
+                <span class="material-symbols-outlined">hourglass_top</span>
+                <span data-i18n="common.loading">Loading...</span>
               </div>
             </div>
+          </div>
 
-            <div class="pb-form-group">
-              <label class="pb-label" data-i18n="review.comment">Your comment</label>
-              <textarea class="pb-input" id="reviewComment" rows="4" placeholder="Share your experience..." style="resize:vertical"></textarea>
+          <!-- Write Review Tab -->
+          <div class="tab-content" id="tab-write">
+            <div class="pb-card" style="max-width: 560px">
+              <h3
+                style="color: var(--pb-text-heading); margin: 0 0 0.5rem"
+                data-i18n="review.write_review"
+              >
+                Write a Review
+              </h3>
+              <p
+                style="
+                  color: var(--pb-text-muted);
+                  font-size: 0.82rem;
+                  margin: 0 0 1.5rem;
+                "
+              >
+                You can only review courts where you have a completed booking.
+              </p>
+
+              <div id="reviewError" class="alert-msg alert-error"></div>
+              <div id="reviewSuccess" class="alert-msg alert-success"></div>
+
+              <div class="pb-form-group">
+                <label class="pb-label">Select Court</label>
+                <select class="pb-input" id="reviewCourt">
+                  <option value="">-- Select a court --</option>
+                </select>
+              </div>
+
+              <div class="pb-form-group">
+                <label class="pb-label" data-i18n="review.rating">Rating</label>
+                <div class="star-picker" id="starPicker">
+                  <span data-val="1" onclick="setRating(1)">★</span>
+                  <span data-val="2" onclick="setRating(2)">★</span>
+                  <span data-val="3" onclick="setRating(3)">★</span>
+                  <span data-val="4" onclick="setRating(4)">★</span>
+                  <span data-val="5" onclick="setRating(5)">★</span>
+                </div>
+              </div>
+
+              <div class="pb-form-group">
+                <label class="pb-label" data-i18n="review.comment"
+                  >Your comment</label
+                >
+                <textarea
+                  class="pb-input"
+                  id="reviewComment"
+                  rows="4"
+                  placeholder="Share your experience..."
+                  style="resize: vertical"
+                ></textarea>
+              </div>
+
+              <button
+                class="pb-btn pb-btn-primary"
+                onclick="submitReview()"
+                data-i18n="review.submit"
+              >
+                Submit Review
+              </button>
             </div>
-
-            <button class="pb-btn pb-btn-primary" onclick="submitReview()" data-i18n="review.submit">Submit Review</button>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
+      </main>
+    </div>
 
-  <script src="/js/i18n.js"></script>
-  <script>
-    const API_URL = '/api';
-    const token = localStorage.getItem('supabase_token');
-    if (!token) globalThis.location.href = '/pages/login.html';
-    const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
-
-    let selectedRating = 0;
-
-    function switchTab(tab, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(`tab-${tab}`).classList.add('active');
-    }
-
-    function setRating(val) {
-      selectedRating = val;
-      document.querySelectorAll('#starPicker span').forEach(s => {
-        s.classList.toggle('lit', Number.parseInt(s.dataset.val) <= val);
+    <script src="/js/i18n.js"></script>
+    <script>
+      const API_URL = "/api";
+      const token = localStorage.getItem("supabase_token");
+      if (!token) globalThis.location.href = "/pages/login.html";
+      const authHeaders = () => ({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       });
-    }
 
-    function starsHtml(r) {
-      const full = Math.round(Number.parseFloat(r) || 0);
-      return '<span style="color:#f59e0b">' + '★'.repeat(full) + '</span><span style="color:var(--pb-border)">' + '☆'.repeat(5 - full) + '</span>';
-    }
+      let selectedRating = 0;
 
-    async function loadProfile() {
-      try {
-        const res = await fetch(`${API_URL}/auth/profile`, { headers: authHeaders() });
-        const data = await res.json();
-        if (data.profile) {
-          document.getElementById('userName').textContent = data.profile.full_name;
-          document.getElementById('userRole').textContent = data.profile.role;
-          document.getElementById('userAvatar').textContent = data.profile.full_name?.charAt(0)?.toUpperCase() || '?';
+      function switchTab(tab, btn) {
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((c) => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`tab-${tab}`).classList.add("active");
+      }
+
+      function setRating(val) {
+        selectedRating = val;
+        document.querySelectorAll("#starPicker span").forEach((s) => {
+          s.classList.toggle("lit", Number.parseInt(s.dataset.val) <= val);
+        });
+      }
+
+      function starsHtml(r) {
+        const full = Math.round(Number.parseFloat(r) || 0);
+        return (
+          '<span style="color:#f59e0b">' +
+          "★".repeat(full) +
+          '</span><span style="color:var(--pb-border)">' +
+          "☆".repeat(5 - full) +
+          "</span>"
+        );
+      }
+
+      async function loadProfile() {
+        try {
+          const res = await fetch(`${API_URL}/auth/profile`, {
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          if (data.profile) {
+            document.getElementById("userName").textContent =
+              data.profile.full_name;
+            document.getElementById("userRole").textContent = data.profile.role;
+            document.getElementById("userAvatar").textContent =
+              data.profile.full_name?.charAt(0)?.toUpperCase() || "?";
+          }
+        } catch (e) {
+          /* silent */
         }
-      } catch(e) { /* silent */ }
-    }
+      }
 
-    async function loadMyReviews() {
-      const list = document.getElementById('myReviewsList');
-      try {
-        const res = await fetch(`${API_URL}/reviews/my`, { headers: authHeaders() });
-        const reviews = await res.json();
-        if (!res.ok) throw new Error(reviews.error);
+      async function loadMyReviews() {
+        const list = document.getElementById("myReviewsList");
+        try {
+          const res = await fetch(`${API_URL}/reviews/my`, {
+            headers: authHeaders(),
+          });
+          const reviews = await res.json();
+          if (!res.ok) throw new Error(reviews.error);
 
-        if (!reviews.length) {
-          list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">rate_review</span><p>You haven't written any reviews yet. Book a court and share your experience!</p></div>`;
-          return;
-        }
+          if (!reviews.length) {
+            list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">rate_review</span><p>You haven't written any reviews yet. Book a court and share your experience!</p></div>`;
+            return;
+          }
 
-        list.innerHTML = reviews.map(r => {
-          const date = new Date(r.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-          return `
+          list.innerHTML = reviews
+            .map((r) => {
+              const date = new Date(r.created_at).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              });
+              return `
             <div class="review-card">
               <div class="review-card-header">
-                <h4>${r.court_name || 'Court'}</h4>
+                <h4>${r.court_name || "Court"}</h4>
                 <span class="date">${date}</span>
               </div>
               <div class="review-stars">${starsHtml(r.rating)}</div>
               <div class="review-comment">${r.comment_text}</div>
             </div>`;
-        }).join('');
-      } catch (err) {
-        list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">error</span><p>${err.message}</p></div>`;
+            })
+            .join("");
+        } catch (err) {
+          list.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">error</span><p>${err.message}</p></div>`;
+        }
       }
-    }
 
-    async function loadBookedCourts() {
-      try {
-        const res = await fetch(`${API_URL}/bookings/my`, { headers: authHeaders() });
-        const bookings = await res.json();
-        const select = document.getElementById('reviewCourt');
-        // Get unique courts from completed/confirmed bookings
-        const seen = new Set();
-        const courts = bookings.filter(b => {
-          if (b.booking_status !== 'CONFIRMED' && b.booking_status !== 'COMPLETED') return false;
-          if (seen.has(b.court_id)) return false;
-          seen.add(b.court_id);
-          return true;
-        });
-        courts.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.court_id;
-          opt.textContent = c.court_name || 'Court';
-          select.appendChild(opt);
-        });
-      } catch(e) { /* silent */ }
-    }
-
-    async function submitReview() {
-      const errDiv = document.getElementById('reviewError');
-      const sucDiv = document.getElementById('reviewSuccess');
-      errDiv.style.display = 'none';
-      sucDiv.style.display = 'none';
-
-      const court_id = document.getElementById('reviewCourt').value;
-      const comment_text = document.getElementById('reviewComment').value.trim();
-      if (!court_id) { errDiv.textContent = 'Please select a court.'; errDiv.style.display = 'block'; return; }
-      if (!selectedRating) { errDiv.textContent = 'Please select a rating.'; errDiv.style.display = 'block'; return; }
-      if (!comment_text) { errDiv.textContent = 'Please write a comment.'; errDiv.style.display = 'block'; return; }
-
-      try {
-        const res = await fetch(`${API_URL}/reviews`, {
-          method: 'POST',
-          headers: authHeaders(),
-          body: JSON.stringify({ court_id, rating: selectedRating, comment_text })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        sucDiv.textContent = 'Review submitted successfully!';
-        sucDiv.style.display = 'block';
-        document.getElementById('reviewComment').value = '';
-        setRating(0);
-        loadMyReviews();
-      } catch (err) {
-        errDiv.textContent = err.message;
-        errDiv.style.display = 'block';
+      async function loadBookedCourts() {
+        try {
+          const res = await fetch(`${API_URL}/bookings/my`, {
+            headers: authHeaders(),
+          });
+          const bookings = await res.json();
+          const select = document.getElementById("reviewCourt");
+          // Get unique courts from completed/confirmed bookings
+          const seen = new Set();
+          const courts = bookings.filter((b) => {
+            if (
+              b.booking_status !== "CONFIRMED" &&
+              b.booking_status !== "COMPLETED"
+            )
+              return false;
+            if (seen.has(b.court_id)) return false;
+            seen.add(b.court_id);
+            return true;
+          });
+          courts.forEach((c) => {
+            const opt = document.createElement("option");
+            opt.value = c.court_id;
+            opt.textContent = c.court_name || "Court";
+            select.appendChild(opt);
+          });
+        } catch (e) {
+          /* silent */
+        }
       }
-    }
 
-    function logout() {
-      localStorage.removeItem('supabase_token');
-      globalThis.location.href = '/pages/login.html';
-    }
+      async function submitReview() {
+        const errDiv = document.getElementById("reviewError");
+        const sucDiv = document.getElementById("reviewSuccess");
+        errDiv.style.display = "none";
+        sucDiv.style.display = "none";
 
-    loadProfile();
-    loadMyReviews();
-    loadBookedCourts();
-  </script>
-</body>
+        const court_id = document.getElementById("reviewCourt").value;
+        const comment_text = document
+          .getElementById("reviewComment")
+          .value.trim();
+        if (!court_id) {
+          errDiv.textContent = "Please select a court.";
+          errDiv.style.display = "block";
+          return;
+        }
+        if (!selectedRating) {
+          errDiv.textContent = "Please select a rating.";
+          errDiv.style.display = "block";
+          return;
+        }
+        if (!comment_text) {
+          errDiv.textContent = "Please write a comment.";
+          errDiv.style.display = "block";
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/reviews`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+              court_id,
+              rating: selectedRating,
+              comment_text,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error);
+          sucDiv.textContent = "Review submitted successfully!";
+          sucDiv.style.display = "block";
+          document.getElementById("reviewComment").value = "";
+          setRating(0);
+          loadMyReviews();
+        } catch (err) {
+          errDiv.textContent = err.message;
+          errDiv.style.display = "block";
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("supabase_token");
+        globalThis.location.href = "/pages/login.html";
+      }
+
+      loadProfile();
+      loadMyReviews();
+      loadBookedCourts();
+    </script>
+  </body>
 </html>

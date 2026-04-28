@@ -62,3 +62,26 @@ This report summarizes how AI coding assistance was used during the FolkliyGrunt
 
 - AI was used as a development assistant, not as an autonomous decision-maker.
 - Final implementation decisions and acceptance remained with the project team.
+
+## Phase 2 Deliverable Activities (Community + Membership Evolution)
+
+7. Change Request Analysis Authoring (D3)
+
+- Activity: Broke requested features into maintenance-oriented change requests using the lecture schema.
+- AI Help: Drafted 8 CR entries with required distribution (2 corrective, 2 adaptive, 2 perfective, 2 preventive), including priority/severity/time/verification fields.
+- Output Files: D3_CHANGE_REQUESTS.md.
+- Verification: Manual check against assignment constraints and type-count requirements.
+
+8. Impact Analysis and Traceability Modeling (D4)
+
+- Activity: Produced impact analysis artifacts and traceability for feature-to-design-to-code-to-test relationships.
+- AI Help: Generated full traceability graph, affected-only graph, SLO directed dependency graph, and connectivity matrix with shortest-path distances.
+- Output Files: D4_IMPACT_ANALYSIS.md.
+- Verification: Manual cross-check with existing modules in implementations/backend and implementations/frontend.
+
+9. Maintenance Risk Categorization
+
+- Activity: Classified easy vs difficult changes and identified maintainability expectations from previous developers.
+- AI Help: Proposed risk rationale based on coupling points (booking, profile, payment, and new community modules) and concurrency-sensitive paths.
+- Output Files: D4_IMPACT_ANALYSIS.md.
+- Verification: Reviewed impact against actual current architecture (server routes, controllers, models, tests).
