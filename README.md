@@ -1,8 +1,10 @@
 # FolkliyGrunt 🏸
 
 ## Project Overview
-FolkliyGrunt is a comprehensive Badminton Court Management System built with a monolithic Node.js/Express architecture and a Vanilla HTML/CSS/JS frontend. 
+
+FolkliyGrunt is a comprehensive Badminton Court Management System built with a monolithic Node.js/Express architecture and a Vanilla HTML/CSS/JS frontend.
 The system provides robust features for managing and reserving courts:
+
 - **Authentication & Profiles**: Secure user management powered by Supabase Auth.
 - **Court Discovery**: Dynamic search by name, distance (via Haversine & OpenStreetMap Geocoding), and maximum price.
 - **Bookings & Rentals**: Safe, concurrent time-slot reservations with optional equipment rental combinations (rackets, shuttlecocks).
@@ -10,14 +12,24 @@ The system provides robust features for managing and reserving courts:
 - **Reviews**: Verified review system that recalculates dynamic court ratings upon submission.
 
 ## Setup Requirements
+
 To run this project locally, ensure you have the following installed:
+
 - **Node.js**: v20 LTS recommended.
 - **npm**: Node package manager.
 - **Supabase Account**: Specifically the provided remote project configuration.
 
+## Project Structure
+
+The implementation is now separated into two folders:
+
+- `implementations/backend`: Express API server, database models, routes, services, tests, and environment configuration.
+- `implementations/frontend`: Static HTML/CSS/JS client files served by the backend server.
+
 ## Environment Variables
+
 Before running the project, you must configure the environment keys.
-Create a file named `.env` in the `implementations` directory and include the following variables according to your Supabase and external API configurations:
+Create a file named `.env` in the `implementations/backend` directory and include the following variables according to your Supabase and external API configurations:
 
 ```env
 PORT=8080
@@ -39,9 +51,10 @@ SMTP_PASS=54420b98172a55
 ```
 
 ## Build Commands
-1. Navigate to the root implementation folder:
+
+1. Navigate to the backend folder:
    ```bash
-   cd implementations
+   cd implementations/backend
    ```
 2. Install the application dependencies:
    ```bash
@@ -49,28 +62,109 @@ SMTP_PASS=54420b98172a55
    ```
 
 ## Run Commands
+
 **Development Mode:**
 Starts the local Express server using Nodemon for hot-reloading:
+
 ```bash
 npm run dev
 ```
 
 **Production Mode:**
 Starts the local Express server appropriately:
+
 ```bash
 npm start
 ```
 
 **Testing Suite:**
 Runs the robust Jest coverage suite (mocks external APIs heavily):
+
 ```bash
 npm test
 ```
 
+## Frontend
+
+- Frontend source files are in `implementations/frontend`.
+- The backend serves the frontend at `http://localhost:8080/`.
+
+### Mode A: One Server (Recommended Default)
+
+Use backend only. It serves both frontend pages and API.
+
+```env
+ENABLE_FRONTEND=true
+```
+
+Run:
+
+```bash
+cd implementations/backend
+npm run dev
+```
+
+This gives:
+
+- Web frontend at `http://localhost:8080/`
+- API for mobile at `http://localhost:8080/api/*`
+
+### Mode B: Two Servers (Dedicated Frontend Server)
+
+Use backend for API and a separate frontend server that proxies `/api` and `/locales` to backend.
+
+1. Start backend in API mode:
+
+```env
+ENABLE_FRONTEND=false
+```
+
+```bash
+cd implementations/backend
+npm run dev
+```
+
+2. Start frontend server (new file: `implementations/frontend/server.js`):
+
+```bash
+cd implementations/backend
+npm run frontend
+```
+
+Optional frontend env vars:
+
+- `FRONTEND_PORT` (default `3000`)
+- `BACKEND_URL` (default `http://localhost:8080`)
+
+This gives:
+
+- Web frontend at `http://localhost:3000/`
+- API still available for mobile at `http://localhost:8080/api/*`
+
+## Mobile App Backend Mode
+
+For mobile app integration, you can run the backend in API-only mode (without serving web pages):
+
+```env
+ENABLE_FRONTEND=false
+```
+
+You can also restrict browser origins for API calls (comma-separated):
+
+```env
+CORS_ORIGINS=http://localhost:3000,https://your-mobile-web-preview.example
+```
+
+Useful backend endpoints for mobile clients:
+
+- `GET /api/health` - health check
+- `GET /api/meta` - API metadata and compatibility info
+
 ## Example Usage
+
 - **Default Port & Local URL:** The web service listens on port 8080 by default. Access the application at **[http://localhost:8080](http://localhost:8080)**.
 - **Frontend Dashboard**: Open `http://localhost:8080/` in your browser to view the client dashboard.
 - **Authentication Routes**: Access `http://localhost:8080/pages/login.html` and `http://localhost:8080/pages/register.html` to authenticate users securely.
-- **API Interactions**: 
-  - *Health Check*: `GET /api/health`
-  - *Search Courts*: `GET /api/courts?search=Bangkok&maxPrice=300`
+- **API Interactions**:
+  - _Health Check_: `GET /api/health`
+  - _Search Courts_: `GET /api/courts?search=Bangkok&maxPrice=300`

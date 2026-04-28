@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Search and find badminton courts in Bangkok by name, distance, or price."
+    />
+    <title>Find Courts - Pro Badminton</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <style>
+      body {
+        margin: 0;
+      }
+      .search-tabs {
+        display: flex;
+        gap: 0;
+        background: var(--pb-surface);
+        border-radius: var(--pb-radius-lg);
+        overflow: hidden;
+        border: 1px solid var(--pb-border);
+        margin-bottom: 1.5rem;
+      }
+      .search-tab {
+        flex: 1;
+        padding: 0.8rem 1rem;
+        background: transparent;
+        border: none;
+        color: var(--pb-text-muted);
+        font-family: var(--pb-font);
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+      }
+      .search-tab:hover {
+        background: var(--pb-surface-2);
+      }
+      .search-tab.active {
+        background: var(--pb-primary);
+        color: white;
+      }
+      .search-pane {
+        display: none;
+      }
+      .search-pane.active {
+        display: block;
+      }
+      .search-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: end;
+      }
+      .search-row .pb-form-group {
+        flex: 1;
+        margin-bottom: 0;
+      }
+      .court-card {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-xl);
+        overflow: hidden;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .court-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(37, 123, 244, 0.15);
+      }
+      .court-card-header {
+        background: var(--pb-gradient);
+        padding: 1.25rem;
+        position: relative;
+      }
+      .court-card-header h3 {
+        color: white;
+        font-size: 1.05rem;
+        margin: 0 0 0.3rem;
+        font-weight: 600;
+      }
+      .court-card-header .pb-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+      .court-card-body {
+        padding: 1.25rem;
+      }
+      .court-info-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--pb-text-muted);
+        font-size: 0.84rem;
+        margin-bottom: 0.5rem;
+      }
+      .court-info-row .material-symbols-outlined {
+        font-size: 1.1rem;
+        color: var(--pb-primary);
+      }
+      .court-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1.25rem 1.25rem;
+      }
+      .court-price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--pb-primary);
+      }
+      .court-price span {
+        font-size: 0.75rem;
+        color: var(--pb-text-muted);
+        font-weight: 400;
+      }
+      .results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 2rem 0 1.5rem;
+      }
+      .results-header h2 {
+        color: var(--pb-text-heading);
+        font-size: 1.3rem;
+        margin: 0;
+      }
+      .results-count {
+        color: var(--pb-text-muted);
+        font-size: 0.85rem;
+      }
+      .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: var(--pb-text-muted);
+      }
+      .no-results .material-symbols-outlined {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--pb-border);
+      }
+    </style>
+  </head>
+  <body class="pb-page">
+    <!-- Navbar -->
+    <nav class="pb-navbar">
+      <a href="/" class="pb-navbar-brand"><span>🏸</span> Pro Badminton</a>
+      <div style="display: flex; align-items: center; gap: 1.5rem">
+        <ul class="pb-nav-links">
+          <li><a href="/" data-i18n="nav.home">Home</a></li>
+          <li>
+            <a href="/pages/search.html" class="active" data-i18n="nav.search"
+              >Find Courts</a
+            >
+          </li>
+          <li><a href="/pages/community.html">Community</a></li>
+          <li>
+            <a href="/pages/my-bookings.html" data-i18n="nav.my_bookings"
+              >My Bookings</a
+            >
+          </li>
+          <li><a href="/pages/membership.html">Membership</a></li>
+          <li>
+            <a href="/pages/waitlist.html" data-i18n="nav.my_waitlist"
+              >Waitlists</a
+            >
+          </li>
+          <li><a href="/pages/reviews.html">Reviews</a></li>
+          <li><a href="/pages/login.html" data-i18n="nav.login">Login</a></li>
+        </ul>
+        <div class="pb-lang-picker">
+          <button
+            class="lang-btn active"
+            data-lang="en"
+            onclick="I18n.setLang('en')"
+          >
+            EN
+          </button>
+          <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">
+            TH
+          </button>
+          <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">
+            中文
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="pb-hero">
+      <h1 data-i18n="search.title">Find Your Perfect Court</h1>
+      <p>Search by name, distance, or price across Bangkok</p>
+    </div>
+
+    <!-- Main -->
+    <div class="pb-container" style="padding-top: 2rem; padding-bottom: 3rem">
+      <!-- Search Card -->
+      <div class="pb-card">
+        <div class="search-tabs">
+          <button
+            class="search-tab active"
+            onclick="switchSearchTab('name', this)"
+          >
+            <span class="material-symbols-outlined" style="font-size: 1.1rem"
+              >search</span
+            >
+            <span data-i18n="search.by_name">By Name</span>
+          </button>
+          <button
+            class="search-tab"
+            onclick="switchSearchTab('distance', this)"
+          >
+            <span class="material-symbols-outlined" style="font-size: 1.1rem"
+              >location_on</span
+            >
+            <span data-i18n="search.by_distance">By Distance</span>
+          </button>
+          <button class="search-tab" onclick="switchSearchTab('price', this)">
+            <span class="material-symbols-outlined" style="font-size: 1.1rem"
+              >payments</span
+            >
+            <span data-i18n="search.by_price">By Price</span>
+          </button>
+        </div>
+
+        <!-- By Name -->
+        <div class="search-pane active" id="pane-name">
+          <div class="search-row">
+            <div class="pb-form-group">
+              <label class="pb-label" data-i18n="search.by_name"
+                >Court Name</label
+              >
+              <input
+                class="pb-input"
+                type="text"
+                id="searchName"
+                placeholder="e.g. CU Sports, Manta..."
+              />
+            </div>
+            <button class="pb-btn pb-btn-primary" onclick="searchByName()">
+              <span class="material-symbols-outlined" style="font-size: 1.1rem"
+                >search</span
+              >
+              Search
+            </button>
+          </div>
+        </div>
+
+        <!-- By Distance -->
+        <div class="search-pane" id="pane-distance">
+          <div class="search-row" style="flex-wrap: wrap">
+            <div class="pb-form-group" style="flex: 0 0 auto">
+              <label class="pb-label">📍 Detect Location</label>
+              <button
+                class="pb-btn pb-btn-secondary"
+                onclick="detectLocation()"
+              >
+                Use My Location
+              </button>
+            </div>
+            <div class="pb-form-group">
+              <label class="pb-label">Latitude</label>
+              <input
+                class="pb-input"
+                type="number"
+                step="any"
+                id="searchLat"
+                placeholder="13.7563"
+              />
+            </div>
+            <div class="pb-form-group">
+              <label class="pb-label">Longitude</label>
+              <input
+                class="pb-input"
+                type="number"
+                step="any"
+                id="searchLng"
+                placeholder="100.5018"
+              />
+            </div>
+            <div class="pb-form-group" style="max-width: 120px">
+              <label class="pb-label" data-i18n="search.radius"
+                >Radius (km)</label
+              >
+              <input
+                class="pb-input"
+                type="number"
+                id="searchRadius"
+                value="5"
+                min="1"
+                max="50"
+              />
+            </div>
+            <button class="pb-btn pb-btn-primary" onclick="searchByDistance()">
+              <span class="material-symbols-outlined" style="font-size: 1.1rem"
+                >search</span
+              >
+              Search
+            </button>
+          </div>
+        </div>
+
+        <!-- By Price -->
+        <div class="search-pane" id="pane-price">
+          <div class="search-row">
+            <div class="pb-form-group" style="max-width: 200px">
+              <label class="pb-label" data-i18n="search.by_price"
+                >Max Price (฿/hr)</label
+              >
+              <input
+                class="pb-input"
+                type="number"
+                id="searchPrice"
+                value="200"
+                min="50"
+                max="1000"
+                step="10"
+              />
+            </div>
+            <button class="pb-btn pb-btn-primary" onclick="searchByPrice()">
+              <span class="material-symbols-outlined" style="font-size: 1.1rem"
+                >search</span
+              >
+              Search
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="results-header">
+        <div>
+          <h2 data-i18n="search.results">Search Results</h2>
+          <span class="results-count" id="resultsCount"></span>
+        </div>
+        <button class="pb-btn pb-btn-secondary" onclick="loadAllCourts()">
+          Show All
+        </button>
+      </div>
+      <div class="pb-grid-3" id="courtsGrid">
+        <div class="no-results" id="loadingMsg">
+          <span class="material-symbols-outlined">hourglass_top</span>
+          <span data-i18n="common.loading">Loading courts...</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/i18n.js"></script>
+    <script>
+      const API_URL = "/api";
+
+      function switchSearchTab(tab, btn) {
+        document
+          .querySelectorAll(".search-tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".search-pane")
+          .forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`pane-${tab}`).classList.add("active");
+      }
+
+      function statusBadge(status) {
+        const cls =
+          status === "AVAILABLE"
+            ? "pb-badge-available"
+            : status === "RENOVATE"
+              ? "pb-badge-renovate"
+              : "pb-badge-damaged";
+        return `<span class="pb-badge ${cls}">${status}</span>`;
+      }
+
+      function starsHtml(rating) {
+        const r = Number.parseFloat(rating) || 0;
+        const full = Math.round(r);
+        return "★".repeat(full) + "☆".repeat(5 - full);
+      }
+
+      function renderCourts(courts) {
+        const grid = document.getElementById("courtsGrid");
+        const count = document.getElementById("resultsCount");
+        if (!courts || courts.length === 0) {
+          grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><span class="material-symbols-outlined">search_off</span><p data-i18n="search.no_results">No courts found</p></div>`;
+          count.textContent = "";
+          return;
+        }
+        count.textContent = `${courts.length} court${courts.length !== 1 ? "s" : ""} found`;
+        grid.innerHTML = courts
+          .map(
+            (c) => `
+        <div class="court-card">
+          <div class="court-card-header">
+            <h3>${c.name}</h3>
+            ${statusBadge(c.current_status)}
+          </div>
+          <div class="court-card-body">
+            <div class="court-info-row">
+              <span class="material-symbols-outlined">schedule</span>
+              ${c.opening_time} – ${c.closing_time}
+            </div>
+            <div class="court-info-row">
+              <span class="material-symbols-outlined">directions_run</span>
+              Shoes: ${c.allowed_shoes || "Any"}
+            </div>
+            <div class="court-info-row">
+              <span class="material-symbols-outlined">star</span>
+              <span class="pb-stars">${starsHtml(c.avg_rating)}</span>
+              <span>(${Number.parseFloat(c.avg_rating || 0).toFixed(1)})</span>
+            </div>
+            ${c.distance_km ? `<div class="court-info-row"><span class="material-symbols-outlined">near_me</span> ${Number.parseFloat(c.distance_km).toFixed(1)} km away</div>` : ""}
+          </div>
+          <div class="court-card-footer">
+            <div class="court-price">฿${c.price_per_hour} <span>/ hr</span></div>
+            <a href="/pages/court-detail.html?id=${c.id}" class="pb-btn pb-btn-primary" style="font-size:0.82rem;padding:0.5rem 1rem">View Details</a>
+          </div>
+        </div>
+      `,
+          )
+          .join("");
+      }
+
+      async function fetchCourts(params = "") {
+        try {
+          const res = await fetch(
+            `${API_URL}/courts/search${params ? "?" + params : ""}`,
+          );
+          const courts = await res.json();
+          // Filter to only AVAILABLE for customer view (search calls findAllIncludingInactive)
+          const available = courts.filter(
+            (c) => c.current_status === "AVAILABLE",
+          );
+          renderCourts(available);
+        } catch (err) {
+          document.getElementById("courtsGrid").innerHTML =
+            `<div class="no-results" style="grid-column:1/-1"><span class="material-symbols-outlined">error</span><p>${err.message}</p></div>`;
+        }
+      }
+
+      function searchByName() {
+        const name = document.getElementById("searchName").value.trim();
+        if (!name) return loadAllCourts();
+        fetchCourts(`name=${encodeURIComponent(name)}`);
+      }
+
+      function searchByDistance() {
+        const lat = document.getElementById("searchLat").value;
+        const lng = document.getElementById("searchLng").value;
+        const radius = document.getElementById("searchRadius").value;
+        if (!lat || !lng) return;
+        fetchCourts(`lat=${lat}&lng=${lng}&radius=${radius}`);
+      }
+
+      function searchByPrice() {
+        const price = document.getElementById("searchPrice").value;
+        fetchCourts(`maxPrice=${price}`);
+      }
+
+      function detectLocation() {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition((pos) => {
+          document.getElementById("searchLat").value =
+            pos.coords.latitude.toFixed(6);
+          document.getElementById("searchLng").value =
+            pos.coords.longitude.toFixed(6);
+        });
+      }
+
+      function loadAllCourts() {
+        fetchCourts();
+      }
+
+      // Initial load
+      loadAllCourts();
+    </script>
+  </body>
+</html>

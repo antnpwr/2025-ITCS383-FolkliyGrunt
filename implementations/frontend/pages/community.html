@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Browse badminton parties, join open games, and publish a new community match."
+    />
+    <title>Community - Pro Badminton</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <style>
+      body {
+        margin: 0;
+      }
+      .hero {
+        padding: 4rem 2rem 2rem;
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #172554 45%,
+          #0f766e 100%
+        );
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            circle at 20% 20%,
+            rgba(255, 255, 255, 0.08),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 80% 0%,
+            rgba(255, 255, 255, 0.12),
+            transparent 25%
+          );
+        pointer-events: none;
+      }
+      .hero-inner {
+        max-width: 1180px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+      .hero h1 {
+        margin: 0 0 0.75rem;
+        color: #fff;
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.05;
+        font-weight: 800;
+      }
+      .hero p {
+        margin: 0;
+        color: #dbeafe;
+        max-width: 760px;
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+      .layout {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 1.5rem 2rem 3rem;
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 1.25rem;
+      }
+      .panel {
+        background: var(--pb-surface);
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-xl);
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+      }
+      .panel-header {
+        padding: 1.25rem 1.25rem 0;
+      }
+      .panel-header h2 {
+        margin: 0;
+        color: var(--pb-text-heading);
+        font-size: 1.15rem;
+      }
+      .panel-header p {
+        margin: 0.4rem 0 0;
+        color: var(--pb-text-muted);
+        font-size: 0.85rem;
+        line-height: 1.6;
+      }
+      .panel-body {
+        padding: 1.25rem;
+      }
+      .feed-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.38rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: rgba(37, 99, 235, 0.08);
+        color: var(--pb-primary);
+      }
+      .party-card {
+        border: 1px solid var(--pb-border);
+        border-radius: var(--pb-radius-lg);
+        padding: 1rem;
+        margin-bottom: 0.9rem;
+        background: var(--pb-surface-2);
+      }
+      .party-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      .party-title h3 {
+        margin: 0 0 0.35rem;
+        color: var(--pb-text-heading);
+        font-size: 1rem;
+      }
+      .party-title p {
+        margin: 0;
+        color: var(--pb-text-muted);
+        font-size: 0.84rem;
+        line-height: 1.5;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-top: 0.8rem;
+        color: var(--pb-text-muted);
+        font-size: 0.82rem;
+      }
+      .meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+      .empty {
+        padding: 2rem;
+        text-align: center;
+        color: var(--pb-text-muted);
+      }
+      .empty .material-symbols-outlined {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--pb-border);
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.9rem;
+      }
+      .form-grid .full {
+        grid-column: 1/-1;
+      }
+      .status-open {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+      }
+      .status-full {
+        background: rgba(239, 68, 68, 0.12);
+        color: #dc2626;
+      }
+      .status-cancelled {
+        background: rgba(148, 163, 184, 0.18);
+        color: #475569;
+      }
+      .join-note {
+        font-size: 0.82rem;
+        color: var(--pb-text-muted);
+        margin: 0;
+      }
+      .auth-banner {
+        padding: 0.9rem 1rem;
+        border: 1px dashed var(--pb-border);
+        border-radius: var(--pb-radius-lg);
+        background: rgba(37, 99, 235, 0.04);
+        color: var(--pb-text-muted);
+        font-size: 0.88rem;
+        line-height: 1.5;
+      }
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="pb-page">
+    <nav class="pb-navbar">
+      <a href="/" class="pb-navbar-brand"><span>🏸</span> Pro Badminton</a>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        "
+      >
+        <ul class="pb-nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/pages/search.html">Find Courts</a></li>
+          <li><a href="/pages/community.html" class="active">Community</a></li>
+          <li><a href="/pages/my-bookings.html">My Bookings</a></li>
+          <li><a href="/pages/waitlist.html">Waitlists</a></li>
+          <li><a href="/pages/reviews.html">Reviews</a></li>
+        </ul>
+        <div class="pb-lang-picker">
+          <button
+            class="lang-btn active"
+            data-lang="en"
+            onclick="I18n.setLang('en')"
+          >
+            EN
+          </button>
+          <button class="lang-btn" data-lang="th" onclick="I18n.setLang('th')">
+            TH
+          </button>
+          <button class="lang-btn" data-lang="zh" onclick="I18n.setLang('zh')">
+            中文
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <span class="badge"
+          ><span class="material-symbols-outlined" style="font-size: 1rem"
+            >groups</span
+          >
+          Community Matchmaking</span
+        >
+        <h1>Post a Party, Join a Game, Fill the Court.</h1>
+        <p>
+          Hosts can publish badminton parties with time, place, and capacity.
+          Joiners browse the feed, click Join, and the party automatically
+          switches to Full when every seat is taken.
+        </p>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Create a Party</h2>
+          <p>
+            Only logged-in hosts can publish a new community match. The feed
+            updates immediately after publish.
+          </p>
+        </div>
+        <div class="panel-body">
+          <div id="authNotice" class="auth-banner" style="display: none">
+            Sign in to create or join parties. The feed stays visible even
+            without an account.
+          </div>
+          <form id="partyForm">
+            <div class="form-grid">
+              <div class="pb-form-group full">
+                <label class="pb-label" for="partyTitle"
+                  >Announcement Title</label
+                >
+                <input
+                  class="pb-input"
+                  id="partyTitle"
+                  name="partyTitle"
+                  placeholder="Friday Night Doubles"
+                  required
+                />
+              </div>
+              <div class="pb-form-group full">
+                <label class="pb-label" for="gameName">Game</label>
+                <input
+                  class="pb-input"
+                  id="gameName"
+                  name="gameName"
+                  placeholder="Badminton Doubles"
+                  required
+                />
+              </div>
+              <div class="pb-form-group full">
+                <label class="pb-label" for="gameDateTime">Date and Time</label>
+                <input
+                  class="pb-input"
+                  id="gameDateTime"
+                  name="gameDateTime"
+                  type="datetime-local"
+                  required
+                />
+              </div>
+              <div class="pb-form-group full">
+                <label class="pb-label" for="partyLocation">Location</label>
+                <input
+                  class="pb-input"
+                  id="partyLocation"
+                  name="partyLocation"
+                  placeholder="Pro Badminton Bangkok"
+                  required
+                />
+              </div>
+              <div class="pb-form-group">
+                <label class="pb-label" for="partyCapacity">Capacity</label>
+                <input
+                  class="pb-input"
+                  id="partyCapacity"
+                  name="partyCapacity"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value="4"
+                  required
+                />
+              </div>
+              <div class="pb-form-group">
+                <label class="pb-label" for="partyDescription">Notes</label>
+                <input
+                  class="pb-input"
+                  id="partyDescription"
+                  name="partyDescription"
+                  placeholder="Bring your own racket"
+                />
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                gap: 0.75rem;
+                align-items: center;
+                margin-top: 1rem;
+                flex-wrap: wrap;
+              "
+            >
+              <button class="pb-btn pb-btn-primary" type="submit">
+                Publish Party
+              </button>
+              <p class="join-note" id="partyFormHint">
+                Posted parties appear on the feed below.
+              </p>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="feed-head">
+            <div>
+              <h2>Community Feed</h2>
+              <p>Browse open games and join before the party fills up.</p>
+            </div>
+            <button class="pb-btn pb-btn-secondary" onclick="loadFeed()">
+              Refresh
+            </button>
+          </div>
+        </div>
+        <div class="panel-body" id="feedList">
+          <div class="empty">
+            <span class="material-symbols-outlined">hourglass_top</span>Loading
+            parties...
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/i18n.js"></script>
+    <script>
+      const API_URL = "/api";
+      const token = localStorage.getItem("supabase_token");
+
+      const authHeaders = () =>
+        token
+          ? {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            }
+          : { "Content-Type": "application/json" };
+
+      async function loadProfileState() {
+        const authNotice = document.getElementById("authNotice");
+        const form = document.getElementById("partyForm");
+        if (!token) {
+          authNotice.style.display = "block";
+          form.querySelectorAll("input, button").forEach((el) => {
+            if (el.tagName !== "BUTTON" || el.type === "submit")
+              el.disabled = true;
+          });
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/auth/profile`, {
+            headers: authHeaders(),
+          });
+          if (!res.ok) throw new Error("not logged in");
+        } catch {
+          authNotice.style.display = "block";
+          form.querySelectorAll("input, button").forEach((el) => {
+            if (el.tagName !== "BUTTON" || el.type === "submit")
+              el.disabled = true;
+          });
+        }
+      }
+
+      function statusClass(status) {
+        if (status === "FULL") return "status-full";
+        if (status === "CANCELLED") return "status-cancelled";
+        return "status-open";
+      }
+
+      function formatDateTime(value) {
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+          ? value
+          : date.toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+      }
+
+      async function loadFeed() {
+        const feed = document.getElementById("feedList");
+        try {
+          const res = await fetch(`${API_URL}/community`);
+          const parties = await res.json();
+          if (!res.ok)
+            throw new Error(parties.error || "Failed to load parties");
+
+          if (!parties.length) {
+            feed.innerHTML =
+              '<div class="empty"><span class="material-symbols-outlined">groups</span>No parties yet. Be the first host.</div>';
+            return;
+          }
+
+          feed.innerHTML = parties
+            .map((party) => {
+              const isFull =
+                party.status === "FULL" ||
+                Number(party.participant_count) >= Number(party.capacity);
+              return `
+            <article class="party-card">
+              <div class="party-title">
+                <div>
+                  <h3>${party.title}</h3>
+                  <p>${party.game_name}</p>
+                </div>
+                <span class="badge ${statusClass(isFull ? "FULL" : party.status)}">${isFull ? "Full" : party.status}</span>
+              </div>
+              <div class="meta">
+                <span><span class="material-symbols-outlined" style="font-size:1rem">person</span>${party.host_name || "Host"}</span>
+                <span><span class="material-symbols-outlined" style="font-size:1rem">schedule</span>${formatDateTime(party.game_date_time)}</span>
+                <span><span class="material-symbols-outlined" style="font-size:1rem">location_on</span>${party.location}</span>
+                <span><span class="material-symbols-outlined" style="font-size:1rem">groups</span>${party.participant_count}/${party.capacity}</span>
+              </div>
+              ${party.description ? `<p class="join-note" style="margin-top:.75rem">${party.description}</p>` : ""}
+              <div class="actions">
+                <span class="join-note">${isFull ? "This party is full." : "Join now before the last slot disappears."}</span>
+                <button class="pb-btn ${isFull ? "pb-btn-secondary" : "pb-btn-primary"}" ${isFull ? "disabled" : ""} onclick="joinParty('${party.id}')">${isFull ? "Full" : "Join"}</button>
+              </div>
+            </article>
+          `;
+            })
+            .join("");
+        } catch (error) {
+          feed.innerHTML = `<div class="empty"><span class="material-symbols-outlined">error</span>${error.message}</div>`;
+        }
+      }
+
+      async function joinParty(id) {
+        if (!token) {
+          globalThis.location.href = "/pages/login.html";
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/community/${id}/join`, {
+            method: "POST",
+            headers: authHeaders(),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Join failed");
+          await loadFeed();
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      document
+        .getElementById("partyForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          if (!token) {
+            globalThis.location.href = "/pages/login.html";
+            return;
+          }
+
+          const payload = {
+            title: document.getElementById("partyTitle").value.trim(),
+            game_name: document.getElementById("gameName").value.trim(),
+            game_date_time: document.getElementById("gameDateTime").value,
+            location: document.getElementById("partyLocation").value.trim(),
+            capacity: document.getElementById("partyCapacity").value,
+            description: document
+              .getElementById("partyDescription")
+              .value.trim(),
+          };
+
+          try {
+            const res = await fetch(`${API_URL}/community`, {
+              method: "POST",
+              headers: authHeaders(),
+              body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (!res.ok)
+              throw new Error(data.error || "Failed to publish party");
+            event.target.reset();
+            document.getElementById("partyCapacity").value = 4;
+            await loadFeed();
+          } catch (error) {
+            alert(error.message);
+          }
+        });
+
+      loadProfileState();
+      loadFeed();
+    </script>
+  </body>
+</html>
