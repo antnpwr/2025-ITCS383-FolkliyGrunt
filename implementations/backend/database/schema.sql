@@ -82,6 +82,28 @@ CREATE TABLE reviews (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Community matchmaking tables
+CREATE TABLE parties (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  host_id UUID NOT NULL,  -- references Supabase auth.users.id
+  title VARCHAR(255) NOT NULL,
+  game_name VARCHAR(255) NOT NULL,
+  game_date_time TIMESTAMP NOT NULL,
+  location TEXT NOT NULL,
+  capacity INTEGER NOT NULL CHECK (capacity > 0),
+  description TEXT,
+  status VARCHAR(20) DEFAULT 'OPEN' CHECK (status IN ('OPEN', 'FULL', 'CANCELLED')),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE party_participants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  party_id UUID REFERENCES parties(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL,  -- references Supabase auth.users.id
+  joined_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE (party_id, user_id)
+);
+
 -- Performance indexes for < 2s search
 CREATE INDEX idx_courts_name ON courts(name);
 CREATE INDEX idx_courts_location ON courts(location_lat, location_lng);
@@ -100,3 +122,7 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS membership_fee_last_paid DECIMAL(1
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS membership_last_payment_method VARCHAR(20);
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS membership_last_transaction_id VARCHAR(255);
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(255);
+CREATE INDEX idx_parties_status_datetime ON parties(status, game_date_time);
+CREATE INDEX idx_parties_host ON parties(host_id, created_at);
+CREATE INDEX idx_party_participants_party ON party_participants(party_id, joined_at);
+CREATE INDEX idx_party_participants_user ON party_participants(user_id, joined_at);

@@ -75,6 +75,7 @@ app.use(`${API_PREFIX}/courts`, require("./routes/courts")); // Person 2
 // app.use('/api/bookings', require('./routes/bookings')); // Person 3
 // app.use('/api/courts', require('./routes/courts'));     // Person 2
 app.use(`${API_PREFIX}/bookings`, require("./routes/bookings")); // Person 3
+app.use(`${API_PREFIX}/community`, require("./routes/community"));
 app.use(`${API_PREFIX}/waitlist`, require("./routes/waitlist")); // Person 4
 app.use(`${API_PREFIX}/reviews`, require("./routes/reviews")); // Person 5
 app.use(`${API_PREFIX}/payments`, require("./routes/payments")); // Stripe payments & saved cards
