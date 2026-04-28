@@ -8,12 +8,19 @@ CREATE TABLE profiles (
   address TEXT,
   role VARCHAR(20) DEFAULT 'CUSTOMER' CHECK (role IN ('CUSTOMER', 'ADMIN')),
   is_disabled BOOLEAN DEFAULT FALSE,
+  is_member BOOLEAN DEFAULT FALSE,
+  membership_started_at TIMESTAMP,
+  membership_expires_at TIMESTAMP,
+  membership_fee_last_paid DECIMAL(10, 2),
+  membership_last_payment_method VARCHAR(20),
+  membership_last_transaction_id VARCHAR(255),
   credit_card_token VARCHAR(255),
   language_preference VARCHAR(5) DEFAULT 'EN' CHECK (language_preference IN ('TH', 'EN', 'ZH')),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE INDEX idx_profiles_auth_id ON profiles(auth_id);
+CREATE INDEX idx_profiles_member_active ON profiles(is_member, membership_expires_at);
 
 -- Courts table (Person 2 will use this)
 CREATE TABLE courts (
@@ -40,7 +47,8 @@ CREATE TABLE bookings (
   end_time TIMESTAMP NOT NULL,
   total_amount DECIMAL(10, 2) NOT NULL,
   booking_status VARCHAR(20) DEFAULT 'CONFIRMED' CHECK (booking_status IN ('CONFIRMED', 'CANCELLED', 'WAITLIST')),
-  payment_method VARCHAR(20) CHECK (payment_method IN ('CREDIT_CARD', 'BANK_TRANSFER')),
+  payment_method VARCHAR(20) CHECK (payment_method IN ('CREDIT_CARD', 'BANK_TRANSFER', 'PROMPTPAY')),
+  transaction_id VARCHAR(255),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -105,6 +113,15 @@ CREATE INDEX idx_bookings_user ON bookings(user_id);
 CREATE INDEX idx_bookings_court_time ON bookings(court_id, start_time, end_time);
 CREATE INDEX idx_reviews_court ON reviews(court_id);
 CREATE INDEX idx_waitlist_court ON waitlist(court_id, status);
+
+-- Idempotent compatibility updates for existing databases.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_member BOOLEAN DEFAULT FALSE;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS membership_started_at TIMESTAMP;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS membership_expires_at TIMESTAMP;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS membership_fee_last_paid DECIMAL(10, 2);
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS membership_last_payment_method VARCHAR(20);
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS membership_last_transaction_id VARCHAR(255);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(255);
 CREATE INDEX idx_parties_status_datetime ON parties(status, game_date_time);
 CREATE INDEX idx_parties_host ON parties(host_id, created_at);
 CREATE INDEX idx_party_participants_party ON party_participants(party_id, joined_at);
