@@ -141,6 +141,14 @@ This gives:
 - Web frontend at `http://localhost:3000/`
 - API still available for mobile at `http://localhost:8080/api/*`
 
+## Mobile Application
+
+A native Android mobile application has been developed as a companion client for this system. It replicates all user-facing functionalities of the web application.
+
+**Mobile App Repository:** [https://github.com/antnpwr/2025-ITCS383-FolkliyGrunt-Mobile](https://github.com/antnpwr/2025-ITCS383-FolkliyGrunt-Mobile)
+
+The mobile app implementation guide for AI assistants is available in [`MOBILE_APP_AI_PROMPT.md`](./MOBILE_APP_AI_PROMPT.md).
+
 ## Mobile App Backend Mode
 
 For mobile app integration, you can run the backend in API-only mode (without serving web pages):
