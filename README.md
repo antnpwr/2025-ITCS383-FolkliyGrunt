@@ -145,7 +145,7 @@ This gives:
 
 A native Android mobile application has been developed as a companion client for this system. It replicates all user-facing functionalities of the web application.
 
-**Mobile App Repository:** [https://github.com/antnpwr/2025-ITCS383-FolkliyGrunt-Mobile](https://github.com/antnpwr/2025-ITCS383-FolkliyGrunt-Mobile)
+**Mobile App Repository:** [https://github.com/AmTeamX/probatminton](https://github.com/AmTeamX/probatminton)
 
 The mobile app implementation guide for AI assistants is available in [`MOBILE_APP_AI_PROMPT.md`](./MOBILE_APP_AI_PROMPT.md).
 
