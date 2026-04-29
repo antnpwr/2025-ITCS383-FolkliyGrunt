@@ -692,11 +692,14 @@ For **PROMPTPAY / BANK_TRANSFER**:
 }
 ```
 
-For **CREDIT_CARD** (Stripe Checkout redirect):
+For **CREDIT_CARD** (Stripe Bypass Mode — when `STRIPE_SECRET_KEY` is not set):
+
+> Same response format as PROMPTPAY/BANK*TRANSFER. Transaction ID prefixed with `CC*`.
 
 ```json
 {
-  "checkout_url": "https://checkout.stripe.com/...",
+  "id": "uuid",
+  "transaction_id": "CC_ABC123DEF",
   "pricing": {
     "standard_rate": 200,
     "applied_rate": 200,

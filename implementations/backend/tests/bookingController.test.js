@@ -86,18 +86,14 @@ describe("bookingController", () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          checkout_url: "https://checkout.stripe.com/test",
+          transaction_id: "PP_TEST123",
           pricing: expect.objectContaining({
             total_amount: 200,
             membership_applied: false,
           }),
         }),
       );
-      expect(paymentService.getOrCreateCustomer).toHaveBeenCalledWith(
-        "user-1",
-        "test@example.com",
-      );
-      expect(paymentService.createCheckoutSession).toHaveBeenCalled();
+      expect(paymentService.processPayment).toHaveBeenCalled();
     });
 
     test("applies 150 THB member rate when user has active membership", async () => {
