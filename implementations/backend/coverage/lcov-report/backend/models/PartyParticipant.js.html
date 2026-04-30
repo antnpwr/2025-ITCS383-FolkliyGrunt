@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">20% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -106,17 +106,7 @@
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -124,11 +114,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,23 +140,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const pool = require("../config/db");
 &nbsp;
 class PartyParticipant {
-  static async add({ party_id, user_id }, dbClient = <span class="branch-0 cbranch-no" title="branch not covered" >pool)</span> {
+  static async add({ party_id, user_id }, dbClient = pool) {
     const result = await dbClient.query(
       `INSERT INTO party_participants (party_id, user_id)
        VALUES ($1, $2)
@@ -162,7 +162,7 @@ class PartyParticipant {
     return result.rows[0];
   }
 &nbsp;
-  static async exists(partyId, userId, dbClient = <span class="branch-0 cbranch-no" title="branch not covered" >pool)</span> {
+  static async exists(partyId, userId, dbClient = pool) {
     const result = await dbClient.query(
       `SELECT id FROM party_participants WHERE party_id = $1 AND user_id = $2`,
       [partyId, userId],
@@ -170,16 +170,16 @@ class PartyParticipant {
     return result.rows[0];
   }
 &nbsp;
-  static async countByParty(partyId, dbClient = <span class="branch-0 cbranch-no" title="branch not covered" >pool)</span> {
+  static async countByParty(partyId, dbClient = pool) {
     const result = await dbClient.query(
       `SELECT COUNT(*)::int AS count FROM party_participants WHERE party_id = $1`,
       [partyId],
     );
-    return result.rows[0]?.count || <span class="branch-1 cbranch-no" title="branch not covered" >0;</span>
+    return result.rows[0]?.count || 0;
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  st</span>atic async findByUser(userId) {
-    const result = <span class="cstat-no" title="statement not covered" >await pool.query(</span>
+  static async findByUser(userId) {
+    const result = await pool.query(
       `SELECT pp.*, p.title, p.game_name, p.game_date_time, p.location, p.capacity, p.status
        FROM party_participants pp
        JOIN parties p ON pp.party_id = p.id
@@ -187,7 +187,7 @@ class PartyParticipant {
        ORDER BY p.game_date_time DESC`,
       [userId],
     );
-<span class="cstat-no" title="statement not covered" >    return result.rows;</span>
+    return result.rows;
   }
 }
 &nbsp;
@@ -199,7 +199,7 @@ module.exports = PartyParticipant;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-29T17:15:46.727Z
+                at 2026-04-30T13:25:03.635Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

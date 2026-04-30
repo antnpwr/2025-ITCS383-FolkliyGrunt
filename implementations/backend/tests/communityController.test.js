@@ -80,6 +80,55 @@ describe("communityController", () => {
     });
   });
 
+  test("createParty rejects invalid game_date_time", async () => {
+    const { req, res } = mockReqRes({
+      body: {
+        title: "Friday Night",
+        game_name: "Badminton Doubles",
+        game_date_time: "invalid-date",
+        location: "Main Hall",
+        capacity: "4",
+      },
+    });
+
+    await communityController.createParty(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "game_date_time must be a valid date/time",
+    });
+  });
+
+  test("getById returns 404 when party is not found", async () => {
+    Party.findById.mockResolvedValue(null);
+
+    const { req, res } = mockReqRes({ params: { id: "missing" } });
+    await communityController.getById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "Party not found" });
+  });
+
+  test("getById returns party details when found", async () => {
+    const party = { id: "party-1", title: "Friday Night" };
+    Party.findById.mockResolvedValue(party);
+
+    const { req, res } = mockReqRes({ params: { id: "party-1" } });
+    await communityController.getById(req, res);
+
+    expect(res.json).toHaveBeenCalledWith(party);
+  });
+
+  test("joinParty returns 400 when party is closed", async () => {
+    Party.join.mockRejectedValue(new Error("Party is not open for joins"));
+
+    const { req, res } = mockReqRes({ params: { id: "party-1" } });
+    await communityController.joinParty(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "Party is not open for joins" });
+  });
+
   test("joinParty returns 409 when already joined", async () => {
     Party.join.mockRejectedValue(new Error("User already joined this party"));
 
