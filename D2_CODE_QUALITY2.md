@@ -32,7 +32,7 @@ SonarQube Issues View:
 | Reliability           | 8                | 3                | Improved         |
 | Maintainability       | 20               | 6                | Improved         |
 | Blocker               | 0                | 0                | No change        |
-| High                  | 9                | 0                | No change        |
+| High                  | 9                | 0                | Improved         |
 | Medium                | 10               | 5                | Improved         |
 | Low                   | 9                | 4                | Improved         |
 
