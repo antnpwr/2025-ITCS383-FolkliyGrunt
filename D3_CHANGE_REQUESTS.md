@@ -1,11 +1,5 @@
 # D3: Change Request Analysis
 
-Code: ITCS383  
-Name: Software Construction and Evolution  
-Updated date: 28 April 2026  
-Doc: Project Phase 2 Description  
-Version: 1.1.0
-
 ## Requested Feature Set
 
 1. Community Matchmaking (Matchmaking First, Book Later)
