@@ -57,7 +57,7 @@ describe("bookingController", () => {
 
   // ── create ───────────────────────────────────────────
   describe("create", () => {
-    test("creates booking with CREDIT_CARD and returns checkout_url", async () => {
+    test("creates booking with simulated CREDIT_CARD when BYPASS_STRIPE is true", async () => {
       const booking = {
         id: "b1",
         court_id: "c1",
@@ -93,6 +93,7 @@ describe("bookingController", () => {
           }),
         }),
       );
+      // In bypass mode, processPayment is called, not createCheckoutSession
       expect(paymentService.processPayment).toHaveBeenCalled();
     });
 

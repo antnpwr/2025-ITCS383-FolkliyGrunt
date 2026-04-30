@@ -231,6 +231,12 @@ describe("Payment Service", () => {
         "Refund failed: No such charge",
       );
     });
+
+    test("refunds REF_xxx simulated bank transfer reference", async () => {
+      const result = await paymentService.processRefund("REF_ABC123");
+      expect(result.success).toBe(true);
+      expect(result.refund_id).toBe("RE_REF_ABC123");
+    });
   });
 
   // ── getOrCreateCustomer ───────────────────────────────

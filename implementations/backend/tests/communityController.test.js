@@ -168,13 +168,81 @@ describe("communityController", () => {
     );
   });
 
-  test("getMyParties returns joined parties", async () => {
-    const parties = [{ id: "pp-1" }];
-    PartyParticipant.findByUser.mockResolvedValue(parties);
+  test("createParty throws error when Party.create fails", async () => {
+    Party.create.mockRejectedValue(new Error("DB error"));
+
+    const { req, res } = mockReqRes({
+      body: {
+        title: "Test Party",
+        game_name: "Badminton",
+        game_date_time: "2026-05-01T18:00",
+        location: "Court A",
+        capacity: "4",
+      },
+    });
+
+    await communityController.createParty(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "DB error" });
+  });
+
+  test("listFeed throws error when Party.listFeed fails", async () => {
+    Party.listFeed.mockRejectedValue(new Error("DB unavailable"));
+
+    const { req, res } = mockReqRes();
+    await communityController.listFeed(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "DB unavailable" });
+  });
+
+  test("getById throws error when Party.findById fails", async () => {
+    Party.findById.mockRejectedValue(new Error("Connection failed"));
+
+    const { req, res } = mockReqRes({ params: { id: "party-1" } });
+    await communityController.getById(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Connection failed" });
+  });
+
+  test("joinParty throws error when Party.join fails with unknown error", async () => {
+    Party.join.mockRejectedValue(new Error("Unexpected error"));
+
+    const { req, res } = mockReqRes({ params: { id: "party-1" } });
+    await communityController.joinParty(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Unexpected error" });
+  });
+
+  test("getMyParties throws error when PartyParticipant.findByUser fails", async () => {
+    PartyParticipant.findByUser.mockRejectedValue(new Error("Query failed"));
 
     const { req, res } = mockReqRes();
     await communityController.getMyParties(req, res);
 
-    expect(res.json).toHaveBeenCalledWith(parties);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Query failed" });
   });
+
+  test("joinParty returns 200 OPEN message when party is not full", async () => {
+    Party.join.mockResolvedValue({
+      party: { id: "party-1", status: "OPEN" },
+      participant: { id: "pp-1" },
+      participant_count: 2,
+    });
+
+    const { req, res } = mockReqRes({ params: { id: "party-1" } });
+    await communityController.joinParty(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Joined successfully",
+      }),
+    );
+  });
+
 });

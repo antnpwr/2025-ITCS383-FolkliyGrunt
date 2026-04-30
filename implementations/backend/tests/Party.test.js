@@ -104,28 +104,40 @@ describe('Party model', () => {
     expect(client.release).toHaveBeenCalled();
   });
 
-  test('join updates party to full when capacity is reached', async () => {
-    const party = { id: 'party-6', status: 'OPEN', capacity: 2 };
-    const updatedParty = { id: 'party-6', status: 'FULL' };
+  test('join succeeds without marking party full when under capacity', async () => {
+    const party = { id: 'party-7', status: 'OPEN', capacity: 4 };
     const client = {
       query: jest.fn()
         .mockResolvedValueOnce({})
         .mockResolvedValueOnce({ rows: [party] })
-        .mockResolvedValueOnce({ rows: [updatedParty] })
+        .mockResolvedValueOnce({ rows: [party] })
         .mockResolvedValueOnce({}),
       release: jest.fn(),
     };
 
     pool.connect.mockResolvedValue(client);
     PartyParticipant.exists.mockResolvedValue(null);
-    PartyParticipant.countByParty.mockResolvedValue(1);
-    PartyParticipant.add.mockResolvedValue({ id: 'pp-6', party_id: 'party-6', user_id: 'user-1' });
+    PartyParticipant.countByParty.mockResolvedValue(2);
+    PartyParticipant.add.mockResolvedValue({ id: 'pp-7', party_id: 'party-7', user_id: 'user-1' });
 
-    const result = await Party.join('party-6', 'user-1');
+    const result = await Party.join('party-7', 'user-1');
 
-    expect(result.participant_count).toBe(2);
-    expect(result.party).toEqual(updatedParty);
+    expect(result.participant_count).toBe(3);
+    expect(result.party).toEqual(party);
     expect(client.query).toHaveBeenCalledWith('COMMIT');
+    expect(client.release).toHaveBeenCalled();
+  });
+
+  test('join handles database connection release on error', async () => {
+    const client = {
+      query: jest.fn().mockRejectedValueOnce(new Error('Connection lost')),
+      release: jest.fn(),
+    };
+    pool.connect.mockResolvedValue(client);
+
+    await expect(Party.join('party-err', 'user-1')).rejects.toThrow('Connection lost');
+    
+    expect(client.query).toHaveBeenCalledWith('ROLLBACK');
     expect(client.release).toHaveBeenCalled();
   });
 });

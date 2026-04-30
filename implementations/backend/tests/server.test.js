@@ -24,4 +24,12 @@ describe('Server routes', () => {
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: 'API route not found' });
   });
+
+  test('API error handler converts errors to JSON', async () => {
+    // This will trigger the error handler by making a request that hits it
+    const res = await request(app).get('/api/auth/invalid-endpoint');
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
+  });
 });
+

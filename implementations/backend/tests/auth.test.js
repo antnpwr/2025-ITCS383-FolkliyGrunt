@@ -259,6 +259,49 @@ describe("Auth API Endpoints", () => {
 
       expect(response.status).toBe(401);
     });
+
+    it("should return member profile with active membership", async () => {
+      supabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "auth-uuid", email: "member@example.com" } },
+        error: null,
+      });
+
+      Profile.findByAuthId.mockResolvedValue({
+        full_name: "Member User",
+        role: "CUSTOMER",
+        is_member: true,
+        membership_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+      const response = await request(app)
+        .get("/api/auth/profile")
+        .set("Authorization", "Bearer token");
+
+      expect(response.status).toBe(200);
+      expect(response.body.profile.is_member).toBe(true);
+      expect(response.body.profile.membership.is_active).toBe(true);
+    });
+
+    it("should return member profile with expired membership", async () => {
+      supabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "auth-uuid", email: "expired@example.com" } },
+        error: null,
+      });
+
+      Profile.findByAuthId.mockResolvedValue({
+        full_name: "Expired User",
+        role: "CUSTOMER",
+        is_member: true,
+        membership_expires_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+      const response = await request(app)
+        .get("/api/auth/profile")
+        .set("Authorization", "Bearer token");
+
+      expect(response.status).toBe(200);
+      expect(response.body.profile.membership.is_active).toBe(false);
+    });
   });
 
   // ── Membership ───────────────────────────────────────
