@@ -17,7 +17,7 @@ const paymentService = {
    * Links the Stripe customer_id back to the profiles table.
    * @param {string} authId - Supabase auth user ID
    * @param {string} email  - User email
-   * @returns {string} Stripe customer ID (cus_xxx)
+   * @returns {Promise<string>} Stripe customer ID (cus_xxx)
    */
   getOrCreateCustomer: async (authId, email) => {
     // Check if user already has a Stripe customer ID

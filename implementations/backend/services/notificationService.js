@@ -27,7 +27,7 @@ const notificationService = {
    * @param {string} courtId - Court UUID
    * @param {Date} startTime - Available start time
    * @param {Date} endTime - Available end time
-   * @returns {Object|null} Notified user or null if no one waiting
+   * @returns {Promise<void>} Notified user or null if no one waiting
    */
   notifyWaitlist: async (courtId, startTime, endTime) => {
     const nextUser = await Waitlist.getNextInQueue(courtId);
