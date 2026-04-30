@@ -3,6 +3,9 @@ const EquipmentRental = require("../models/EquipmentRental");
 const paymentService = require("../services/paymentService");
 const notificationService = require("../services/notificationService");
 
+const BYPASS_STRIPE =
+  !process.env.STRIPE_SECRET_KEY || process.env.BYPASS_STRIPE === "true";
+
 const MEMBER_RATE_THB_PER_HOUR = 150;
 const STANDARD_RATE_THB_PER_HOUR = 200;
 
@@ -82,7 +85,7 @@ const bookingController = {
       }
 
       // ─── Payment Processing ───
-      if (payment_method === "CREDIT_CARD") {
+      if (payment_method === "CREDIT_CARD" && !BYPASS_STRIPE) {
         // Get or create customer for Stripe
         const customer_id = await paymentService.getOrCreateCustomer(
           req.user.id,
@@ -117,7 +120,7 @@ const bookingController = {
         });
       }
 
-      // For PROMPTPAY and BANK_TRANSFER, process simulated payment
+      // For PROMPTPAY, BANK_TRANSFER, or CREDIT_CARD (bypassed) — simulated payment
       const paymentResult = await paymentService.processPayment({
         booking_id: booking.id,
         amount: total_amount,

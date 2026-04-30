@@ -323,13 +323,14 @@
               </div>
               <div class="pb-form-group full">
                 <label class="pb-label" for="partyLocation">Location</label>
-                <input
+                <select
                   class="pb-input"
                   id="partyLocation"
                   name="partyLocation"
-                  placeholder="Pro Badminton Bangkok"
                   required
-                />
+                >
+                  <option value="" disabled selected>Loading courts...</option>
+                </select>
               </div>
               <div class="pb-form-group">
                 <label class="pb-label" for="partyCapacity">Capacity</label>
@@ -413,7 +414,7 @@
         const form = document.getElementById("partyForm");
         if (!token) {
           authNotice.style.display = "block";
-          form.querySelectorAll("input, button").forEach((el) => {
+          form.querySelectorAll("input, select, button").forEach((el) => {
             if (el.tagName !== "BUTTON" || el.type === "submit")
               el.disabled = true;
           });
@@ -427,10 +428,33 @@
           if (!res.ok) throw new Error("not logged in");
         } catch {
           authNotice.style.display = "block";
-          form.querySelectorAll("input, button").forEach((el) => {
+          form.querySelectorAll("input, select, button").forEach((el) => {
             if (el.tagName !== "BUTTON" || el.type === "submit")
               el.disabled = true;
           });
+        }
+      }
+
+      async function loadCourts() {
+        const select = document.getElementById("partyLocation");
+        try {
+          const res = await fetch(`${API_URL}/courts`);
+          const courts = await res.json();
+          if (!res.ok) throw new Error(courts.error || "Failed to load courts");
+
+          select.innerHTML = '<option value="" disabled selected>Select a court location</option>';
+          courts.forEach((court) => {
+            const option = document.createElement("option");
+            option.value = court.name;
+            option.textContent = court.name;
+            select.appendChild(option);
+          });
+
+          if (courts.length === 0) {
+            select.innerHTML = '<option value="" disabled selected>No courts available</option>';
+          }
+        } catch (error) {
+          select.innerHTML = '<option value="" disabled selected>Error loading courts</option>';
         }
       }
 
@@ -551,12 +575,15 @@
               throw new Error(data.error || "Failed to publish party");
             event.target.reset();
             document.getElementById("partyCapacity").value = 4;
+            // Re-set the location dropdown to default placeholder
+            document.getElementById("partyLocation").selectedIndex = 0;
             await loadFeed();
           } catch (error) {
             alert(error.message);
           }
         });
 
+      loadCourts();
       loadProfileState();
       loadFeed();
     </script>

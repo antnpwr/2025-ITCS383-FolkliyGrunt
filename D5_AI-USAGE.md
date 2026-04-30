@@ -4,7 +4,7 @@ This report summarizes how AI coding assistance was used during the FolkliyGrunt
 
 ## AI Tool Used
 
-- Tool: GitHub Copilot (GPT-5.3-Codex)
+- Tool: GitHub Copilot (GPT-5.3-Codex) / GLM5.1
 - Usage Scope: Planning, implementation support, refactoring, documentation updates, and validation workflow.
 
 ## Activities Where AI Was Used
@@ -99,3 +99,17 @@ This report summarizes how AI coding assistance was used during the FolkliyGrunt
 - AI Help: Proposed risk rationale based on coupling points (booking, profile, payment, and new community modules) and concurrency-sensitive paths.
 - Output Files: D4_IMPACT_ANALYSIS.md.
 - Verification: Reviewed impact against actual current architecture (server routes, controllers, models, tests).
+
+12. Impact Analysis Diagram Generation (D4)
+
+- Activity: Generated actual image files for D4 impact analysis diagrams (traceability graphs, SLO directed graph, connectivity matrix) to complement the Mermaid source diagrams.
+- AI Help: Created four diagram images using AI image generation: (1) full traceability graph connecting Requirements → Design → Code → Test, (2) affected-only traceability graph highlighting CR-01 to CR-08 impacts, (3) SLO directed dependency graph showing module-level relationships, and (4) connectivity matrix with shortest-path distances. Also added SonarQube before/after screenshots to D2 and enriched all tables with detailed explanations.
+- Output Files: picture/traceability_full.png, picture/traceability_affected.png, picture/slo_directed_graph.png, picture/connectivity_matrix.png, D4_IMPACT_ANALYSIS.md (updated), D2_CODE_QUALITY.md (updated).
+- Verification: Cross-checked diagram content against actual codebase modules in implementations/backend and implementations/frontend.
+
+13. Deliverable Document Polish and Completion
+
+- Activity: Reviewed and enhanced all deliverable documents (D2, D3, D4, D5) for completeness and assignment compliance.
+- AI Help: Added SonarQube quality rating comparison table to D2, embedded before/after SonarQube dashboard screenshots, added detailed node legends and connection tables to D4 graphs, and updated D5 with all AI-assisted activities.
+- Output Files: D2_CODE_QUALITY.md, D4_IMPACT_ANALYSIS.md, D5_AI-USAGE.md.
+- Verification: Manual review against assignment rubric requirements.
