@@ -25,7 +25,7 @@ SonarQube Issues View:
 
 | Metric                | Phase 1 (Before) | Phase 2 (After)  | Change           |
 | --------------------- | ---------------- | ---------------- | ---------------- |
-| New Issues            | 13               | 0                | Improved         |
+| New Issues            | -                | 0                | Improved         |
 | Overall Test Coverage | 95.9%            | 96.4%            | Improved         |
 | New code Test Coverage| -                | 93.88%           | Improved         |
 | Security              | 0                | 0                | No change        |
