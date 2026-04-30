@@ -1,11 +1,5 @@
 # D4: Impact Analysis
 
-Code: ITCS383  
-Name: Software Construction and Evolution  
-Updated date: 30 April 2026  
-Doc: Project Phase 2 Description  
-Version: 1.1.0
-
 ## Scope
 
 This impact analysis covers the two requested enhancements:
