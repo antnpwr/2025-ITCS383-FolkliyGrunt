@@ -10,11 +10,11 @@ const courtController = {
       if (name) {
         courts = await Court.searchByName(name);
       } else if (lat && lng && radius) {
-        courts = await Court.searchByDistance(parseFloat(lat), parseFloat(lng), parseFloat(radius));
-      } else if (maxPrice) {
-        courts = await Court.searchByPrice(parseFloat(maxPrice));
-      } else {
-        // No filters — return all courts (admin needs to see all statuses)
+          courts = await Court.searchByDistance(Number.parseFloat(lat), Number.parseFloat(lng), Number.parseFloat(radius));
+        } else if (maxPrice) {
+          courts = await Court.searchByPrice(Number.parseFloat(maxPrice));
+        } else {
+          // No filters - return all courts (admin needs to see all statuses)
         courts = await Court.findAllIncludingInactive();
       }
 
