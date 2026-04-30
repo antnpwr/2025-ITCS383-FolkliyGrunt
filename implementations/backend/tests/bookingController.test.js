@@ -8,6 +8,7 @@ const EquipmentRental = require("../models/EquipmentRental");
 const Court = require("../models/Court");
 const paymentService = require("../services/paymentService");
 const notificationService = require("../services/notificationService");
+const ORIGINAL_ENV = { ...process.env };
 const bookingController = require("../controllers/bookingController");
 
 jest.mock("../services/paymentService", () => ({
@@ -53,7 +54,10 @@ function mockReqRes(overrides = {}) {
 }
 
 describe("bookingController", () => {
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+    process.env = { ...ORIGINAL_ENV };
+  });
 
   // ── create ───────────────────────────────────────────
   describe("create", () => {
@@ -220,6 +224,58 @@ describe("bookingController", () => {
       );
     });
 
+    test("returns 500 when court is not found", async () => {
+      Booking.create.mockResolvedValue({});
+      Court.findById.mockResolvedValue(null);
+
+      const { req, res } = mockReqRes({
+        body: {
+          court_id: "missing",
+          start_time: "2025-06-01T10:00:00",
+          duration_hours: 1,
+          payment_method: "PROMPTPAY",
+        },
+      });
+
+      await bookingController.create(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Court not found" });
+      expect(paymentService.processPayment).not.toHaveBeenCalled();
+    });
+
+    test("returns 500 when rental equipment fails", async () => {
+      const booking = {
+        id: "b5",
+        court_id: "c1",
+        start_time: new Date(),
+        end_time: new Date(),
+      };
+      Booking.create.mockResolvedValue(booking);
+      Booking.updateTransactionId.mockResolvedValue(booking);
+      Court.findById.mockResolvedValue({
+        id: "c1",
+        name: "Court C",
+        price_per_hour: "200",
+      });
+      EquipmentRental.addToBooking.mockRejectedValue(new Error("Rental error"));
+
+      const { req, res } = mockReqRes({
+        body: {
+          court_id: "c1",
+          start_time: "2025-06-01T10:00:00",
+          duration_hours: 1,
+          payment_method: "BANK_TRANSFER",
+          equipment: [{ equipment_type: "RACKET", quantity: 1 }],
+        },
+      });
+
+      await bookingController.create(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Rental error" });
+    });
+
     test("returns 409 when timeslot is already booked", async () => {
       Booking.create.mockRejectedValue(
         new Error("Time slot is already booked"),
@@ -293,6 +349,27 @@ describe("bookingController", () => {
         booking,
       });
       expect(paymentService.processRefund).toHaveBeenCalledWith("PP_TEST");
+      expect(notificationService.notifyWaitlist).toHaveBeenCalled();
+    });
+
+    test("cancels booking without transaction_id and skips refund", async () => {
+      const booking = {
+        id: "b2",
+        booking_status: "CANCELLED",
+        court_id: "c1",
+        start_time: new Date(),
+        end_time: new Date(),
+      };
+      Booking.cancel.mockResolvedValue(booking);
+
+      const { req, res } = mockReqRes({ params: { id: "b2" } });
+      await bookingController.cancel(req, res);
+
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Booking cancelled, refund processed",
+        booking,
+      });
+      expect(paymentService.processRefund).not.toHaveBeenCalled();
       expect(notificationService.notifyWaitlist).toHaveBeenCalled();
     });
 
