@@ -8,7 +8,7 @@
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const pool = require("../config/db");
-const crypto = require("crypto");
+const crypto = require("node:crypto");
 
 const paymentService = {
   // ─── Stripe Customer Management ───────────────────────────────────
