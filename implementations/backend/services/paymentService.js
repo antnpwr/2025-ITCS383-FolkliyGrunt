@@ -69,7 +69,7 @@ const paymentService = {
   /**
    * Create a Setup Intent to save a card for future use
    * @param {string} customerId - Stripe customer ID
-   * @returns {Object} { client_secret }
+   * @returns {Promise<{ client_secret: string }>}
    */
   createSetupIntent: async (customerId) => {
     const setupIntent = await stripe.setupIntents.create({
@@ -98,7 +98,7 @@ const paymentService = {
    * @param {number} params.amount     - Amount in THB
    * @param {string} params.booking_id - Booking UUID (metadata)
    * @param {string} [params.payment_method_id] - Saved card pm_xxx (optional)
-   * @returns {Object} { client_secret, payment_intent_id }
+   * @returns {Promise<{ client_secret: string, payment_intent_id: string, status: string }>}
    */
   createPaymentIntent: async ({
     customerId,

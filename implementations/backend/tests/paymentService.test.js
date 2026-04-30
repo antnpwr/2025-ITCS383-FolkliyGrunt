@@ -8,6 +8,7 @@ const mockPaymentMethodsDetach = jest.fn();
 const mockPaymentIntentsCreate = jest.fn();
 const mockSetupIntentsCreate = jest.fn();
 const mockCheckoutSessionsCreate = jest.fn();
+const mockCheckoutSessionsRetrieve = jest.fn();
 
 jest.mock("stripe", () => {
   return jest.fn(() => ({
@@ -23,7 +24,7 @@ jest.mock("stripe", () => {
     },
     paymentIntents: { create: mockPaymentIntentsCreate },
     setupIntents: { create: mockSetupIntentsCreate },
-    checkout: { sessions: { create: mockCheckoutSessionsCreate } },
+    checkout: { sessions: { create: mockCheckoutSessionsCreate, retrieve: mockCheckoutSessionsRetrieve } },
   }));
 });
 
@@ -90,6 +91,53 @@ describe("Payment Service", () => {
       expect(result.transaction_id).toBe("pi_test_123");
     });
 
+    test("CREDIT_CARD with payment_method_id confirms Payment Intent immediately", async () => {
+      mockPaymentIntentsCreate.mockResolvedValue({
+        id: "pi_test_456",
+        client_secret: "pi_secret_456",
+        status: "succeeded",
+      });
+
+      const result = await paymentService.processPayment({
+        booking_id: "b6",
+        amount: 750,
+        method: "CREDIT_CARD",
+        customer_id: "cus_test",
+        payment_method_id: "pm_test_123",
+      });
+
+      expect(mockPaymentIntentsCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payment_method: "pm_test_123",
+          confirm: true,
+          off_session: true,
+        }),
+      );
+      expect(result.success).toBe(true);
+      expect(result.transaction_id).toBe("pi_test_456");
+      expect(result.status).toBe("succeeded");
+    });
+
+    test("legacy charge fallback uses Stripe charges API", async () => {
+      mockChargesCreate.mockResolvedValue({ id: "ch_test_legacy" });
+
+      const result = await paymentService.processPayment({
+        booking_id: "b7",
+        amount: 120,
+        method: "OLD_CARD",
+        credit_card_token: "tok_visa",
+      });
+
+      expect(mockChargesCreate).toHaveBeenCalledWith({
+        amount: 12000,
+        currency: "thb",
+        source: "tok_visa",
+        description: "Booking b7",
+        metadata: { booking_id: "b7", method: "OLD_CARD" },
+      });
+      expect(result.transaction_id).toBe("ch_test_legacy");
+    });
+
     test("CREDIT_CARD without customer_id returns simulated transaction", async () => {
       const result = await paymentService.processPayment({
         booking_id: "b4",
@@ -138,6 +186,37 @@ describe("Payment Service", () => {
       expect(mockRefundsCreate).toHaveBeenCalledWith({
         payment_intent: "pi_test_456",
       });
+    });
+
+    test("returns NO_TXN when transactionId is missing", async () => {
+      const result = await paymentService.processRefund();
+      expect(result.success).toBe(true);
+      expect(result.refund_id).toBe("NO_TXN");
+      expect(result.note).toBe("No transaction to refund");
+      expect(mockRefundsCreate).not.toHaveBeenCalled();
+    });
+
+    test("skips refund when checkout session has no completed payment", async () => {
+      mockCheckoutSessionsRetrieve.mockResolvedValue({ id: "cs_test_no_payment" });
+
+      const result = await paymentService.processRefund("cs_test_no_payment");
+      expect(result.success).toBe(true);
+      expect(result.refund_id).toMatch(/^SKIP_cs_test_no_payment/);
+      expect(result.note).toContain("no refund needed");
+    });
+
+    test("refunds checkout session payment intent", async () => {
+      mockCheckoutSessionsRetrieve.mockResolvedValue({
+        id: "cs_test_paid",
+        payment_intent: "pi_test_789",
+      });
+      mockRefundsCreate.mockResolvedValue({ id: "re_test_cs" });
+
+      const result = await paymentService.processRefund("cs_test_paid");
+      expect(mockRefundsCreate).toHaveBeenCalledWith({
+        payment_intent: "pi_test_789",
+      });
+      expect(result.refund_id).toBe("re_test_cs");
     });
 
     test("refunds a legacy Charge (ch_xxx)", async () => {
