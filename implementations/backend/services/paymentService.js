@@ -49,7 +49,7 @@ const paymentService = {
   /**
    * Get saved payment methods (cards) for a customer
    * @param {string} customerId - Stripe customer ID
-   * @returns {Array} List of saved cards
+   * @returns {Promise<Array>} List of saved cards
    */
   getSavedCards: async (customerId) => {
     const paymentMethods = await stripe.paymentMethods.list({
