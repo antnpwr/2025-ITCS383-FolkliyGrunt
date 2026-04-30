@@ -62,8 +62,8 @@ const courtController = {
           });
           const data = await response.json();
           if (data && data.length > 0) {
-              finalLat = parseFloat(data[0].lat);
-              finalLng = parseFloat(data[0].lon);
+              finalLat = Number.parseFloat(data[0].lat);
+              finalLng = Number.parseFloat(data[0].lon);
           }
       }
 
