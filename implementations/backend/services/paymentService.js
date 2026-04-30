@@ -8,6 +8,7 @@
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const pool = require("../config/db");
+const crypto = require("crypto");
 
 const paymentService = {
   // ─── Stripe Customer Management ───────────────────────────────────
@@ -207,7 +208,8 @@ const paymentService = {
       if (method === "CREDIT_CARD" && !customer_id) {
         return {
           success: true,
-          transaction_id: `CC_${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
+          // Generates 5 random bytes, converts to hex (10 characters), and makes it uppercase
+          transaction_id: `CC_${crypto.randomBytes(5).toString("hex").toUpperCase()}`,
           amount,
           method,
           timestamp: new Date().toISOString(),
